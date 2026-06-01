@@ -1,0 +1,295 @@
+"use client";
+
+import { useState, useContext, useRef} from "react";
+import { CartContext } from "@/app/context/CartContext";
+import BarcodeInput from "@/app/components/BarcodeInput";
+import CartTable from "@/app/components/CartTable";
+import TotalDisplay from "@/app/components/TotalDisplay";
+import Button from "@/app/components/Button";
+import { fetchProduct } from "@/app/services/productService";
+import { Product } from "@/app/types";
+import QuantityModal from "@/app/components/QuantityModal";
+import Receipt from "@/app/components/Receipt";
+import DiscountModal from "@/app/components/DiscountModal";
+import { calculateTotal } from "@/app/utils/calculateTotal";
+import generateInvoiceNumber from "@/app/utils/generateInvoiceNumber";
+import { cancelLastSale, processSale } from "@/app/services/saleService";
+import { useParams } from "next/navigation";
+import WeightModal from "@/app/components/WeightModal";
+import { printReceipt } from "@/app/services/receiptPrinter";
+
+export default function ScanPage() {
+  const [barcode, setBarcode] = useState<string>("");
+  const { cart, setCart } = useContext(CartContext)!;
+
+  // Quantity Modal State
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+
+  //Discount Modal State
+  const [discountModalOpen, setDiscountModalOpen] = useState(false);
+  const [discount, setDiscount] = useState(0);
+  const [discountType, setDiscountType] = useState<"percentage" | "fixed">(
+    "percentage",
+  );
+
+  // Weight Modal State
+  const [weightModalOpen, setWeightModalOpen] = useState(false);
+
+  // Invoice State
+  const [invoiceNo, setInvoiceNo] = useState<string>("");
+
+  // Calculate totals whenever cart or discount changes
+  const { subtotal, total, discountAmount } = calculateTotal(
+    cart,
+    discount,
+    discountType,
+  );
+
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const [loading, setLoading] = useState(false);
+  const params = useParams();
+  const outletId = params.id as string;
+
+  const handleAdd = async () => {
+    const product = await fetchProduct(barcode);
+    if (!product) return alert("Product not found");
+
+    // Open modal for ANY scan
+    setSelectedProduct(product);
+
+    if (product.weighted) {
+      setWeightModalOpen(true); // open weight modal for weighted items
+    } else {
+      setModalOpen(true); // open quantity modal for non-weighted items
+    }
+
+    setBarcode("");
+  };
+
+  // Quantity Hnadler
+  const handleConfirmQty = (qty: number) => {
+    if (!selectedProduct) return;
+
+    const existing = cart.find(
+      (item) => item.barcode === selectedProduct.barcode,
+    );
+
+    if (existing) {
+      // Add to existing quantity
+      setCart(
+        cart.map((item) =>
+          item.barcode === selectedProduct.barcode
+            ? { ...item, value: item.value + qty }
+            : item,
+        ),
+      );
+    } else {
+      // Add new item with entered qty
+      setCart([...cart, { ...selectedProduct, value: qty }]);
+    }
+
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 0);
+  };
+
+  // weight handler
+  const handleConfirmWeight = (weight: number) => {
+    if (!selectedProduct) return;
+
+    const existing = cart.find(
+      (item) => item.barcode === selectedProduct.barcode,
+    );
+
+    if (existing) {
+      setCart(
+        cart.map((item) =>
+          item.barcode === selectedProduct.barcode
+            ? { ...item, value: item.value + weight }
+            : item,
+        ),
+      );
+    } else {
+      setCart([...cart, { ...selectedProduct, value: weight }]);
+    }
+
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 0);
+  };
+
+  const handleDelete = (barcode: string) => {
+    setCart(cart.filter((item) => item.barcode !== barcode));
+  };
+
+  const handleApplyDiscount = (value: number, type: "percentage" | "fixed") => {
+    setDiscount(value);
+    setDiscountType(type);
+  };
+
+  const buildSaleRequest = () => {
+    return {
+      invoiceNo: generateInvoiceNumber(),
+      outletId: outletId,
+      date: new Date().toLocaleDateString(),
+      discountAmount: discountAmount,
+      items: cart.map((item) => ({
+        barcode: item.barcode,
+        value: item.value,
+        priceType: "RETAIL",
+      })),
+    };
+  };
+
+  const handlePay = async () => {
+    if (cart.length === 0) return;
+
+    try {
+      setLoading(true);
+
+      const saleData = buildSaleRequest();
+
+      await processSale(saleData);
+
+      const newInvoice = saleData.invoiceNo;
+      setInvoiceNo(newInvoice);
+      alert(`Payment Done\nInvoice: ${newInvoice}`);
+      await printReceipt(
+        {
+          cart,
+          subtotal,
+          discountAmount,
+          total,
+          invoiceNo: saleData.invoiceNo,
+        },
+        // "BIXOLON SPP-R310",
+        "XP-80C",
+      );
+    } catch (error: unknown) {
+      console.error(error);
+      alert("Payment Failed ❌ " + (error as Error).message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCancelLastSale = async () => {
+    const confirmed = confirm(`Are you sure you want to cancel the last sale: ${invoiceNo} ? `);
+
+    if (!confirmed) return;
+
+    try {
+      const sale = await cancelLastSale();
+      alert(`Sale ${sale.invoiceNo} cancelled successfully`);
+    } catch (err: unknown) {
+      alert("Faild to cancel sale" + (err as Error).message);
+    }
+  };
+
+  return (
+    <div className="not-print p-6 max-w-4xl mx-auto font-poppins">
+      <BarcodeInput
+        barcode={barcode}
+        setBarcode={setBarcode}
+        handleAdd={handleAdd}
+        inputRef={inputRef}
+      />
+
+      <CartTable cart={cart} onDelete={handleDelete} />
+
+      <TotalDisplay
+        discountAmount={discountAmount}
+        subtotal={subtotal}
+        total={total}
+        discount={discount}
+        discountType={discountType}
+      />
+
+      <div className="mt-4 ">
+        <Button
+          onClick={() => {
+            if (cart.length === 0 || loading) return;
+            handlePay();
+          }}
+          className="bg-blue-600 hover:bg-blue-500 text-white mr-3  rounded disabled:bg-gray-400"
+        >
+          {loading ? "Processing..." : "Pay"}
+        </Button>
+
+        <Button
+          onClick={() => setDiscountModalOpen(true)}
+          className=" mr-3 mt-4 bg-amber-500 hover:bg-amber-400 rounded text-white"
+        >
+          Discount
+        </Button>
+        <Button
+          onClick={() => {
+            setCart([]);
+            setInvoiceNo("");
+            setDiscount(0);
+          }}
+          className="bg-red-800 hover:bg-red-700"
+        >
+          Clear Cart
+        </Button>
+      </div>
+      <div className="flex items-center my-10">
+        <QuantityModal
+          isOpen={modalOpen}
+          onClose={() => {
+            setModalOpen(false);
+            setTimeout(() => {
+              inputRef.current?.focus();
+            }, 0);
+          }}
+          onConfirm={handleConfirmQty}
+          initialQty={1}
+          productName={selectedProduct?.name || ""}
+          heading="Enter Quantity"
+        />
+      </div>
+      <div className="flex items-center my-10">
+        <WeightModal
+          isOpen={weightModalOpen}
+          onClose={() => {
+            setWeightModalOpen(false);
+            setTimeout(() => {
+              inputRef.current?.focus();
+            }, 0);
+          }}
+          onConfirm={handleConfirmWeight}
+          initialWeight={null}
+          productName={selectedProduct?.name || ""}
+          heading="Enter Weight (Kg)"
+        />
+      </div>
+      <DiscountModal
+        isOpen={discountModalOpen}
+        onClose={() => setDiscountModalOpen(false)}
+        onApply={handleApplyDiscount}
+      />
+      <div
+        id="receipt-print"
+        className="flex flex-col items-start receipt-print"
+      >
+        <Receipt
+          cart={cart}
+          invoiceNo={invoiceNo}
+          subtotal={subtotal}
+          discount={discount}
+          discountType={discountType}
+          discountAmount={discountAmount}
+          total={total}
+        />
+        <button
+          onClick={handleCancelLastSale}
+          className="hover:bg-red-200 bg-red-100 text-sm  font-semibold mt-5 text-red-800 px-4 py-2 rounded-lg"
+        >
+          Cancel Last Sale
+        </button>
+      </div>
+    </div>
+  );
+}
