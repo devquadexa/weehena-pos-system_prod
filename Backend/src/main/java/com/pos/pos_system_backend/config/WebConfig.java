@@ -15,7 +15,11 @@ public class WebConfig {
             public void addCorsMappings(@Nullable CorsRegistry registry) {
                 assert registry != null;
                 registry.addMapping("/**")
-                        .allowedOrigins("http://localhost:3000")// later update with Vercel url
+                        .allowedOrigins(
+                            "http://localhost:3000",
+                            "https://weehenapos360.cloud",
+                            "https://www.weehenapos360.cloud"
+                        )
                         .allowedMethods("*")
                         .allowCredentials(true);
             }

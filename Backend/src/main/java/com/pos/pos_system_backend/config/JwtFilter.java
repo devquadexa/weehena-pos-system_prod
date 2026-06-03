@@ -23,6 +23,14 @@ public class JwtFilter implements Filter {
         System.out.println("JWT FILTER RUNNING");
         HttpServletRequest req = (HttpServletRequest) request;
 
+        String path = req.getRequestURI();
+
+        // Skip JWT check for login endpoint
+        if (path.endsWith("/auth/login")) {
+            chain.doFilter(request, response);
+            return;
+        }
+
         String auth = req.getHeader("Authorization");
 
         if (auth != null && auth.startsWith("Bearer ")) {
