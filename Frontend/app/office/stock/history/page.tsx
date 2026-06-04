@@ -1,7 +1,16 @@
 "use client";
 
+import ResponsiveDataView, {
+  ColumnDef,
+} from "@/app/components/ResponsiveDataView";
 import { StockHistoryItem } from "@/app/types/Stock";
 import { useEffect, useEffectEvent, useState } from "react";
+
+const stockBadge = (value: string | number, color: string) => (
+  <div className={`${color} p-1 rounded-lg w-20 mx-auto text-center`}>
+    {value}
+  </div>
+);
 
 export default function HistoryPage() {
   const [history, setHistory] = useState<StockHistoryItem[]>([]);
@@ -28,9 +37,48 @@ export default function HistoryPage() {
       item.productName?.toLowerCase().includes(search.toLowerCase()),
   );
 
+  const historyColumns: ColumnDef<StockHistoryItem>[] = [
+    {
+      header: "Barcode",
+      render: (h) => h.barcode,
+    },
+    {
+      header: "Product",
+      render: (h) => h.productName,
+      cardRole: "title",
+    },
+    {
+      header: "Outlet ID",
+      render: (h) => h.outletId,
+    },
+    {
+      header: "Previous Stock",
+      align: "center",
+      render: (h) => stockBadge(h.oldStock, "bg-blue-300"),
+    },
+    {
+      header: "Updated Stock",
+      align: "center",
+      render: (h) => stockBadge(h.updatedStock, "bg-amber-100"),
+    },
+    {
+      header: "Current Stock",
+      align: "center",
+      render: (h) => stockBadge(h.newStock, "bg-green-300"),
+    },
+    {
+      header: "User",
+      render: (h) => h.changedBy,
+    },
+    {
+      header: "Date",
+      render: (h) => h.changedAt,
+    },
+  ];
+
   return (
-    <div className="">
-      <h1 className="text-xl text-red-950 font-bold mb-4">
+    <div className="flex flex-col h-full min-h-0 min-w-0">
+      <h1 className="text-lg sm:text-xl text-red-950 font-bold mb-4 shrink-0">
         Stock Update History
       </h1>
       <input
@@ -39,75 +87,18 @@ export default function HistoryPage() {
         placeholder="Search by barcode or product name"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        className="mb-4 font-medium p-2 border h-8 border-gray-300 rounded w-60 focus:outline-none focus:ring-2 focus:ring-red-800 text-xs text-gray-700"
+        className="mb-4 font-medium p-2 border h-8 border-gray-300 rounded w-full sm:max-w-xs focus:outline-none focus:ring-2 focus:ring-red-800 text-xs text-gray-700 shrink-0"
       />
-      <table className="w-full border border-gray-200 text-xs">
-        <thead>
-          <tr>
-            <th className="border-gray-800 text-left text-red-900 w-30 p-2">
-              Barcode
-            </th>
-            <th className="border-gray-800 text-left text-red-900 w-60 p-2">
-              Product
-            </th>
-            <th className="border-gray-800 text-left text-red-900 w-30 p-2">
-              Outlet ID
-            </th>
-            <th className="border-gray-800 text-center text-red-900 w-30 p-2">
-              Previous Stock
-            </th>
-            <th className="border-gray-800 text-center text-red-900 w-30 p-2">
-              Updated Stock
-            </th>
-            <th className="border-gray-800 text-center text-red-900 w-30 p-2">
-              Current Stock
-            </th>
-            <th className="border-gray-800 text-left text-red-900 w-20 p-2">
-              User
-            </th>
-            <th className="border-gray-800 text-left text-red-900 w-40 p-2">
-              Date
-            </th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {filteredStockHistory.map((h: StockHistoryItem) => (
-            <tr key={h.id} className="odd:bg-gray-100 even:bg-white">
-              <td className="text-left border-gray-800 text-gray-900 font-medium p-2">
-                {h.barcode}
-              </td>
-              <td className="text-left border-gray-800 text-gray-900 font-medium p-2">
-                {h.productName}
-              </td>
-              <td className="text-left border-gray-800 text-gray-900 font-medium p-2">
-                {h.outletId}
-              </td>
-              <td className="text-center border-gray-800 text-gray-900 font-medium p-2">
-                <div className="bg-blue-300 p-1 rounded-lg w-20 mx-auto">
-                  {h.oldStock}
-                </div>
-              </td>
-              <td className="text-center border-gray-800 text-gray-900 font-medium p-2">
-                <div className="bg-amber-100 p-1 rounded-lg w-20 mx-auto">
-                  {h.updatedStock}
-                </div>
-              </td>
-              <td className="text-center border-gray-800 text-gray-900 font-medium p-2">
-                <div className="bg-green-300 p-1 rounded-lg w-20 mx-auto">
-                  {h.newStock}
-                </div>
-              </td>
-              <td className="text-left border-gray-800 text-gray-900 font-medium p-2">
-                {h.changedBy}
-              </td>
-              <td className="text-left border-gray-800 text-gray-900 font-medium p-2">
-                {h.changedAt}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div className="flex-1 min-h-0">
+        <ResponsiveDataView
+          data={filteredStockHistory}
+          columns={historyColumns}
+          getRowKey={(h) => h.id}
+          tableClassName="w-full border border-gray-200 text-xs"
+          emptyMessage="No history records match your search"
+          scrollable
+        />
+      </div>
     </div>
   );
 }

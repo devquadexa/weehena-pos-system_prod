@@ -14,7 +14,7 @@ export default async function ScanLayout({ children, params }: Props) {
   const { id } = await params;
   return (
     <PosGuard>
-      <div className="min-h-full w-full">
+      <div className="min-h-screen w-full">
         {/* Optional Header */}
         <div className="flex gap-2 bg-red-700 text-xl text-white p-4 font-semibold">
           <Link href="/" className="flex items-center gap-2">
@@ -35,7 +35,7 @@ export default async function ScanLayout({ children, params }: Props) {
           </Link>
         </div>
         {/* Page Content */}
-        <div className="p-4 bg-white">{children}</div>
+        <div className="p-4 min-h-screen bg-white">{children}</div>
       </div>
     </PosGuard>
   );

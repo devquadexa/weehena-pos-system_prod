@@ -1,12 +1,22 @@
 "use client";
 
-import { useEffect, useEffectEvent, useState } from "react";
+import { useEffect, useEffectEvent, useRef, useState } from "react";
 import Form from "next/form";
 import Button from "./Button";
 import { addStock } from "../services/stockService";
 import { fetchProduct } from "../services/productService";
 import { getUserFromToken } from "../services/userService";
 import { StockRequest } from "../types/Stock";
+import { stockSchema } from "../schemas/stockSchema";
+
+type StockFormErrors = {
+  barcode: string;
+  lowStockThresholdQty: string;
+  lowStockThresholdWeight: string;
+  outletId: string;
+  quantity: string;
+  weight: string;
+};
 
 export default function ProductForm({
   isOpen,
@@ -38,6 +48,16 @@ export default function ProductForm({
 
   const [loadingProduct, setLoadingProduct] = useState(false);
   const [productError, setProductError] = useState("");
+  const [errors, setErrors] = useState({
+    barcode: "",
+    lowStockThresholdQty: "",
+    lowStockThresholdWeight: "",
+    outletId: "",
+    quantity: "",
+    weight: "",
+  });
+  const fetchRequestId = useRef(0);
+  const barcodeDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   //Determine if barcode is enterd, if product is weighted
   const isBarcodeEntered = formData.barcode !== "";
@@ -59,25 +79,36 @@ export default function ProductForm({
     setFormData(data);
   });
 
+  const updateErrors = useEffectEvent((errors: StockFormErrors) => {
+    setErrors(errors);
+  });
+
   const loadProduct = async (barcode: string) => {
-    if (!barcode) return;
+    if (!barcode || barcode.length < 13) return;
+
+    const requestId = ++fetchRequestId.current;
 
     try {
       setLoadingProduct(true);
       setProductError("");
-      setProduct(null); // reset product info while fetching new data
+      setProduct(null);
       const data = await fetchProduct(barcode);
+
+      if (requestId !== fetchRequestId.current) return;
 
       setProduct({
         name: data.name,
         weighted: data.weighted,
       });
     } catch (err) {
+      if (requestId !== fetchRequestId.current) return;
       console.error(err);
       setProductError("Product not found");
       setProduct(null);
     } finally {
-      setLoadingProduct(false);
+      if (requestId === fetchRequestId.current) {
+        setLoadingProduct(false);
+      }
     }
   };
 
@@ -91,13 +122,25 @@ export default function ProductForm({
       [id]: value,
     }));
 
+    //Clear Errors While Typing
+    setErrors((prev) => ({
+      ...prev,
+      [id]: "",
+    }));
+
     if (id === "barcode") {
       setProduct(null);
       setProductError("");
+      fetchRequestId.current++;
 
-      // only fetch when barcode looks valid
+      if (barcodeDebounceRef.current) {
+        clearTimeout(barcodeDebounceRef.current);
+      }
+
       if (value.length >= 13) {
-        loadProduct(value);
+        barcodeDebounceRef.current = setTimeout(() => {
+          loadProduct(value);
+        }, 400);
       }
     }
   };
@@ -120,10 +163,10 @@ export default function ProductForm({
       weight: parseFloat(data.get("weight") as string) || 0,
       user: user.role,
     };
-    if (!stock.barcode || !stock.outletId) {
-      alert("Please fill in all required fields with valid values.");
-      return;
-    }
+    // if (!stock.barcode || !stock.outletId) {
+    //   alert("Please fill in all required fields with valid values.");
+    //   return;
+    // }
 
     const newStock = {
       barcode: stock.barcode,
@@ -135,22 +178,57 @@ export default function ProductForm({
       user: stock.user,
     };
 
+    const result = stockSchema.safeParse({
+      barcode: formData.barcode,
+      outletId: formData.outletId,
+      quantity: Number(formData.quantity),
+      weight: Number(formData.weight),
+      lowStockThresholdQty: Number(formData.lowStockThresholdQty),
+      lowStockThresholdWeight: Number(formData.lowStockThresholdWeight),
+      weighted: product?.weighted ?? false,
+    });
+
+    if (!result.success) {
+      console.log(result.error.flatten());
+
+      const errors = result.error.flatten().fieldErrors;
+
+      setErrors({
+        barcode: errors.barcode?.[0] || "",
+        lowStockThresholdQty: errors.lowStockThresholdQty?.[0] || "",
+        lowStockThresholdWeight: errors.lowStockThresholdWeight?.[0] || "",
+        outletId: errors.outletId?.[0] || "",
+        quantity: errors.quantity?.[0] || "",
+        weight: errors.weight?.[0] || "",
+      });
+
+      return;
+    }
+
     try {
       await addStock(newStock);
 
       setFormData({
         barcode: "",
-        lowStockThresholdQty: 0,
-        lowStockThresholdWeight: 0,
+        lowStockThresholdQty: "",
+        lowStockThresholdWeight: "",
         outletId: "",
-        quantity: 0,
-        weight: 0,
+        quantity: "",
+        weight: "",
         user: stock.user,
       });
       alert("Stock added successfully!");
       onAddSuccess?.();
       setProduct(null);
       setProductError("");
+      // setErrors({
+      //   barcode: "",
+      //   lowStockThresholdQty: "",
+      //   lowStockThresholdWeight: "",
+      //   outletId: "",
+      //   quantity: "",
+      //   weight: "",
+      // });
       onClose();
     } catch (err) {
       console.error("Failed to add stock:", err);
@@ -168,7 +246,23 @@ export default function ProductForm({
         weight: "",
         user: "",
       });
+    updateErrors({
+      barcode: "",
+      lowStockThresholdQty: "",
+      lowStockThresholdWeight: "",
+      outletId: "",
+      quantity: "",
+      weight: "",
+    });
   }, [isOpen]);
+
+  useEffect(() => {
+    return () => {
+      if (barcodeDebounceRef.current) {
+        clearTimeout(barcodeDebounceRef.current);
+      }
+    };
+  }, []);
 
   if (!isOpen) {
     return null;
@@ -176,9 +270,9 @@ export default function ProductForm({
 
   return (
     isClient && (
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center">
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
         <div
-          className="bg-white px-6 py-4 rounded-lg shadow-lg w-100"
+          className="bg-white px-4 sm:px-6 py-4 rounded-lg shadow-lg w-full max-w-lg max-h-[90vh] overflow-y-auto"
           onClick={(e) => e.stopPropagation()}
         >
           <h2 className="text-red-950 text-xl font-bold mb-4">{heading}</h2>
@@ -194,9 +288,11 @@ export default function ProductForm({
               placeholder="Barcode"
               value={formData.barcode}
               onChange={handleChange}
-              onBlur={(e) => loadProduct(e.target.value)}
               className="w-full bg-red-50 p-2 text-md text-gray-700 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-red-800"
             />
+            {errors.barcode && (
+              <p className="text-red-500 text-xs">{errors.barcode}</p>
+            )}
             {loadingProduct && (
               <p className="text-blue-500 text-xs">Loading product info...</p>
             )}
@@ -208,16 +304,6 @@ export default function ProductForm({
                 {product.name} ({product.weighted ? "Weighted" : "Unit"})
               </p>
             )}
-            {/* Outlet Id */}
-            {/* <label htmlFor="outletId">Outlet Id *</label>
-            <input
-              id="outletId"
-              name="outletId"
-              placeholder="Outlet Id"
-              value={formData.outletId}
-              onChange={handleChange}
-              className="w-full bg-red-50 p-2 text-gray-700 text-md border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-red-800"
-            /> */}
             <label htmlFor="outletId">Select Outlet*</label>
             <select
               id="outletId"
@@ -232,6 +318,10 @@ export default function ProductForm({
               <option value="Katunayake">Katunayake</option>
               {/* <option value="outlet2">Outlet 2</option> */}
             </select>
+            {errors.outletId && (
+              <p className="text-red-500 text-xs">{errors.outletId}</p>
+            )}
+
             {/* Quantity */}
             <label htmlFor="quantity">Quantity *</label>
             <input
@@ -241,10 +331,14 @@ export default function ProductForm({
               placeholder="Quantity"
               disabled={disableQty}
               value={formData.quantity}
-              min={0}
+              // min={0}
               onChange={handleChange}
               className={`w-full ${disableQty ? "bg-gray-200" : "bg-red-50"} p-2 text-gray-700 text-md border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-red-800`}
             />
+            {errors.quantity && (
+              <p className="text-red-500 text-xs">{errors.quantity}</p>
+            )}
+
             {/* Weight */}
             <label htmlFor="weight">Weight *</label>
             <input
@@ -259,6 +353,10 @@ export default function ProductForm({
               onChange={handleChange}
               className={`w-full ${disableWeight ? "bg-gray-200" : "bg-red-50"} p-2 text-gray-700 text-md border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-red-800`}
             />
+            {errors.weight && (
+              <p className="text-red-500 text-xs">{errors.weight}</p>
+            )}
+
             {/* Low Stock Threshold (Qty) */}
             <label htmlFor="lowStockThresholdQty">
               Low Stock Threshold (Qty) *
@@ -269,12 +367,17 @@ export default function ProductForm({
               name="lowStockThresholdQty"
               placeholder="Low Stock Threshold (Qty)"
               disabled={disableQty}
-              step={0.01}
-              min={0}
+              min={20}
               value={formData.lowStockThresholdQty}
               onChange={handleChange}
               className={`w-full ${disableQty ? "bg-gray-200" : "bg-red-50"} p-2 text-gray-700 text-md border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-red-800`}
             />
+            {errors.lowStockThresholdQty && (
+              <p className="text-red-500 text-xs">
+                {errors.lowStockThresholdQty}
+              </p>
+            )}
+
             {/* Low Stock Threshold (Weight) */}
             <label htmlFor="lowStockThresholdWeight">
               Low Stock Threshold (Weight) *
@@ -285,13 +388,18 @@ export default function ProductForm({
               name="lowStockThresholdWeight"
               placeholder="Low Stock Threshold (Weight)"
               step={0.01}
-              min={0}
+              min={20}
               value={formData.lowStockThresholdWeight}
               disabled={disableWeight}
               onChange={handleChange}
               className={`w-full ${disableWeight ? "bg-gray-200" : "bg-red-50"} p-2 text-gray-700 text-md border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-red-800`}
             />
-            <div className="flex justify-center gap-2 mt-4">
+            {errors.lowStockThresholdWeight && (
+              <p className="text-red-500 text-xs">
+                {errors.lowStockThresholdWeight}
+              </p>
+            )}
+            <div className="flex flex-col items-center  sm:flex-row  md:items-center sm:items-center justify-center gap-2 mt-4">
               <button
                 type="submit"
                 className="px-8 py-2 w-1/2 text-white rounded transition bg-green-900 hover:bg-green-800"

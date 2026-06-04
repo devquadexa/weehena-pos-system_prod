@@ -2,10 +2,10 @@
 
 import Button from "@/app/components/Button";
 import ProductForm from "@/app/components/ProductForm";
-import {
-  deleteProduct,
-  getProducts,
-} from "@/app/services/productService";
+import ResponsiveDataView, {
+  ColumnDef,
+} from "@/app/components/ResponsiveDataView";
+import { deleteProduct, getProducts } from "@/app/services/productService";
 import { ProductItems } from "@/app/types/Product";
 import { useEffect, useEffectEvent, useRef, useState } from "react";
 
@@ -59,28 +59,72 @@ export default function ProductPage() {
       item.name?.toLowerCase().includes(search.toLowerCase()),
   );
 
+  const productColumns: ColumnDef<ProductItems>[] = [
+    {
+      header: "Barcode",
+      render: (p) => p.barcode,
+    },
+    {
+      header: "Product Name",
+      render: (p) => p.name,
+      cardRole: "title",
+    },
+    {
+      header: "Bulk Price",
+      align: "right",
+      render: (p) => p.bulkPrice.toFixed(2),
+    },
+    {
+      header: "Retail Price",
+      align: "right",
+      render: (p) => p.retailPrice.toFixed(2),
+    },
+    {
+      header: "Pack Price",
+      align: "right",
+      render: (p) => (p.packPrice ? p.packPrice.toFixed(2) : "N/A"),
+    },
+    {
+      header: "Price per Kg",
+      align: "right",
+      render: (p) => (p.pricePerKg ? p.pricePerKg.toFixed(2) : "N/A"),
+    },
+    {
+      header: "Action",
+      align: "center",
+      cardRole: "actions",
+      render: (p) => (
+        <Button
+          onClick={() => handleDelete(p.id)}
+          className="w-full bg-red-900 hover:bg-red-700 text-white rounded"
+        >
+          Delete
+        </Button>
+      ),
+    },
+  ];
+
   return (
-    <div className="">
-      <h1 className="text-xl text-red-950 font-bold mb-4">
+    <div className="flex flex-col h-full min-h-0 min-w-0">
+      <h1 className="text-lg sm:text-xl text-red-950 font-bold mb-4 shrink-0">
         Product Management
       </h1>
 
-      <div className="relative rounded mb-4 flex gap-2 flex-wrap text-xs">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-4 text-xs shrink-0">
         <input
           id="search"
           placeholder="Search by barcode or product name"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="p-2 mb-2 border font-medium w-60  border-gray-300 text-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-red-800"
+          className="p-2 border font-medium w-full sm:max-w-xs border-gray-300 text-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-red-800"
         />
         <Button
           onClick={() => setFormOpen(true)}
-          className="absolute right-0 bg-green-900 hover:bg-green-700"
+          className="w-full sm:w-auto shrink-0 bg-green-900 hover:bg-green-700"
         >
           Add Product
         </Button>
 
-        {/* Product Form Modal */}
         <ProductForm
           isOpen={formOpen}
           onClose={() => {
@@ -94,47 +138,15 @@ export default function ProductPage() {
         />
       </div>
 
-      <table className="w-full border border-gray-300 text-xs">
-        <thead>
-          <tr className="bg-red-50">
-            <th className="text-red-900 text-left p-2 w-50">Barcode</th>
-            <th className="text-red-900 text-left p-2 w-100">Product Name</th>
-            <th className="text-red-900 text-right p-2 w-30">Bulk Price</th>
-            <th className="text-red-900 text-right p-2 w-30">Retail Price</th>
-            <th className="text-red-900 text-right p-2 w-30">Pack Price</th>
-            <th className="text-red-900 text-right p-2 w-30">Price per Kg</th>
-            <th className="text-red-900 p-2 w-fit ">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredProducts.map((p) => (
-            <tr key={p.id} className="odd:bg-white even:bg-gray-100">
-              <td className=" text-gray-950 font-medium p-2">{p.barcode}</td>
-              <td className="text-gray-950 font-medium p-2">{p.name}</td>
-              <td className="text-gray-950 font-medium p-2 text-right">
-                {p.bulkPrice.toFixed(2)}
-              </td>
-              <td className="text-gray-950 font-medium p-2 text-right">
-                {p.retailPrice.toFixed(2)}
-              </td>
-              <td className="text-gray-950 font-medium p-2 text-right">
-                {p.packPrice ? p.packPrice.toFixed(2) : "N/A"}
-              </td>
-              <td className="text-gray-950 font-medium p-2 text-right">
-                {p.pricePerKg ? p.pricePerKg.toFixed(2) : "N/A"}
-              </td>
-              <td className="text-gray-950 font-medium p-2 text-right">
-                <Button
-                  onClick={() => handleDelete(p.id)}
-                  className=" bg-red-900 hover:bg-red-700 text-white rounded"
-                >
-                  Delete
-                </Button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div className="flex-1 min-h-0">
+        <ResponsiveDataView
+          data={filteredProducts}
+          columns={productColumns}
+          getRowKey={(p) => p.id}
+          emptyMessage="No products match your search"
+          scrollable
+        />
+      </div>
     </div>
   );
 }

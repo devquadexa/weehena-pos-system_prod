@@ -20,7 +20,7 @@ export default function Receipt({
   total,
   invoiceNo,
 }: Props) {
-  const [isClient, setIsClient] = useState(false);
+  const [isClient, setIsClient] = useState(false); 
 
   // hydration fix: only render on client side
   const updateIsClient = useEffectEvent((isClient: boolean) => {

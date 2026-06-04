@@ -12,11 +12,13 @@ export default function ProductSalesModal({ isOpen, onClose, sales }: Props) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-xl w-225 max-h-[80vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+      <div className="bg-white p-4 sm:p-6 rounded-xl w-full max-w-2xl max-h-[85vh] overflow-y-auto">
         {/* Header */}
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-bold text-black">Product Sales</h2>
+        <div className="flex justify-between items-center gap-3 mb-4">
+          <h2 className="text-lg sm:text-2xl font-bold text-black">
+            Product Sales
+          </h2>
 
           <button
             onClick={onClose}
