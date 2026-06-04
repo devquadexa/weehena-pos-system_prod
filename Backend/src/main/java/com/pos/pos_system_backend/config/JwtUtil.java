@@ -1,5 +1,6 @@
 package com.pos.pos_system_backend.config;
 
+import com.pos.pos_system_backend.enums.UserRole;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -30,5 +31,21 @@ public class JwtUtil {
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
+    }
+
+
+    public String getRoleFromToken(String token) {
+        Claims claims = validateToken(token);
+        return claims.get("role", String.class);
+    }
+
+    public UserRole getRoleEnumFromToken(String token) {
+        String role = getRoleFromToken(token);
+        return UserRole.valueOf(role);
+    }
+
+    public String getUsernameFromToken(String token) {
+        Claims claims = validateToken(token);
+        return claims.getSubject();
     }
 }

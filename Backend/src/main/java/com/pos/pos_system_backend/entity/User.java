@@ -1,5 +1,6 @@
 package com.pos.pos_system_backend.entity;
 
+import com.pos.pos_system_backend.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -14,5 +15,7 @@ public class User {
 
     private String username;
     private String password;
-    private String role; // ADMIN / STAFF
+
+    @Enumerated(EnumType.STRING)
+    private UserRole role;
 }

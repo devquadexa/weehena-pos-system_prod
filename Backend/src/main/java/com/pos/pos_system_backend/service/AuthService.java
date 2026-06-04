@@ -23,7 +23,7 @@ public class AuthService {
     public String login(LoginRequest request) {
         try {
             logger.info("Login attempt for username: {}", request.getUsername());
-            
+
             // Find user by username
             User user = repo.findByUsername(request.getUsername())
                     .orElseThrow(() -> {
@@ -42,11 +42,11 @@ public class AuthService {
             }
 
             logger.info("Password matched for user: {}", user.getUsername());
-            
+
             // Generate and return JWT token
-            String token = jwtUtil.generateToken(user.getUsername(), user.getRole());
+            String token = jwtUtil.generateToken(user.getUsername(), String.valueOf(user.getRole()));
             logger.info("JWT token generated for user: {}", user.getUsername());
-            
+
             return token;
         } catch (Exception e) {
             logger.error("Login error: {}", e.getMessage(), e);

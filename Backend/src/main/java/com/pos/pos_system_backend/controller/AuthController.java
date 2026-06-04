@@ -35,4 +35,5 @@ public class AuthController {
 
         return "Welcome Admin";
     }
+
 }
