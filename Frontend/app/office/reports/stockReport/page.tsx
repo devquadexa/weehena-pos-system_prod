@@ -62,7 +62,7 @@ export default function StockReportPage() {
 
   const openProductSales = async (barcode: string) => {
     const res = await fetch(
-      `http://localhost:8080/api/reports/product-sales?barcode=${barcode}&outletId=${outlet}&date=${date}`,
+      `https://weehenapos360.cloud/api/reports/product-sales?barcode=${barcode}&outletId=${outlet}&date=${date}`,
     );
 
     const data = await res.json();

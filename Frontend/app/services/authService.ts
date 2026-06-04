@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:8080/api/auth";
+const API_URL = "https://weehenapos360.cloud/api/auth";
 
 export const getUser = async (username: string, password: string) => {
   try {

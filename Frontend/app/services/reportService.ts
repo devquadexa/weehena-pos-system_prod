@@ -1,6 +1,6 @@
 import { DayEndStockReport, reportData, SoldItemReport } from "../types/Report";
 
-const API_URL = "http://localhost:8080/api/reports";
+const API_URL = "https://weehenapos360.cloud/api/reports";
 
 export const getDailyReport = async (date: string, outletId: string): Promise<reportData[]> => {
   const url = `${API_URL}/daily?date=${date}&outletId=${outletId}`;

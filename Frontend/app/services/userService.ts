@@ -1,7 +1,7 @@
 import { jwtDecode } from "jwt-decode";
 import { UserRequest } from "../types/User";
 
-const API_URL = "http://localhost:8080/api/users";
+const API_URL = "https://weehenapos360.cloud/api/users";
 
 export interface JwtPayload {
   exp: number;
