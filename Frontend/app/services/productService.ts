@@ -1,7 +1,7 @@
 import { Product } from "../types";
 import { ProductItems, ProductRequest } from "../types/Product";
 
-const API_URL = "http://localhost:8080/api/products";
+const API_URL = "https://weehenapos360.cloud/api/products";
 
 // Get all products
 export const getProducts = async (): Promise<ProductItems[]> => {

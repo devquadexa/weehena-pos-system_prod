@@ -18,7 +18,7 @@ export default function HistoryPage() {
   const [search, setSearch] = useState("");
 
   const loadHistory = async () => {
-    const res = await fetch("http://localhost:8080/api/stock/history");
+    const res = await fetch("https://weehenapos360.cloud/api/stock/history");
     const data = await res.json();
     setHistory(Array.isArray(data) ? data : []);
   };
