@@ -12,6 +12,9 @@ import WeightModal from "@/app/components/WeightModal";
 import StockForm from "@/app/components/StockForm";
 import { getUserFromToken } from "@/app/services/userService";
 import { StockItem } from "@/app/types/Stock";
+import ResponsiveDataView, {
+  ColumnDef,
+} from "@/app/components/ResponsiveDataView";
 
 export default function StockPage() {
   const [stockList, setStockList] = useState<StockItem[]>([]);
@@ -102,6 +105,92 @@ export default function StockPage() {
       alert("Failed to update stock");
     }
   };
+  const stockRowClass = (item: StockItem) =>
+    item.weight < item.lowStockThresholdWeight ||
+    item.quantity < item.lowStockThresholdQty
+      ? "bg-red-300"
+      : "";
+
+  const stockColumns: ColumnDef<StockItem>[] = [
+    {
+      header: "Barcode",
+      render: (item) => item.barcode,
+    },
+    {
+      header: "Product",
+      render: (item) => item.productName,
+      cardRole: "title",
+    },
+    {
+      header: "Quantity",
+      align: "center",
+      render: (item) => (
+        <div
+          onClick={() => {
+            if (!item.weighted) handleQtyClick(item);
+          }}
+          className={`text-center px-3 py-1 rounded font-semibold ${
+            item.weighted
+              ? "text-gray-800 cursor-not-allowed"
+              : "bg-blue-200 hover:bg-blue-100 cursor-pointer text-blue-900"
+          }`}
+        >
+          {item.quantity ? item.quantity : "N/A"}
+        </div>
+      ),
+    },
+    {
+      header: "Weight",
+      align: "center",
+      render: (item) => (
+        <div
+          onClick={() => {
+            if (item.weighted) handleWeightClick(item);
+          }}
+          className={`text-center px-3 py-1 rounded font-semibold ${
+            item.weighted
+              ? "bg-blue-200 hover:bg-blue-100 cursor-pointer text-blue-900"
+              : "text-gray-800 cursor-not-allowed"
+          }`}
+        >
+          {item.weight ? item.weight.toFixed(2) : "N/A"}
+        </div>
+      ),
+    },
+    {
+      header: "Outlet",
+      align: "center",
+      render: (item) => item.outletId,
+    },
+    {
+      header: "Low Stock Threshold Qty",
+      align: "center",
+      render: (item) =>
+        item.lowStockThresholdQty ? item.lowStockThresholdQty : "N/A",
+    },
+    {
+      header: "Low Stock Threshold Weight",
+      align: "center",
+      render: (item) =>
+        item.lowStockThresholdWeight
+          ? item.lowStockThresholdWeight.toFixed(2)
+          : "N/A",
+    },
+    {
+      header: "Action",
+      align: "center",
+      cardRole: "actions",
+      render: (item) => (
+        <Button
+          onClick={() => handleDelete(item.id)}
+          className="w-full bg-red-800 text-white rounded hover:bg-red-700"
+        >
+          Delete
+        </Button>
+      ),
+    },
+  ];
+
   const handleConfirmValueforWeight = async (value: number) => {
     if (!selectedStock) return;
 
@@ -128,28 +217,28 @@ export default function StockPage() {
   };
 
   return (
-    <div className="relative text-xs">
-      <h1 className="text-xl text-red-950 font-bold mb-4">Stock Management</h1>
+    <div className="flex flex-col h-full min-h-0 min-w-0 text-xs">
+      <h1 className="text-lg sm:text-xl text-red-950 font-bold mb-4 shrink-0">
+        Stock Management
+      </h1>
 
-      <div className="">
-        {/* Search */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-4 shrink-0">
         <input
           id="search"
           placeholder="Search by barcode, product name or outlet ID"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="p-2 border w-74  border-gray-300 text-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-red-800"
+          className="p-2 border w-full sm:max-w-md border-gray-300 text-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-red-800"
         />
         <Button
           onClick={() => setFormOpen(true)}
-          className="absolute right-0 bg-green-900 hover:bg-green-700 text-white px-4 rounded"
+          className="w-full sm:w-auto shrink-0 bg-green-900 hover:bg-green-700 text-white px-4 rounded"
         >
           Add Stock
         </Button>
       </div>
 
-      {/* Add Stock */}
-      <div className="rounded mb-6 flex gap-2 flex-wrap">
+      <div className="rounded mb-6 flex gap-2 flex-wrap shrink-0">
         <StockForm
           onClose={() => {
             setFormOpen(false);
@@ -163,101 +252,17 @@ export default function StockPage() {
         />
       </div>
 
-      {/* Stock Table */}
-      <table className="w-full border border-gray-300 text-xs">
-        <thead>
-          <tr className="bg-red-50">
-            <th className="text-left text-red-900 w-40 p-2">
-              Barcode
-            </th>
-            <th className="text-left text-red-900 w-90 p-2">Product</th>
-            <th className="text-center text-red-900 w-30 p-2">Quantity</th>
-            <th className="text-center text-red-900 w-30 p-2 mx-auto">
-              Weight
-            </th>
-            <th className="text-center text-red-900 p-2 w-30">Outlet</th>
-            <th className="text-center text-red-900 w-30 p-2 mx-auto">
-              Low Stock Threshold Qty
-            </th>
-            <th className="text-center text-red-900 w-40 p-2 mx-auto">
-              Low Stock Threshold Weight
-            </th>
-
-            <th className="text-center text-red-900 w-20 p-2">Action</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {filteredStock.map((item) => (
-            <tr
-              key={item.id}
-              className={`${item.weight < item.lowStockThresholdWeight ? "bg-red-300" : ""} ${item.quantity < item.lowStockThresholdQty ? "bg-red-300" : ""} border border-gray-300`}
-            >
-              <td className="text-left text-gray-800 font-medium p-2 w-40">
-                {item.barcode}
-              </td>
-              <td className=" text-gray-800 font-medium p-2 w-90">
-                {item.productName}
-              </td>
-
-              {/* Editable Quantity */}
-              <td className="border-gray-800 p-2 w-30">
-                <div
-                  onClick={() => {
-                    if (!item.weighted) {
-                      handleQtyClick(item);
-                    }
-                  }}
-                  className={`text-center px-3 py-1 rounded font-semibold ${
-                    item.weighted
-                      ? " text-gray-800 cursor-not-allowed"
-                      : "bg-blue-200 hover:bg-blue-100 cursor-pointer text-blue-900"
-                  }`}
-                >
-                  {item.quantity ? item.quantity : "N/A"}
-                </div>
-              </td>
-              <td className="p-2 w-30">
-                <div
-                  onClick={() => {
-                    if (item.weighted) {
-                      handleWeightClick(item);
-                    }
-                  }}
-                  className={`text-center px-3 py-1 rounded font-semibold ${
-                    item.weighted
-                      ? "bg-blue-200 hover:bg-blue-100 cursor-pointer text-blue-900"
-                      : " text-gray-800 cursor-not-allowed"
-                  }`}
-                >
-                  {item.weight ? item.weight.toFixed(2) : "N/A"}
-                </div>
-              </td>
-
-              <td className="  text-center text-gray-800 font-medium p-2 w-30">
-                {item.outletId}
-              </td>
-              <td className="  text-center text-gray-800 font-medium p-2 w-40">
-                {item.lowStockThresholdQty ? item.lowStockThresholdQty : "N/A"}
-              </td>
-              <td className="  text-center text-gray-800 font-medium  p-2 w-40">
-                {item.lowStockThresholdWeight
-                  ? item.lowStockThresholdWeight.toFixed(2)
-                  : "N/A"}
-              </td>
-
-              <td className="w-20 p-2">
-                <Button
-                  onClick={() => handleDelete(item.id)}
-                  className=" bg-red-800 text-white mx-auto  rounded hover:bg-red-700"
-                >
-                  Delete
-                </Button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div className="flex-1 min-h-0">
+        <ResponsiveDataView
+          data={filteredStock}
+          columns={stockColumns}
+          getRowKey={(item) => item.id}
+          getRowClassName={stockRowClass}
+          emptyMessage="No stock items match your search"
+          scrollable
+          hideHeader={modalOpen || weightModalOpen}
+        />
+      </div>
       {selectedStock ? (
         selectedStock.weighted ? (
           <WeightModal

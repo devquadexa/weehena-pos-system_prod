@@ -3,6 +3,9 @@
 import { useEffect, useState } from "react";
 import { getDailyReport, getSoldItems } from "@/app/services/reportService";
 import Button from "@/app/components/Button";
+import ResponsiveDataView, {
+  ColumnDef,
+} from "@/app/components/ResponsiveDataView";
 import { getStock } from "@/app/services/stockService";
 import { reportData, SoldItemReport } from "@/app/types/Report";
 
@@ -48,6 +51,33 @@ export default function ReportPage() {
     0,
   );
 
+  const salesColumns: ColumnDef<SoldItemReport>[] = [
+    {
+      header: "Barcode",
+      render: (item) => item.barcode,
+    },
+    {
+      header: "Item Name",
+      render: (item) => item.itemName,
+      cardRole: "title",
+    },
+    {
+      header: "Qty",
+      align: "center",
+      render: (item) => item.saleQty?.toFixed(2),
+    },
+    {
+      header: "Sale Price",
+      align: "right",
+      render: (item) => item.salePrice?.toFixed(2),
+    },
+    {
+      header: "Sale Value",
+      align: "right",
+      render: (item) => item.saleValue?.toFixed(2),
+    },
+  ];
+
   const printReport = () => {
     document.body.classList.add("printing-report");
 
@@ -62,24 +92,25 @@ export default function ReportPage() {
   };
 
   return (
-    <div className="text-black ">
-      <h1 className="text-xl text-red-950 font-bold mb-4">Daily Reports</h1>
+    <div className="text-black min-w-0">
+      <h1 className="text-lg sm:text-xl text-red-950 font-bold mb-4">
+        Daily Reports
+      </h1>
 
-      {/* Controls */}
-      <div className="flex gap-2 mb-10">
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center mb-6 sm:mb-10">
         <input
           id="date"
           type="date"
           value={date}
           onChange={(e) => setDate(e.target.value)}
-          className="border-2 border-red-900 text-red-900 font-medium rounded p-2 "
+          className="w-full sm:w-auto border-2 border-red-900 text-red-900 font-medium rounded p-2"
         />
 
         <select
           id="outletId"
           value={outlet}
           onChange={(e) => setOutlet(e.target.value)}
-          className="border-2 border-red-900 text-red-900 font-medium rounded p-2 "
+          className="w-full sm:w-auto border-2 border-red-900 text-red-900 font-medium rounded p-2"
         >
           {outlets.map((id) => (
             <option key={id} value={id} className="bg-red-50 text-gray-800">
@@ -90,7 +121,7 @@ export default function ReportPage() {
 
         <Button
           onClick={handleFetchDailyReport}
-          className="bg-red-700 hover:bg-red-600 text-white px-4 py-2"
+          className="w-full sm:w-auto bg-red-700 hover:bg-red-600 text-white px-4 py-2"
         >
           Generate Daily Report
         </Button>
@@ -101,12 +132,12 @@ export default function ReportPage() {
 
       {/* Table */}
       {!loading && reports.length > 0 && salesItems.length > 0 && (
-        <div id="report-print" className="mx-auto rounded">
+        <div id="report-print" className="mx-auto rounded min-w-0">
           <div className="text-gray-800 my-5 font-semibold">
-            <h1 className="text-2xl">
+            <h1 className="text-xl sm:text-2xl wrap-break-word">
               Sales Report of {outlet || "All Outlets"}
             </h1>
-            <h4 className="text-gray-800 text-lg">{date}</h4>
+            <h4 className="text-gray-800 text-base sm:text-lg">{date}</h4>
             <p className="text-sm text-gray-800">
               Generated at: {new Date().toLocaleTimeString()}
             </p>
@@ -116,48 +147,20 @@ export default function ReportPage() {
             <h1 className="text-lg">Sales Items</h1>
           </div>
 
-          <table className="w-full border border-gray-300 text-sm  mt-2 print:w-full">
-            <thead>
-              <tr>
-                <th className="bg-gray-200 border border-gray-800 text-left text-gray-950 w-40 p-2">
-                  Barcode
-                </th>
-                <th className="bg-gray-200 border border-gray-800 text-left text-gray-950 w-50 p-2">
-                  Item Name
-                </th>
-                <th className="bg-gray-200 border border-gray-800 text-center text-gray-950 w-30 p-2">
-                  Qty
-                </th>
-                <th className="bg-gray-200 border border-gray-800 text-right text-gray-950 w-30 p-2">
-                  Sale Price
-                </th>
-                <th className="bg-gray-200 border border-gray-800 text-right text-gray-950 w-30 p-2">
-                  Sale Value
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {salesItems.map((item, index) => (
-                <tr key={index}>
-                  <td className="border text-left border-gray-800 text-gray-900 font-medium w-40 p-2">
-                    {item.barcode}
-                  </td>
-                  <td className="border text-left border-gray-800 text-gray-900 font-medium w-50 p-2">
-                    {item.itemName}
-                  </td>
-                  <td className="border text-center border-gray-800 text-gray-900 font-medium w-30 p-2">
-                    {item.saleQty?.toFixed(2)}
-                  </td>
-                  <td className="border text-right border-gray-800 text-gray-900 font-medium w-30 p-2">
-                    {item.salePrice?.toFixed(2)}
-                  </td>
-                  <td className="border text-right border-gray-800 text-gray-900 font-medium w-30 p-2">
-                    {item.saleValue?.toFixed(2)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <ResponsiveDataView
+            data={salesItems}
+            columns={salesColumns.map((col) => ({
+              ...col,
+              headerClassName:
+                "bg-gray-200 border border-gray-800 text-gray-950",
+              cellClassName: "border border-gray-800",
+            }))}
+            getRowKey={(_, index) => index}
+            tableClassName="w-full border border-gray-300 text-sm mt-2"
+            headerRowClassName=""
+            striped={false}
+            emptyMessage="No sales items"
+          />
 
           <div className="text-gray-800 mt-6  font-semibold">
             <h1 className="text-lg">Sales Summary</h1>
@@ -166,7 +169,7 @@ export default function ReportPage() {
           {reports.map((r, i) => (
             <div
               key={i}
-              className="w-fit p-4 rounded text-sm text-gray-900 font-medium mt-4"
+              className="w-full max-w-md p-4 rounded text-sm text-gray-900 font-medium mt-4"
             >
               <div className="grid grid-cols-2 gap-y-3 gap-x-6 text-sm">
                 <span className="text-gray-700 font-semibold">Date :</span>
@@ -221,7 +224,7 @@ export default function ReportPage() {
       {reports.length > 0 && salesItems.length > 0 && (
         <Button
           onClick={printReport}
-          className="mt-4 print:hidden bg-green-800 hover:bg-green-700 text-white px-4 py-2"
+          className="mt-4 w-full sm:w-auto print:hidden bg-green-800 hover:bg-green-700 text-white px-4 py-2"
         >
           Print Report
         </Button>

@@ -53,8 +53,13 @@ export default function ScanPage() {
   const outletId = params.id as string;
 
   const handleAdd = async () => {
-    const product = await fetchProduct(barcode);
-    if (!product) return alert("Product not found");
+    let product: Product;
+    try {
+      product = await fetchProduct(barcode);
+    } catch {
+      alert("Product not found");
+      return;
+    }
 
     // Open modal for ANY scan
     setSelectedProduct(product);
@@ -176,7 +181,7 @@ export default function ScanPage() {
   };
 
   const handleCancelLastSale = async () => {
-    const confirmed = confirm(`Are you sure you want to cancel the last sale: ${invoiceNo} ? `);
+    const confirmed = confirm("Are you sure you want to cancel the last sale?");
 
     if (!confirmed) return;
 

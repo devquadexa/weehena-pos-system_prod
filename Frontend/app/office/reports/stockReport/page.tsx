@@ -7,6 +7,9 @@ import { getStock } from "@/app/services/stockService";
 import { DayEndStockReport } from "@/app/types/Report";
 import { ProductSaleData } from "@/app/types/Sale";
 import ProductSaleModal from "@/app/components/ProductSaleModal";
+import ResponsiveDataView, {
+  ColumnDef,
+} from "@/app/components/ResponsiveDataView";
 
 export default function StockReportPage() {
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
@@ -69,24 +72,68 @@ export default function StockReportPage() {
     setShowModal(true);
   };
 
+  const stockReportColumns: ColumnDef<DayEndStockReport>[] = [
+    {
+      header: "Barcode",
+      render: (item) => item.barcode,
+    },
+    {
+      header: "Product Name",
+      render: (item) => item.productName,
+      cardRole: "title",
+    },
+    {
+      header: "Opening Stock",
+      align: "right",
+      render: (item) => item.openingStock.toFixed(2),
+    },
+    {
+      header: "Stock In",
+      align: "right",
+      render: (item) => (
+        <div className="bg-amber-100 text-amber-900 rounded px-2 py-1">
+          {item.stockIn.toFixed(2)}
+        </div>
+      ),
+    },
+    {
+      header: "Stock Out",
+      align: "right",
+      render: (item) => (
+        <div
+          onClick={() => openProductSales(item.barcode)}
+          className="bg-green-100 hover:bg-green-200 text-green-900 rounded px-2 py-1 cursor-pointer"
+        >
+          {item.stockOut.toFixed(2)}
+        </div>
+      ),
+    },
+    {
+      header: "Closing Stock",
+      align: "right",
+      render: (item) => item.closingStock.toFixed(2),
+    },
+  ];
+
   return (
-    <div className="text-black ">
-      <h1 className="text-xl text-red-950 font-bold mb-4">Daily Reports</h1>
-      {/* Controls */}
-      <div className="flex gap-2 mb-10">
+    <div className="text-black min-w-0">
+      <h1 className="text-lg sm:text-xl text-red-950 font-bold mb-4">
+        Day-End Stock Report
+      </h1>
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center mb-6 sm:mb-10">
         <input
           id="date"
           type="date"
           value={date}
           onChange={(e) => setDate(e.target.value)}
-          className="border-2 border-red-900 text-red-900 font-medium rounded p-2 "
+          className="w-full sm:w-auto border-2 border-red-900 text-red-900 font-medium rounded p-2"
         />
 
         <select
           id="outletId"
           value={outlet}
           onChange={(e) => setOutlet(e.target.value)}
-          className="border-2 border-red-900 text-red-900 font-medium rounded p-2 "
+          className="w-full sm:w-auto border-2 border-red-900 text-red-900 font-medium rounded p-2"
         >
           {outlets.map((id) => (
             <option key={id} value={id} className="bg-red-50 text-gray-800">
@@ -97,7 +144,7 @@ export default function StockReportPage() {
 
         <Button
           onClick={handleFetchStockReport}
-          className="bg-red-700 hover:bg-red-600 text-white px-4 py-2"
+          className="w-full sm:w-auto bg-red-700 hover:bg-red-600 text-white px-4 py-2"
         >
           Generate Day-End Stock Report
         </Button>
@@ -106,12 +153,12 @@ export default function StockReportPage() {
       {loading && <p>Loading...</p>}
       {/* Table */}
       {!loading && reports.length > 0 && (
-        <div id="report-print" className="mx-auto rounded">
+        <div id="report-print" className="mx-auto rounded min-w-0">
           <div className="text-gray-800 my-5 font-semibold">
-            <h1 className="text-2xl">
+            <h1 className="text-xl sm:text-2xl wrap-break-word">
               Day-End Stock Report of {outlet || "All Outlets"}
             </h1>
-            <h4 className="text-gray-800 text-lg">{date}</h4>
+            <h4 className="text-gray-800 text-base sm:text-lg">{date}</h4>
             <p className="text-sm text-gray-800">
               Generated at: {new Date().toLocaleTimeString()}
             </p>
@@ -121,63 +168,20 @@ export default function StockReportPage() {
             <h1 className="text-lg">Stock Items</h1>
           </div>
 
-          <table className="w-full text-sm  mt-2 print:w-full">
-            <thead>
-              <tr>
-                <th className="bg-gray-200 border border-gray-800 text-left text-gray-900 w-40 p-2">
-                  Barcode
-                </th>
-                <th className="bg-gray-200 border border-gray-800 text-left text-gray-900 w-100 p-2">
-                  Product Name
-                </th>
-                <th className="bg-gray-200 border border-gray-800 text-center text-gray-900 w-40 p-2">
-                  Opening Stock
-                </th>
-                <th className="bg-gray-200 border border-gray-800 text-center text-gray-900 w-30 p-2">
-                  Stock In
-                </th>
-                <th className="bg-gray-200 border border-gray-800 text-center text-gray-900 w-30 p-2">
-                  Stock Out
-                </th>
-                <th className="bg-gray-200 border border-gray-800 text-center text-gray-900 w-30 p-2">
-                  Closing Stock
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {reports.map((item, index) => (
-                <tr key={index}>
-                  <td className="border text-left border-gray-800 text-gray-900 font-medium w-40 p-2">
-                    {item.barcode}
-                  </td>
-                  <td className="border text-left border-gray-800 text-gray-900 font-medium w-50 p-2">
-                    {item.productName}
-                  </td>
-                  <td className="border text-right border-gray-800 text-gray-900 font-medium w-30 p-2">
-                    {item.openingStock.toFixed(2)}
-                  </td>
-                  <td className="border text-right border-gray-800 text-gray-900 font-medium w-30 p-2">
-                    <div className="bg-amber-100 text-amber-900 rounded px-2 py-1">
-                      {item.stockIn.toFixed(2)}
-                    </div>
-                  </td>
-                  <td className="border text-right border-gray-800 text-gray-900 font-medium w-30 p-2">
-                    <div
-                      onClick={() => {
-                        openProductSales(item.barcode);
-                      }}
-                      className="bg-green-100 hover:bg-green-200 text-green-900 rounded px-2 py-1 cursor-pointer"
-                    >
-                      {item.stockOut.toFixed(2)}
-                    </div>
-                  </td>
-                  <td className="border text-right  border-gray-800 text-gray-900 font-medium w-30 p-2">
-                    {item.closingStock.toFixed(2)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <ResponsiveDataView
+            data={reports}
+            columns={stockReportColumns.map((col) => ({
+              ...col,
+              headerClassName:
+                "bg-gray-200 border border-gray-800 text-gray-900",
+              cellClassName: "border border-gray-800",
+            }))}
+            getRowKey={(_, index) => index}
+            tableClassName="w-full text-sm mt-2 border border-gray-300"
+            headerRowClassName=""
+            striped={false}
+            emptyMessage="No stock report items"
+          />
         </div>
       )}
 
@@ -198,7 +202,7 @@ export default function StockReportPage() {
       {reports.length > 0 && (
         <Button
           onClick={printReport}
-          className="mt-4 print:hidden bg-green-800 hover:bg-green-700 text-white px-4 py-2"
+          className="mt-4 w-full sm:w-auto print:hidden bg-green-800 hover:bg-green-700 text-white px-4 py-2"
         >
           Print Report
         </Button>

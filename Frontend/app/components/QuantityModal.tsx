@@ -53,7 +53,7 @@ export default function QuantityModal({
   return (
     isClient && (
       <div
-        className="fixed inset-0 rounded-2xl bg-black/50 backdrop-blur-sm   items-center justify-center w-full flex mx-auto transition-all duration-200 font-poppins"
+        className="fixed inset-0 z-50 rounded-2xl bg-black/50 backdrop-blur-sm items-center justify-center w-full flex mx-auto transition-all duration-200 font-poppins"
         onClick={onClose}
       >
         <div
