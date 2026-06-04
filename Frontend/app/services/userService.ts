@@ -4,6 +4,7 @@ import { UserRequest } from "../types/User";
 const API_URL = "http://localhost:8080/api/users";
 
 export interface JwtPayload {
+  exp: number;
   sub?: string; // username (Spring default)
   username?: string;
   role?: string;
