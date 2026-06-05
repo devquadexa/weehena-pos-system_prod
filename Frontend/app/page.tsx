@@ -54,7 +54,9 @@ export default function Home() {
           <p className="text-md text-gray-800 font-sans font-normal">{time}</p>
         </div>
         <div className="flex flex-col gap-4 mt-6 mx-auto items-center">
-          {(user?.role === "CASHIER" || user?.role === "STAFF" || user?.role === "MANAGER") && (
+          {(user?.role === "CASHIER" ||
+            user?.role === "STAFF" ||
+            user?.role === "MANAGER") && (
             <>
               <label
                 htmlFor="outletId"
@@ -99,8 +101,7 @@ export default function Home() {
               </label> */}
               <Link
                 href="/office/products"
-                className="w-56 text-cen
-                Go to office dashboardter shadow drop-shadow-lg shadow-gray-600 bg-red-700 text-sm hover:bg-red-600 font-medium text-white px-6 py-3 rounded-xl"
+                className="w-56 text-center shadow drop-shadow-lg shadow-gray-600 bg-red-700 text-sm hover:bg-red-600 font-medium text-white px-6 py-3 rounded-xl"
               >
                 Go to Office Dashboard
               </Link>
