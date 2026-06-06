@@ -6,12 +6,24 @@ import { useRouter } from "next/navigation";
 import { getUser } from "@/app/services/authService";
 import { jwtDecode } from "jwt-decode";
 import { JwtPayload } from "@/app/services/userService";
+import { loginSchema } from "@/app/schemas/loginSchema";
+import z from "zod";
+import Form from "next/form";
+
+type LoginErrors = {
+  username: string;
+  password: string;
+};
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [time, setTime] = useState("");
+  const [errors, setErrors] = useState<LoginErrors>({
+    username: "",
+    password: "",
+  });
   const router = useRouter();
 
   useEffect(() => {
@@ -24,7 +36,34 @@ export default function LoginPage() {
     return () => clearInterval(interval);
   }, []);
 
-  const handleLogin = async () => {
+  const clearError = (field: keyof LoginErrors) => {
+    setErrors((prev) =>
+      prev
+        ? {
+            ...prev,
+            [field]: "",
+          }
+        : prev,
+    );
+  };
+
+  const handleLogin = async (data: FormData) => {
+    const result = loginSchema.safeParse({
+      username: data.get("username"),
+      password: data.get("password"),
+    });
+
+    if (!result.success) {
+      // const errors = result.error.flatten().fieldErrors;
+      const { fieldErrors } = z.flattenError(result.error);
+
+      setErrors({
+        username: fieldErrors.username?.[0] ?? "",
+        password: fieldErrors.password?.[0] ?? "",
+      });
+
+      return;
+    }
     try {
       await getUser(username, password);
 
@@ -36,7 +75,7 @@ export default function LoginPage() {
       if (decoded.role === "ADMIN" || decoded.role === "MANAGER") {
         router.push("/");
       } else if (decoded.role === "STAFF" || decoded.role === "CASHIER") {
-        router.push("/"); 
+        router.push("/");
       } else {
         alert("Unauthorized role");
       }
@@ -66,7 +105,7 @@ export default function LoginPage() {
       </div>
 
       <div className="bg-white p-4 rounded-xl shadow-2xl w-80">
-        <form
+        <Form
           action={handleLogin}
           className="flex flex-col px-4 my-4 gap-3  text-xs"
         >
@@ -79,11 +118,18 @@ export default function LoginPage() {
           <input
             type="text"
             id="username"
+            name="username"
             placeholder="Enter username"
-            className="border-0 bg-gray-200 rounded  text-sm text-gray-800 w-full mb-2 p-2"
-            onChange={(e) => setUsername(e.target.value)}
+            className="border-0 bg-gray-200 rounded  text-sm text-gray-800 w-full  p-2"
+            onChange={(e) => {
+              setUsername(e.target.value);
+              clearError("username");
+            }}
             autoComplete="true"
           />
+          {errors?.username && (
+            <p className="text-red-500 text-xs font-medium mt-1">{errors.username}</p>
+          )}
 
           <label
             htmlFor="password"
@@ -91,14 +137,17 @@ export default function LoginPage() {
           >
             Password
           </label>
-          <div className="relative mb-4">
+          <div className="relative">
             <input
               type={showPassword ? "text" : "password"}
               id="password"
               name="password"
               placeholder="Enter password"
               className="border-0 bg-gray-200 rounded text-sm text-gray-800 w-full p-2 pr-10"
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                clearError("password");
+              }}
               autoComplete="current-password"
             />
             <button
@@ -141,6 +190,9 @@ export default function LoginPage() {
               )}
             </button>
           </div>
+          {errors?.password && (
+            <p className="text-red-500 text-xs font-medium mt-1">{errors?.password}</p>
+          )}
           <div className="mx-auto text-sm w-full flex flex-col gap-1">
             <button
               type="submit"
@@ -149,7 +201,7 @@ export default function LoginPage() {
               Login
             </button>
           </div>
-        </form>
+        </Form>
       </div>
     </div>
   );
