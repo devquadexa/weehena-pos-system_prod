@@ -1,9 +1,6 @@
 package com.pos.pos_system_backend.controller;
 
-import com.pos.pos_system_backend.dto.DailyReportResponse;
-import com.pos.pos_system_backend.dto.ProductSaleDetailDto;
-import com.pos.pos_system_backend.dto.SoldItemReport;
-import com.pos.pos_system_backend.dto.StockReportDto;
+import com.pos.pos_system_backend.dto.*;
 import com.pos.pos_system_backend.service.ReportService;
 import org.springframework.web.bind.annotation.*;
 
@@ -59,5 +56,13 @@ public class ReportController {
                 outletId,
                 date
         );
+    }
+
+    @GetMapping("/cancelled-sales")
+    public List<CancelledSaleResponse> getCancelledSales(
+            @RequestParam String outletId,
+            @RequestParam String date
+    ) {
+        return service.getCancelledSales(outletId,date);
     }
 }

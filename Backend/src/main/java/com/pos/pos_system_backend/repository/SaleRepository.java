@@ -25,10 +25,7 @@ public interface SaleRepository extends JpaRepository<Sale, Long> {
                                               @Param("end") LocalDateTime end);
 
     @Query("""
-            SELECT 
-                s.invoiceNo,
-                s.status,
-            
+            SELECT s.invoiceNo, s.status,
                 p.barcode,
                 p.name,
                 SUM(si.value),
@@ -126,6 +123,22 @@ public interface SaleRepository extends JpaRepository<Sale, Long> {
             """)
     List<Object[]> getProductSales(
             @Param("barcode") String barcode,
+            @Param("outletId") String outletId,
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end
+    );
+
+
+    @Query("""
+            SELECT s
+            FROM Sale s
+            WHERE s.status = 'CANCELLED'
+            AND s.outletId = :outletId
+            AND s.date >= :start
+            AND s.date < :end
+            ORDER BY s.date DESC
+            """)
+    List<Sale> findCancelledSales(
             @Param("outletId") String outletId,
             @Param("start") LocalDateTime start,
             @Param("end") LocalDateTime end

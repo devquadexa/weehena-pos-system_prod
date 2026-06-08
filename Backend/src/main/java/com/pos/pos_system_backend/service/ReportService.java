@@ -1,9 +1,6 @@
 package com.pos.pos_system_backend.service;
 
-import com.pos.pos_system_backend.dto.DailyReportResponse;
-import com.pos.pos_system_backend.dto.ProductSaleDetailDto;
-import com.pos.pos_system_backend.dto.SoldItemReport;
-import com.pos.pos_system_backend.dto.StockReportDto;
+import com.pos.pos_system_backend.dto.*;
 import com.pos.pos_system_backend.entity.Product;
 import com.pos.pos_system_backend.entity.Stock;
 import com.pos.pos_system_backend.repository.ProductRepository;
@@ -238,5 +235,30 @@ public class ReportService {
             return dto;
 
         }).toList();
+    }
+
+
+    public List<CancelledSaleResponse> getCancelledSales(String outletId,String date) {
+
+        LocalDate localDate = LocalDate.parse(date);
+
+        LocalDateTime start = localDate.atStartOfDay();
+        LocalDateTime end = localDate.plusDays(1).atStartOfDay();
+
+        return saleRepo.findCancelledSales(outletId ,start, end)
+                .stream()
+                .map(sale -> {
+
+                    CancelledSaleResponse dto =
+                            new CancelledSaleResponse();
+
+                    dto.setInvoiceNo(sale.getInvoiceNo());
+                    dto.setOutletId(sale.getOutletId());
+                    dto.setDate(sale.getDate().toString());
+                    dto.setTotal(sale.getTotal());
+
+                    return dto;
+                })
+                .toList();
     }
 }
