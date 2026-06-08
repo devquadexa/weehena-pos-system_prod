@@ -19,3 +19,10 @@ export interface ProductSaleData {
   salePrice: number;
   saleValue: number;
 }
+
+export interface CancelledSaleData {
+  invoiceNo: string;
+  outletId: string;
+  date: string;
+  total: number;
+}
