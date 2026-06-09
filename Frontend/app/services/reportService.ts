@@ -69,8 +69,7 @@ export const getCancelledSales = async (
   outletId: string,
   date: string,
 ): Promise<CancelledSaleItem[]> => {
-  // const url = `${API_URL}/cancelled-sales?outletId=${outletId}&date=${date}`;
-  const url = `http://localhost:8080/api/reports/cancelled-sales?outletId=${outletId}&date=${date}`;
+  const url = `${API_URL}/cancelled-sales?outletId=${outletId}&date=${date}`;
 
   const token = localStorage.getItem("token");
   const res = await fetch(url, {
