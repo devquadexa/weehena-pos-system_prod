@@ -59,10 +59,10 @@ public class ReportController {
     }
 
     @GetMapping("/cancelled-sales")
-    public List<CancelledSaleResponse> getCancelledSales(
+    public List<CancelledSaleResponse> getCancelledSaleItems(
             @RequestParam String outletId,
             @RequestParam String date
     ) {
-        return service.getCancelledSales(outletId,date);
+        return service.getCancelledSaleItems(outletId, date);
     }
 }

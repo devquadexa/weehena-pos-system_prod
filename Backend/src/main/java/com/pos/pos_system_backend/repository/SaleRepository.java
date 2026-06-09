@@ -130,18 +130,39 @@ public interface SaleRepository extends JpaRepository<Sale, Long> {
 
 
     @Query("""
-            SELECT s
+            SELECT
+                s.invoiceNo,
+                s.date,
+                p.barcode,
+                p.name,
+                si.value,
+                CASE
+                    WHEN si.priceType = 'RETAIL'
+                    THEN p.retailPrice
+                    ELSE p.bulkPrice
+                END,
+            
+                (
+                    si.value *
+                    CASE
+                        WHEN si.priceType = 'RETAIL'
+                        THEN p.retailPrice
+                        ELSE p.bulkPrice
+                    END
+                )
             FROM Sale s
+            JOIN s.items si
+            JOIN Product p ON p.barcode = si.barcode
             WHERE s.status = 'CANCELLED'
             AND s.outletId = :outletId
             AND s.date >= :start
             AND s.date < :end
             ORDER BY s.date DESC
             """)
-    List<Sale> findCancelledSales(
-            @Param("outletId") String outletId,
-            @Param("start") LocalDateTime start,
-            @Param("end") LocalDateTime end
+    List<Object[]> getCancelledSaleItems(
+            String outletId,
+            LocalDateTime start,
+            LocalDateTime end
     );
 
 

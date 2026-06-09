@@ -5,7 +5,10 @@ import lombok.Data;
 @Data
 public class CancelledSaleResponse {
     private String invoiceNo;
-    private String outletId;
     private String date;
-    private double total;
+    private String barcode;
+    private String itemName;
+    private double saleQty;
+    private double salePrice;
+    private double saleValue;
 }

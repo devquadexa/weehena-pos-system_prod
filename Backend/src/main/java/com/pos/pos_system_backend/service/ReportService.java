@@ -182,6 +182,7 @@ public class ReportService {
     }
 
 
+    //Get sales products
     public List<ProductSaleDetailDto> getProductSales(
             String barcode,
             String outletId,
@@ -238,27 +239,50 @@ public class ReportService {
     }
 
 
-    public List<CancelledSaleResponse> getCancelledSales(String outletId,String date) {
+    //Get Cancelled sales items
+    public List<CancelledSaleResponse> getCancelledSaleItems(
+            String outletId,
+            String date
+    ) {
 
         LocalDate localDate = LocalDate.parse(date);
 
         LocalDateTime start = localDate.atStartOfDay();
         LocalDateTime end = localDate.plusDays(1).atStartOfDay();
 
-        return saleRepo.findCancelledSales(outletId ,start, end)
-                .stream()
-                .map(sale -> {
+        List<Object[]> results =
+                saleRepo.getCancelledSaleItems(outletId, start, end);
 
-                    CancelledSaleResponse dto =
-                            new CancelledSaleResponse();
+        return results.stream().map(r -> {
 
-                    dto.setInvoiceNo(sale.getInvoiceNo());
-                    dto.setOutletId(sale.getOutletId());
-                    dto.setDate(sale.getDate().toString());
-                    dto.setTotal(sale.getTotal());
+            CancelledSaleResponse dto =
+                    new CancelledSaleResponse();
 
-                    return dto;
-                })
-                .toList();
+            dto.setInvoiceNo((String) r[0]);
+
+            dto.setDate(
+                    ((LocalDateTime) r[1])
+                            .toLocalDate()
+                            .toString()
+            );
+
+            dto.setBarcode(String.valueOf(r[2]));
+            dto.setItemName((String) r[3]);
+
+            dto.setSaleQty(
+                    ((Number) r[4]).doubleValue()
+            );
+
+            dto.setSalePrice(
+                    ((Number) r[5]).doubleValue()
+            );
+
+            dto.setSaleValue(
+                    ((Number) r[6]).doubleValue()
+            );
+
+            return dto;
+
+        }).toList();
     }
 }
