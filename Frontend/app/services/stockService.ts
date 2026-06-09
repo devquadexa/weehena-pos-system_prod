@@ -14,7 +14,7 @@ export const getStock = async (): Promise<StockItem[]> => {
   return res.json();
 };
 
-// Add stock Omit<StockItem, "id"
+// Add stock 
 export const addStock = async (stock: StockRequest) => {
   const token = localStorage.getItem("token");
   const res = await fetch(API_URL, {

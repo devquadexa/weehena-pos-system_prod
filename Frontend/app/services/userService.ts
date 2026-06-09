@@ -9,7 +9,6 @@ export interface JwtPayload {
   username?: string;
   role?: string;
   roles?: string[];
-
 }
 
 export const getUserFromToken = () => {
@@ -20,7 +19,6 @@ export const getUserFromToken = () => {
     const token = localStorage.getItem("token");
     if (!token) return null;
     const decoded = jwtDecode<JwtPayload>(token);
-    // return jwtDecode<JwtPayload>(token);
     return {
       username: decoded.sub || decoded.username,
       role: decoded.role || decoded.roles?.[0],
@@ -30,25 +28,6 @@ export const getUserFromToken = () => {
     return null;
   }
 };
-
-// export const getRoleFromToken = () => {
-//   try {
-//     if (typeof window === "undefined") {
-//       return null;
-//     }
-//     const token = localStorage.getItem("token");
-//     if (!token) return null;
-//     const decoded = jwtDecode<JwtPayload>(token);
-//     // return jwtDecode<JwtPayload>(token);
-//     return {
-//       username: decoded.sub || decoded.username,
-//       role: decoded.role || decoded.roles?.[0],
-//     };
-//   } catch (err) {
-//     console.error("Invalid token", err);
-//     return null;
-//   }
-// };
 
 export const register = async (data: UserRequest) => {
   const token = localStorage.getItem("token");
@@ -61,7 +40,7 @@ export const register = async (data: UserRequest) => {
     body: JSON.stringify(data),
   });
   if (!res.ok) throw new Error("Failed to register user");
-   return await res.text();
+  return await res.text();
 };
 
 // check if token is expired
@@ -79,9 +58,7 @@ export const isTokenExpired = () => {
   }
 };
 
-
 export const logout = () => {
   localStorage.removeItem("token");
   localStorage.removeItem("username");
-  // window.location.href = "/auth/login";
 };

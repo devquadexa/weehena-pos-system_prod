@@ -1,13 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getDailyReport, getSoldItems } from "@/app/services/reportService";
+import {
+  getCancelledSales,
+  getDailyReport,
+  getSoldItems,
+} from "@/app/services/reportService";
 import Button from "@/app/components/Button";
 import ResponsiveDataView, {
   ColumnDef,
 } from "@/app/components/ResponsiveDataView";
 import { getStock } from "@/app/services/stockService";
 import { reportData, SoldItemReport } from "@/app/types/Report";
+import { CancelledSaleItem } from "@/app/types/Sale";
 
 export default function ReportPage() {
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
@@ -15,6 +20,7 @@ export default function ReportPage() {
   const [outlets, setOutlets] = useState<string[]>([]);
   const [reports, setReports] = useState<reportData[]>([]);
   const [salesItems, setSalesItems] = useState<SoldItemReport[]>([]);
+  const [cancelledSales, setCancelledSales] = useState<CancelledSaleItem[]>([]);
   const [loading, setLoading] = useState(false);
 
   const handleFetchDailyReport = async () => {
@@ -22,12 +28,31 @@ export default function ReportPage() {
       setReports([]);
       setSalesItems([]);
       setLoading(true);
-      const dailyReportData = await getDailyReport(date, outlet);
-      const soldItemsData = await getSoldItems(date, outlet);
-      setReports(dailyReportData);
-      setSalesItems(soldItemsData);
-      console.log("Report data:", dailyReportData);
-      console.log("Sales data:", soldItemsData);
+      setCancelledSales([]);
+
+      try {
+        const dailyReportData = await getDailyReport(date, outlet);
+        console.log("Daily report OK", dailyReportData);
+        setReports(dailyReportData);
+      } catch (e) {
+        console.error("Daily report failed", e);
+      }
+
+      try {
+        const soldItemsData = await getSoldItems(date, outlet);
+        console.log("Sold items OK", soldItemsData);
+        setSalesItems(soldItemsData);
+      } catch (e) {
+        console.error("Sold items failed", e);
+      }
+
+      try {
+        const cancelledItems = await getCancelledSales(outlet, date);
+        console.log("Cancelled sales OK", cancelledItems);
+        setCancelledSales(cancelledItems);
+      } catch (e) {
+        console.error("Cancelled sales failed", e);
+      }
     } catch (err) {
       console.error("Failed to load report:", err);
       alert("Failed to load report");
@@ -62,7 +87,7 @@ export default function ReportPage() {
       cardRole: "title",
     },
     {
-      header: "Qty",
+      header: "Sale Qty",
       align: "center",
       render: (item) => item.saleQty?.toFixed(2),
     },
@@ -75,6 +100,37 @@ export default function ReportPage() {
       header: "Sale Value",
       align: "right",
       render: (item) => item.saleValue?.toFixed(2),
+    },
+  ];
+
+  const cacelledSalesColumns: ColumnDef<CancelledSaleItem>[] = [
+    {
+      header: "Invoice No",
+      render: (item) => item.invoiceNo,
+    },
+    // {
+    //   header: "Barcode",
+    //   render: (item) => item.barcode,
+    // },
+    {
+      header: "Item Name",
+      render: (item) => item.itemName,
+      cardRole: "title",
+    },
+    {
+      header: "Sale Qty",
+      align: "center",
+      render: (item) => item.saleQty.toFixed(2),
+    },
+    {
+      header: "Sale Price",
+      align: "right",
+      render: (item) => item.salePrice.toFixed(2),
+    },
+    {
+      header: "Sale Value",
+      align: "right",
+      render: (item) => item.saleValue.toFixed(2),
     },
   ];
 
@@ -160,6 +216,25 @@ export default function ReportPage() {
             headerRowClassName=""
             striped={false}
             emptyMessage="No sales items"
+          />
+
+          <div className="text-gray-800 mt-6  font-semibold">
+            <h1 className="text-lg">Cancelled Sales</h1>
+          </div>
+
+          <ResponsiveDataView
+            data={cancelledSales}
+            columns={cacelledSalesColumns.map((col) => ({
+              ...col,
+              headerClassName:
+                "bg-gray-200 border border-gray-800 text-gray-950",
+              cellClassName: "border border-gray-800",
+            }))}
+            getRowKey={(_, index) => index}
+            tableClassName="w-full border border-gray-300 text-sm mt-2"
+            headerRowClassName=""
+            striped={false}
+            emptyMessage="No cancelled sales"
           />
 
           <div className="text-gray-800 mt-6  font-semibold">
