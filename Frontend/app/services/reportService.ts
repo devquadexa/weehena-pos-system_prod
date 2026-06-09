@@ -1,5 +1,5 @@
 import { DayEndStockReport, reportData, SoldItemReport } from "../types/Report";
-import { CancelledSaleData } from "../types/Sale";
+import { CancelledSaleItem } from "../types/Sale";
 
 const API_URL = "https://weehenapos360.cloud/api/reports";
 
@@ -65,7 +65,10 @@ export const getDayEndStockReport = async (
 };
 
 //Get cancelled sales
-export const getCancelledSales = async (outletId: string, date: string): Promise<CancelledSaleData[]> => {
+export const getCancelledSales = async (
+  outletId: string,
+  date: string,
+): Promise<CancelledSaleItem[]> => {
   // const url = `${API_URL}/cancelled-sales?outletId=${outletId}&date=${date}`;
   const url = `http://localhost:8080/api/reports/cancelled-sales?outletId=${outletId}&date=${date}`;
 
@@ -77,7 +80,7 @@ export const getCancelledSales = async (outletId: string, date: string): Promise
   });
 
   if (!res.ok) {
-    throw new Error("Failed to fetch cancelled sales");
+    throw new Error("Failed to fetch cancelled sale items");
   }
 
   return res.json();

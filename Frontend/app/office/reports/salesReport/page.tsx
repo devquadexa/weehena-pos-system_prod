@@ -12,7 +12,7 @@ import ResponsiveDataView, {
 } from "@/app/components/ResponsiveDataView";
 import { getStock } from "@/app/services/stockService";
 import { reportData, SoldItemReport } from "@/app/types/Report";
-import { CancelledSaleData } from "@/app/types/Sale";
+import { CancelledSaleItem } from "@/app/types/Sale";
 
 export default function ReportPage() {
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
@@ -20,7 +20,7 @@ export default function ReportPage() {
   const [outlets, setOutlets] = useState<string[]>([]);
   const [reports, setReports] = useState<reportData[]>([]);
   const [salesItems, setSalesItems] = useState<SoldItemReport[]>([]);
-  const [cancelledSales, setCancelledSales] = useState<CancelledSaleData[]>([]);
+  const [cancelledSales, setCancelledSales] = useState<CancelledSaleItem[]>([]);
   const [loading, setLoading] = useState(false);
 
   const handleFetchDailyReport = async () => {
@@ -29,9 +29,6 @@ export default function ReportPage() {
       setSalesItems([]);
       setLoading(true);
       setCancelledSales([]);
-      // const dailyReportData = await getDailyReport(date, outlet);
-      // const soldItemsData = await getSoldItems(date, outlet);
-      // const cancelledSalesData = await getCancelledSales(outlet, date);
 
       try {
         const dailyReportData = await getDailyReport(date, outlet);
@@ -50,18 +47,12 @@ export default function ReportPage() {
       }
 
       try {
-        const cancelledSalesData = await getCancelledSales(outlet, date);
-        console.log("Cancelled sales OK", cancelledSalesData);
-        setCancelledSales(cancelledSalesData);
+        const cancelledItems = await getCancelledSales(outlet, date);
+        console.log("Cancelled sales OK", cancelledItems);
+        setCancelledSales(cancelledItems);
       } catch (e) {
         console.error("Cancelled sales failed", e);
       }
-      // setReports(dailyReportData);
-      // setSalesItems(soldItemsData);
-      // setCancelledSales(cancelledSalesData);
-      // console.log("Report data:", dailyReportData);
-      // console.log("Sales data:", soldItemsData);
-      // console.log("Cancelled Sales data:", cancelledSalesData);
     } catch (err) {
       console.error("Failed to load report:", err);
       alert("Failed to load report");
@@ -96,7 +87,7 @@ export default function ReportPage() {
       cardRole: "title",
     },
     {
-      header: "Qty",
+      header: "Sale Qty",
       align: "center",
       render: (item) => item.saleQty?.toFixed(2),
     },
@@ -112,25 +103,34 @@ export default function ReportPage() {
     },
   ];
 
-  const cacelledSalesColumns: ColumnDef<CancelledSaleData>[] = [
+  const cacelledSalesColumns: ColumnDef<CancelledSaleItem>[] = [
     {
       header: "Invoice No",
       render: (item) => item.invoiceNo,
     },
+    // {
+    //   header: "Barcode",
+    //   render: (item) => item.barcode,
+    // },
     {
-      header: "Outlet",
-      render: (item) => item.outletId,
+      header: "Item Name",
+      render: (item) => item.itemName,
       cardRole: "title",
     },
     {
-      header: "Date",
-      render: (item) => item.date,
-      cardRole: "title",
+      header: "Sale Qty",
+      align: "center",
+      render: (item) => item.saleQty.toFixed(2),
     },
     {
-      header: "Total",
+      header: "Sale Price",
       align: "right",
-      render: (item) => item.total.toFixed(2),
+      render: (item) => item.salePrice.toFixed(2),
+    },
+    {
+      header: "Sale Value",
+      align: "right",
+      render: (item) => item.saleValue.toFixed(2),
     },
   ];
 

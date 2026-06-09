@@ -20,9 +20,12 @@ export interface ProductSaleData {
   saleValue: number;
 }
 
-export interface CancelledSaleData {
+export interface CancelledSaleItem {
   invoiceNo: string;
-  outletId: string;
   date: string;
-  total: number;
+  barcode: string;
+  itemName: string;
+  saleQty: number;
+  salePrice: number;
+  saleValue: number;
 }
