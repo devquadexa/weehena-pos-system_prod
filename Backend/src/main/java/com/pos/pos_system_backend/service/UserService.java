@@ -1,9 +1,12 @@
 package com.pos.pos_system_backend.service;
 
 import com.pos.pos_system_backend.dto.CreateUserRequest;
+import com.pos.pos_system_backend.dto.UserResponse;
 import com.pos.pos_system_backend.entity.User;
 import com.pos.pos_system_backend.repository.UserRepository;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class UserService {
@@ -29,5 +32,16 @@ public class UserService {
         user.setRole(request.getRole());
 
         repo.save(user);
+    }
+
+    public List<UserResponse> getAllUsers() {
+        return repo.findAll()
+                .stream()
+                .map(user -> new UserResponse(
+                        user.getId(),
+                        user.getUsername(),
+                        user.getRole()
+                ))
+                .toList();
     }
 }
