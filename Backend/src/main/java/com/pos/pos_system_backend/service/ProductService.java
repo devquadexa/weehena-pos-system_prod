@@ -1,6 +1,7 @@
 package com.pos.pos_system_backend.service;
 
 import com.pos.pos_system_backend.dto.ProductRequest;
+import com.pos.pos_system_backend.dto.UpdatePriceRequest;
 import com.pos.pos_system_backend.entity.Product;
 import com.pos.pos_system_backend.repository.ProductRepository;
 import org.springframework.stereotype.Service;
@@ -47,6 +48,21 @@ public class ProductService {
             throw new RuntimeException("Product not found with id " + id);
         }
         repo.deleteById(id);
+    }
+
+    //Update prices
+    public Product updatePrices(UpdatePriceRequest request) {
+
+        Product product = repo.findByBarcode(request.getBarcode())
+                .orElseThrow(() ->
+                        new RuntimeException("Product not found"));
+
+        product.setRetailPrice(request.getRetailPrice());
+        product.setBulkPrice(request.getBulkPrice());
+        product.setPackPrice(request.getPackPrice());
+        product.setPricePerKg(request.getPricePerKg());
+
+        return repo.save(product);
     }
 
 

@@ -2,10 +2,13 @@ package com.pos.pos_system_backend.controller;
 
 import com.pos.pos_system_backend.config.JwtUtil;
 import com.pos.pos_system_backend.dto.CreateUserRequest;
+import com.pos.pos_system_backend.dto.UserResponse;
 import com.pos.pos_system_backend.enums.UserRole;
 import com.pos.pos_system_backend.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 @RestController
@@ -38,5 +41,10 @@ public class UserController {
         service.createUser(request);
 
         return ResponseEntity.ok("User created");
+    }
+
+    @GetMapping
+    public List<UserResponse> getUsers() {
+        return service.getAllUsers();
     }
 }

@@ -43,6 +43,18 @@ export const register = async (data: UserRequest) => {
   return await res.text();
 };
 
+// Get Users
+export const getUsers = async () =>{
+  const token = localStorage.getItem("token");
+  const res = await fetch(`${API_URL}/`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  if (!res.ok) throw new Error("Failed to fetch users");
+  return res.json();
+}
+
 // check if token is expired
 export const isTokenExpired = () => {
   const token = localStorage.getItem("token");

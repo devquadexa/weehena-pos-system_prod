@@ -1,8 +1,10 @@
 package com.pos.pos_system_backend.controller;
 
 import com.pos.pos_system_backend.dto.ProductRequest;
+import com.pos.pos_system_backend.dto.UpdatePriceRequest;
 import com.pos.pos_system_backend.entity.Product;
 import com.pos.pos_system_backend.service.ProductService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -36,5 +38,14 @@ public class ProductController {
     @DeleteMapping("/{id}")
     public void deleteProduct(@PathVariable Long id) {
         service.deleteProduct(id);
+    }
+
+    @PutMapping("/prices")
+    public ResponseEntity<Product> updatePrices(
+            @RequestBody UpdatePriceRequest request
+    ) {
+        return ResponseEntity.ok(
+                service.updatePrices(request)
+        );
     }
 }

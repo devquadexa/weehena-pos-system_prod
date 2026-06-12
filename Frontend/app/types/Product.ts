@@ -30,3 +30,10 @@ export interface ProductRequest {
   pricePerKg: number | "";
   weighted: boolean | "";
 }
+export interface UpdatePriceRequest {
+  barcode: number;
+  bulkPrice: number;
+  retailPrice: number;
+  packPrice: number;
+  pricePerKg: number;
+}
