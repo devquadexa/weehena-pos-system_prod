@@ -1,5 +1,5 @@
 import { Product } from "../types";
-import { ProductItems, ProductRequest } from "../types/Product";
+import { ProductItems, ProductRequest, UpdatePriceRequest } from "../types/Product";
 
 const API_URL = "https://weehenapos360.cloud/api/products";
 
@@ -60,4 +60,22 @@ export const fetchProduct = async (barcode: string): Promise<Product> => {
     console.error("Error fetching product:", error);
     throw new Error("Failed to fetch product");
   }
+};
+
+//Update Product Prices
+export const updateProductPrices = async (
+  body: UpdatePriceRequest
+) => {
+  const token = localStorage.getItem("token");
+
+  const res = await fetch(`http://localhost:8080/api/products/prices`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(body),
+  });
+
+  return res.json();
 };
