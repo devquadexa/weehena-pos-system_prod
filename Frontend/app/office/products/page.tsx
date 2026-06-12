@@ -1,11 +1,16 @@
 "use client";
 
 import Button from "@/app/components/Button";
+import PriceUpdateModal, { PriceForm } from "@/app/components/PriceUpdateModal";
 import ProductForm from "@/app/components/ProductForm";
 import ResponsiveDataView, {
   ColumnDef,
 } from "@/app/components/ResponsiveDataView";
-import { deleteProduct, getProducts } from "@/app/services/productService";
+import {
+  deleteProduct,
+  getProducts,
+  updateProductPrices,
+} from "@/app/services/productService";
 import { ProductItems } from "@/app/types/Product";
 import { useEffect, useEffectEvent, useRef, useState } from "react";
 
@@ -17,6 +22,11 @@ export default function ProductPage() {
   const [search, setSearch] = useState("");
 
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const [priceModalOpen, setPriceModalOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<ProductItems | null>(
+    null,
+  );
 
   // Load products from backend
   const loadProducts = async () => {
@@ -72,22 +82,50 @@ export default function ProductPage() {
     {
       header: "Bulk Price",
       align: "right",
-      render: (p) => p.bulkPrice.toFixed(2),
+      render: (p) => (
+        <button
+          onClick={() => handlePriceClick(p)}
+          className="text-amber-800 text-right bg-amber-100 hover:bg-amber-200 w-full px-2 py-1 rounded"
+        >
+          {p.bulkPrice.toFixed(2)}
+        </button>
+      ),
     },
     {
       header: "Retail Price",
       align: "right",
-      render: (p) => p.retailPrice.toFixed(2),
+      render: (p) => (
+        <button
+          onClick={() => handlePriceClick(p)}
+          className="text-emerald-800 text-right bg-emerald-100 hover:bg-emerald-200 w-full px-2 py-1 rounded"
+        >
+          {p.retailPrice.toFixed(2)}
+        </button>
+      ),
     },
     {
       header: "Pack Price",
       align: "right",
-      render: (p) => (p.packPrice ? p.packPrice.toFixed(2) : "N/A"),
+      render: (p) => (
+        <button
+          onClick={() => handlePriceClick(p)}
+          className="text-cyan-800 text-right bg-cyan-100 hover:bg-cyan-200 w-full px-2 py-1 rounded"
+        >
+          {p.packPrice ? p.packPrice.toFixed(2) : "N/A"}
+        </button>
+      ),
     },
     {
       header: "Price per Kg",
       align: "right",
-      render: (p) => (p.pricePerKg ? p.pricePerKg.toFixed(2) : "N/A"),
+      render: (p) => (
+        <button
+          onClick={() => handlePriceClick(p)}
+          className="text-blue-800 text-right bg-blue-100 hover:bg-blue-200 w-full px-2 py-1 rounded"
+        >
+          {p.pricePerKg ? p.pricePerKg.toFixed(2) : "N/A"}
+        </button>
+      ),
     },
     {
       header: "Action",
@@ -103,6 +141,36 @@ export default function ProductPage() {
       ),
     },
   ];
+
+  const handlePriceUpdate = async (prices: PriceForm) => {
+    if (!selectedProduct) return;
+
+    const confirmUpdate = confirm(
+      `Are you sure to update prices of ${selectedProduct.name}?`,
+    );
+    if (!confirmUpdate) return;
+
+    try {
+      await updateProductPrices({
+        barcode: selectedProduct.barcode,
+        ...prices,
+      });
+
+      await loadProducts();
+
+      setPriceModalOpen(false);
+      setSelectedProduct(null);
+      alert(`${selectedProduct.name} prices updated successfully`);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to update prices");
+    }
+  };
+
+  const handlePriceClick = (product: ProductItems) => {
+    setSelectedProduct(product);
+    setPriceModalOpen(true);
+  };
 
   return (
     <div className="flex flex-col h-full min-h-0 min-w-0">
@@ -136,6 +204,26 @@ export default function ProductPage() {
           onAddSuccess={() => loadProducts()}
           heading="Add New Product"
         />
+
+        {selectedProduct && (
+          <PriceUpdateModal
+            isOpen={priceModalOpen}
+            onClose={() => {
+              setPriceModalOpen(false);
+              setSelectedProduct(null);
+            }}
+            heading="Update Prices"
+            productName={selectedProduct.name}
+            weighted={selectedProduct.weighted}
+            initialValues={{
+              bulkPrice: selectedProduct.bulkPrice,
+              retailPrice: selectedProduct.retailPrice,
+              packPrice: selectedProduct.packPrice,
+              pricePerKg: selectedProduct.pricePerKg,
+            }}
+            onConfirm={handlePriceUpdate}
+          />
+        )}
       </div>
 
       <div className="flex-1 min-h-0">
