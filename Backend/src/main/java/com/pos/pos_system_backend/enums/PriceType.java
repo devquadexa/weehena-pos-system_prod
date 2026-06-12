@@ -4,4 +4,5 @@ public enum PriceType {
     RETAIL,
     BULK,
     PACK,
+    PRICE_PER_KG
 }
