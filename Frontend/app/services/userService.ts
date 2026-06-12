@@ -46,7 +46,7 @@ export const register = async (data: UserRequest) => {
 // Get Users
 export const getUsers = async () =>{
   const token = localStorage.getItem("token");
-  const res = await fetch("http://localhost:8080/api/users", {
+  const res = await fetch(`${API_URL}/`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
