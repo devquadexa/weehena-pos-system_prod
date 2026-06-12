@@ -68,6 +68,7 @@ export default function QuantityModal({
             ref={inputRef}
             id="quantity"
             type="number"
+            min={1}
             value={qty !== null ? qty : ""}
             onChange={(e) => {
               const value = parseInt(e.target.value);
