@@ -70,15 +70,16 @@ export default function PriceUpdateModal({
       [name]: value === "" ? 0 : parseFloat(value),
     }));
 
-     //Clear Errors While Typing
-      setErrors((prev) => ({
-        ...prev,
-        [name]: "",
-      }));
+    //Clear Errors While Typing
+    setErrors((prev) => ({
+      ...prev,
+      [name]: "",
+    }));
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
+      if (!validateForm()) return;
       onConfirm(prices);
       onClose();
     }
@@ -126,7 +127,9 @@ export default function PriceUpdateModal({
               className="w-full bg-red-50 p-2 text-gray-700 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-red-800"
             />
             {errors.bulkPrice && (
-              <p className="text-red-500 font-medium text-xs mt-1">{errors.bulkPrice}</p>
+              <p className="text-red-500 font-medium text-xs mt-1">
+                {errors.bulkPrice}
+              </p>
             )}
           </div>
 
@@ -150,7 +153,9 @@ export default function PriceUpdateModal({
               className="w-full bg-red-50 p-2 text-gray-700 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-red-800"
             />
             {errors.retailPrice && (
-              <p className="text-red-500 font-medium text-xs mt-1">{errors.retailPrice}</p>
+              <p className="text-red-500 font-medium text-xs mt-1">
+                {errors.retailPrice}
+              </p>
             )}
           </div>
 
@@ -175,7 +180,9 @@ export default function PriceUpdateModal({
                 className="w-full bg-red-50 p-2 text-gray-700 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-red-800"
               />
               {errors.packPrice && (
-                <p className="text-red-500 font-medium text-xs mt-1">{errors.packPrice}</p>
+                <p className="text-red-500 font-medium text-xs mt-1">
+                  {errors.packPrice}
+                </p>
               )}
             </div>
           )}
@@ -201,7 +208,9 @@ export default function PriceUpdateModal({
                 className="w-full bg-red-50 p-2 text-gray-700 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-red-800"
               />
               {errors.pricePerKg && (
-                <p className="text-red-500 font-medium text-xs mt-1">{errors.pricePerKg}</p>
+                <p className="text-red-500 font-medium text-xs mt-1">
+                  {errors.pricePerKg}
+                </p>
               )}
             </div>
           )}
