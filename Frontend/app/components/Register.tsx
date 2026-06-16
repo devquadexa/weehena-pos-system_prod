@@ -6,6 +6,8 @@ import { register } from "../services/userService";
 import { UserRequest } from "../types/User";
 import Button from "./Button";
 import { RegisterSchema, registerSchema } from "../schemas/registerSchema";
+import toast from "react-hot-toast";
+import z from "zod";
 
 export default function Register({
   isOpen,
@@ -57,10 +59,6 @@ export default function Register({
   };
 
   const handleRegister = async () => {
-    // if (data.get("password") !== confirmPassword) {
-    //   alert("Passwords do not match");
-    //   return;
-    // }
     const userData: UserRequest = {
       username: formData.username,
       password: formData.password,
@@ -68,7 +66,7 @@ export default function Register({
     };
 
     if (!userData.username || !userData.password) {
-      alert("Please fill in all required fields");
+      toast.error("Please fill in all required fields");
       return;
     }
 
@@ -80,15 +78,16 @@ export default function Register({
     });
 
     if (!result.success) {
-      console.log(result.error.flatten());
+      // console.log(result.error.flatten());
 
-      const errors = result.error.flatten().fieldErrors;
+      // const errors = result.error.flatten().fieldErrors;
+      const { fieldErrors } = z.flattenError(result.error);
 
       setErrors({
-        username: errors.username?.[0] || "",
-        password: errors.password?.[0] || "",
-        confirmPassword: errors.confirmPassword?.[0] || "",
-        role: errors.role?.[0] || "",
+        username: fieldErrors.username?.[0] || "",
+        password: fieldErrors.password?.[0] || "",
+        confirmPassword: fieldErrors.confirmPassword?.[0] || "",
+        role: fieldErrors.role?.[0] || "",
       });
 
       return;
@@ -96,7 +95,7 @@ export default function Register({
 
     try {
       await register(userData);
-      alert("User created successfully");
+      toast.success("User created successfully");
       setFormData({
         username: "",
         password: "",
@@ -112,7 +111,7 @@ export default function Register({
       onClose();
     } catch (error) {
       console.error("Error creating user:", error);
-      alert("Failed to create user");
+      toast.error("Failed to create user");
     }
   };
 
@@ -292,11 +291,11 @@ export default function Register({
               id="role"
               name="role"
               value={formData.role}
-              onChange={(e) =>{
+              onChange={(e) => {
                 setFormData({
                   ...formData,
                   role: e.target.value as "ADMIN" | "MANAGER" | "CASHIER",
-                })
+                });
                 clearError("role");
               }}
               className="w-full bg-red-50 p-2 text-md text-gray-700 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-red-800"

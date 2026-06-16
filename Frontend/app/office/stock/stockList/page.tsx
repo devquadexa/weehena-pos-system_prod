@@ -15,6 +15,7 @@ import { StockItem } from "@/app/types/Stock";
 import ResponsiveDataView, {
   ColumnDef,
 } from "@/app/components/ResponsiveDataView";
+import toast from "react-hot-toast";
 
 export default function StockPage() {
   const [stockList, setStockList] = useState<StockItem[]>([]);
@@ -70,7 +71,7 @@ export default function StockPage() {
       await loadStock();
     } catch (err) {
       console.error("Failed to delete stock:", err);
-      alert("Failed to delete stock");
+      toast.error("Failed to delete stock");
     }
   };
 
@@ -88,7 +89,7 @@ export default function StockPage() {
       const user = getUserFromToken();
 
       if (!user || !user.role) {
-        alert("User not logged in");
+        toast.error("User not logged in");
         return;
       }
 
@@ -102,7 +103,7 @@ export default function StockPage() {
       await loadStock();
     } catch (err) {
       console.error("Failed to update stock:", err);
-      alert("Failed to update stock");
+      toast.error("Failed to update stock");
     }
   };
   const stockRowClass = (item: StockItem) =>
@@ -198,7 +199,7 @@ export default function StockPage() {
       const user = getUserFromToken();
 
       if (!user || !user.role) {
-        alert("User not logged in");
+        toast.error("User not logged in");
         return;
       }
 
@@ -212,7 +213,7 @@ export default function StockPage() {
       await loadStock();
     } catch (err) {
       console.error("Failed to update stock:", err);
-      alert("Failed to update stock");
+      toast.error("Failed to update stock");
     }
   };
 

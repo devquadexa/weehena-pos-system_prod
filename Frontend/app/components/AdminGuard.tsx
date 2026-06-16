@@ -3,6 +3,7 @@
 import { ReactNode, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { getUserFromToken } from "../services/userService";
+import toast from "react-hot-toast";
 
 export default function AdminGuard({ children }: { children: ReactNode }) {
   const router = useRouter();
@@ -11,7 +12,7 @@ export default function AdminGuard({ children }: { children: ReactNode }) {
     const user = getUserFromToken();
 
     if (!user || (user.role !== "ADMIN" && user.role !== "MANAGER")) {
-      alert("Unauthorized Role");
+      toast.error("Unauthorized Role");
       router.push("/auth/login");
     }
   }, [router]);

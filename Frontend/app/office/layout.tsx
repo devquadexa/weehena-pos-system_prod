@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 import AdminGuard from "../components/AdminGuard";
 import { logout } from "../services/userService";
+import { Toaster } from "react-hot-toast";
 
 interface Props {
   children: ReactNode;
@@ -273,12 +274,16 @@ export default function OfficeLayout({ children }: Props) {
         >
           <div
             className={`bg-white p-3 sm:p-4 md:p-6 rounded-lg shadow-2xl min-w-0 ${
-              isReportPage
-                ? ""
-                : "flex-1 flex flex-col min-h-0 overflow-hidden"
+              isReportPage ? "" : "flex-1 flex flex-col min-h-0 overflow-hidden"
             }`}
           >
             {children}
+            <Toaster
+              position="top-center"
+              toastOptions={{
+                duration: 3000,
+              }}
+            />
           </div>
         </main>
       </div>

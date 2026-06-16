@@ -10,6 +10,7 @@ import ProductSaleModal from "@/app/components/ProductSaleModal";
 import ResponsiveDataView, {
   ColumnDef,
 } from "@/app/components/ResponsiveDataView";
+import toast from "react-hot-toast";
 
 export default function StockReportPage() {
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
@@ -31,7 +32,7 @@ export default function StockReportPage() {
       console.log("Report data:", stockReportData);
     } catch (err) {
       console.error("Failed to load report:", err);
-      alert("Failed to load report");
+      toast.error("Failed to load report");
     } finally {
       setLoading(false);
     }

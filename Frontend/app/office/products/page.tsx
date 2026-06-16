@@ -13,6 +13,7 @@ import {
 } from "@/app/services/productService";
 import { ProductItems } from "@/app/types/Product";
 import { useEffect, useEffectEvent, useRef, useState } from "react";
+import toast from "react-hot-toast";
 
 export default function ProductPage() {
   const [products, setProducts] = useState<ProductItems[]>([]);
@@ -59,9 +60,11 @@ export default function ProductPage() {
       await loadProducts();
     } catch (err) {
       console.error("Failed to delete product:", err);
-      alert("Failed to delete product");
+      toast.error("Failed to delete product");
     }
   };
+
+  
 
   const filteredProducts = products.filter(
     (item) =>
@@ -160,10 +163,10 @@ export default function ProductPage() {
 
       setPriceModalOpen(false);
       setSelectedProduct(null);
-      alert(`${selectedProduct.name} prices updated successfully`);
+      toast.success(`${selectedProduct.name} prices updated successfully`);
     } catch (err) {
       console.error(err);
-      alert("Failed to update prices");
+      toast.error("Failed to update prices");
     }
   };
 

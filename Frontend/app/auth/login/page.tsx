@@ -9,6 +9,7 @@ import { JwtPayload } from "@/app/services/userService";
 import { loginSchema } from "@/app/schemas/loginSchema";
 import z from "zod";
 import Form from "next/form";
+import toast from "react-hot-toast";
 
 type LoginErrors = {
   username: string;
@@ -77,10 +78,10 @@ export default function LoginPage() {
       } else if (decoded.role === "STAFF" || decoded.role === "CASHIER") {
         router.push("/");
       } else {
-        alert("Unauthorized role");
+        toast.error("Unauthorized role");
       }
     } catch (err) {
-      alert("Invalid login credentials");
+      toast.error("Invalid login credentials");
       console.error("Login error:", err);
     }
   };

@@ -13,6 +13,7 @@ import ResponsiveDataView, {
 import { getStock } from "@/app/services/stockService";
 import { reportData, SoldItemReport } from "@/app/types/Report";
 import { CancelledSaleItem } from "@/app/types/Sale";
+import toast from "react-hot-toast";
 
 export default function ReportPage() {
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
@@ -55,7 +56,7 @@ export default function ReportPage() {
       }
     } catch (err) {
       console.error("Failed to load report:", err);
-      alert("Failed to load report");
+      toast.error("Failed to load report");
     } finally {
       setLoading(false);
     }

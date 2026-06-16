@@ -7,6 +7,7 @@ import Button from "./Button";
 import { ProductRequest } from "../types/Product";
 import { productSchema, ProductSchema } from "../schemas/productSchema";
 import z from "zod/v4";
+import toast from "react-hot-toast";
 
 type ProductFormErrors = {
   barcode: string;
@@ -149,7 +150,6 @@ export default function ProductForm({
     });
 
     if (!result.success) {
-
       const { fieldErrors } = z.flattenError(result.error);
 
       setErrors({
@@ -177,12 +177,14 @@ export default function ProductForm({
         pricePerKg: 0,
         weighted: false,
       });
-      alert("Product added successfully!");
+      // alert("Product added successfully!");
+      toast.success(`${product.name} added successfully!`);
       onAddSuccess?.();
       onClose();
     } catch (err) {
       console.error("Failed to add product:", err);
-      alert("Failed to add product");
+      // alert("Failed to add product");
+      toast.error("Failed to add product");
     }
   };
   useEffect(() => {

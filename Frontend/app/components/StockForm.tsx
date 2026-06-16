@@ -8,6 +8,7 @@ import { fetchProduct } from "../services/productService";
 import { getUserFromToken } from "../services/userService";
 import { StockRequest } from "../types/Stock";
 import { stockSchema } from "../schemas/stockSchema";
+import toast from "react-hot-toast";
 
 type StockFormErrors = {
   barcode: string;
@@ -149,7 +150,7 @@ export default function ProductForm({
     const user = getUserFromToken();
 
     if (!user || !user.role) {
-      alert("User not logged in");
+      toast.error("User not logged in");
       return;
     }
     const stock: StockRequest = {
@@ -217,7 +218,7 @@ export default function ProductForm({
         weight: "",
         user: stock.user,
       });
-      alert("Stock added successfully!");
+      toast.success("Stock added successfully!");
       onAddSuccess?.();
       setProduct(null);
       setProductError("");
@@ -232,7 +233,7 @@ export default function ProductForm({
       onClose();
     } catch (err) {
       console.error("Failed to add stock:", err);
-      alert("Failed to add Stock");
+      toast.error("Failed to add Stock");
     }
   };
   useEffect(() => {
