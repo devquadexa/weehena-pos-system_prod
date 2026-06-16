@@ -186,8 +186,8 @@ export default function ScanPage() {
           balance,
         },
         // "BIXOLON SPP-R310",
-        "XP-80C (copy 1)",
-        // "XP-80C",
+        // "XP-80C (copy 1)",
+        "XP-80C",
       );
     } catch (error: unknown) {
       console.error(error);
