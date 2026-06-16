@@ -68,7 +68,7 @@ export const updateProductPrices = async (
 ) => {
   const token = localStorage.getItem("token");
 
-  const res = await fetch(`http://localhost:8080/api/products/prices`, {
+  const res = await fetch(`${API_URL}/prices`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
