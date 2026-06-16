@@ -7,7 +7,6 @@ interface Props {
   isOpen: boolean;
   total: number;
   onClose: () => void;
-  // onConfirm: (cashReceived: number) => Promise<void>;
   onConfirm: (cashReceived: number) => void;
 }
 
@@ -45,7 +44,7 @@ export default function PaymentModal({
         className="bg-white rounded-lg p-6 w-full max-w-md"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="text-xl text-red-900 font-bold mb-4">Payment</h2>
+        <h2 className="text-2xl text-red-900 font-bold mb-4">Payment</h2>
 
         <div className="space-y-4">
           <div>
@@ -61,10 +60,9 @@ export default function PaymentModal({
             <label className="font-semibold text-black">Cash Received</label>
             <input
               type="number"
-              autoFocus
               value={cashReceived}
               onChange={(e) => setCashReceived(e.target.value)}
-              className="w-full text-black  bg-red-50 p-2 rounded"
+              className="w-full text-black border-2 border-red-800  bg-red-50 p-2 rounded"
             />
           </div>
 
