@@ -12,4 +12,6 @@ export interface ReceiptData {
   discountAmount: number;
   total: number;
   invoiceNo: string;
+  cashReceived: number;
+  balance: number;
 }

@@ -32,10 +32,7 @@ function feedDots(dots: number): string {
   return "\x1B\x4A" + String.fromCharCode(clamped);
 }
 
-function logoToHeaderGap(
-  marginLines: number,
-  marginDots: number,
-): string {
+function logoToHeaderGap(marginLines: number, marginDots: number): string {
   const dots = marginDots > 0 ? feedDots(marginDots) : "";
   return feedLines(marginLines) + dots;
 }
@@ -243,7 +240,13 @@ export async function printReceipt(
       data.discountAmount.toFixed(2).padStart(10) +
       "\n";
 
-    receipt += "TOTAL".padEnd(13) + data.total.toFixed(2).padStart(10) + "\n";
+    receipt += "TOTAL".padEnd(13) + data.total.toFixed(2).padStart(10) + "\n\n";
+
+    receipt +=
+      "CASH".padEnd(13) + data.cashReceived.toFixed(2).padStart(10) + "\n";
+
+    receipt +=
+      "CHANGE".padEnd(13) + data.balance.toFixed(2).padStart(10) + "\n";
 
     receipt += GS + "!" + "\x00";
 
@@ -259,19 +262,18 @@ export async function printReceipt(
     // Cut
     receipt += CUT;
 
-    const logo = await getLogoPrintData(
-      logoOptions?.url,
-      logoOptions?.size,
-    );
+    const logo = await getLogoPrintData(logoOptions?.url, logoOptions?.size);
 
-    const marginLines =
-      logoOptions?.marginLines ?? DEFAULT_LOGO_MARGIN_LINES;
+    const marginLines = logoOptions?.marginLines ?? DEFAULT_LOGO_MARGIN_LINES;
     const marginDots = logoOptions?.marginDots ?? DEFAULT_LOGO_MARGIN_DOTS;
     const afterLogo = logoToHeaderGap(marginLines, marginDots);
 
     const printData: PrintData[] = [
+      // logo,
+      // rawCommand("\x1B\x40" + afterLogo + receipt),
+      rawCommand("\x1B\x40\x1B\x61\x01"), // Initialize + Center
       logo,
-      rawCommand("\x1B\x40" + afterLogo + receipt),
+      rawCommand(afterLogo + receipt),
     ];
     await qz.print(config, printData);
 

@@ -11,6 +11,8 @@ interface Props {
   discountAmount: number;
   total: number;
   invoiceNo: string;
+  cashReceived: number;
+  balance: number;
 }
 
 export default function Receipt({
@@ -19,8 +21,10 @@ export default function Receipt({
   discountAmount,
   total,
   invoiceNo,
+  cashReceived,
+  balance,
 }: Props) {
-  const [isClient, setIsClient] = useState(false); 
+  const [isClient, setIsClient] = useState(false);
 
   // hydration fix: only render on client side
   const updateIsClient = useEffectEvent((isClient: boolean) => {
@@ -69,10 +73,19 @@ export default function Receipt({
               key={i}
               className="flex gap-2 text-right text-[10px] justify-between mt-2 mb-2"
             >
-              <span className="w-12 text-[10px] text-left">{item.weighted ? `${item.value}Kg`: `${item.value} `}</span>
+              <span className="w-12 text-[10px] text-left">
+                {item.weighted ? `${item.value}Kg` : `${item.value} `}
+              </span>
               <span className="w-48 text-left">{item.name}</span>
-              <span className="w-16"> {item.weighted ? item.pricePerKg : item.packPrice}</span>
-              <span className="w-16">{item.weighted ? (item.pricePerKg * item.value).toFixed(2) : (item.packPrice * item.value).toFixed(2)}</span>
+              <span className="w-16">
+                {" "}
+                {item.weighted ? item.pricePerKg : item.packPrice}
+              </span>
+              <span className="w-16">
+                {item.weighted
+                  ? (item.pricePerKg * item.value).toFixed(2)
+                  : (item.packPrice * item.value).toFixed(2)}
+              </span>
             </div>
           ))}
         </div>
@@ -87,6 +100,10 @@ export default function Receipt({
           <span className="text-right"> {discountAmount.toFixed(2)}</span>
           <span className="text-left">TOTAL Rs.</span>
           <span className="text-right"> {total.toFixed(2)}</span>
+          <span className="text-left">CASH RECEIVED Rs.</span>
+          <span className="text-right"> {cashReceived.toFixed(2)}</span>
+          <span className="text-left">CHANGE Rs.</span>
+          <span className="text-right"> {balance.toFixed(2)}</span>
         </div>
       </div>
     )

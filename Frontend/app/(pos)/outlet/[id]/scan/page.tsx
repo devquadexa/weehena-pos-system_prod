@@ -17,6 +17,7 @@ import { cancelLastSale, processSale } from "@/app/services/saleService";
 import { useParams } from "next/navigation";
 import WeightModal from "@/app/components/WeightModal";
 import { printReceipt } from "@/app/services/receiptPrinter";
+import PaymentModal from "@/app/components/PaymentModal";
 
 export default function ScanPage() {
   const [barcode, setBarcode] = useState<string>("");
@@ -33,6 +34,10 @@ export default function ScanPage() {
     "percentage",
   );
 
+  //PaymentModal
+  const [cashReceived, setCashReceived] = useState(0);
+  const [balance, setBalance] = useState(0);
+
   // Weight Modal State
   const [weightModalOpen, setWeightModalOpen] = useState(false);
 
@@ -45,6 +50,8 @@ export default function ScanPage() {
     discount,
     discountType,
   );
+
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -148,7 +155,14 @@ export default function ScanPage() {
     };
   };
 
-  const handlePay = async () => {
+  const handlePaymentConfirm = (cash: number) => {
+    setCashReceived(cash);
+    setBalance(cash - total);
+
+    handlePay(cash, cash - total);
+  };
+
+  const handlePay = async (cashReceived: number, balance: number) => {
     if (cart.length === 0) return;
 
     try {
@@ -168,9 +182,12 @@ export default function ScanPage() {
           discountAmount,
           total,
           invoiceNo: saleData.invoiceNo,
+          cashReceived,
+          balance,
         },
         // "BIXOLON SPP-R310",
-        "XP-80C",
+        "XP-80C (copy 1)",
+        // "XP-80C",
       );
     } catch (error: unknown) {
       console.error(error);
@@ -216,7 +233,8 @@ export default function ScanPage() {
         <Button
           onClick={() => {
             if (cart.length === 0 || loading) return;
-            handlePay();
+            // handlePay();
+            setPaymentModalOpen(true);
           }}
           className="bg-blue-600 hover:bg-blue-500 text-white mr-3  rounded disabled:bg-gray-400"
         >
@@ -279,6 +297,12 @@ export default function ScanPage() {
         id="receipt-print"
         className="flex flex-col items-start receipt-print"
       >
+        <PaymentModal
+          isOpen={paymentModalOpen}
+          total={total}
+          onClose={() => setPaymentModalOpen(false)}
+          onConfirm={handlePaymentConfirm}
+        />
         <Receipt
           cart={cart}
           invoiceNo={invoiceNo}
@@ -287,10 +311,12 @@ export default function ScanPage() {
           discountType={discountType}
           discountAmount={discountAmount}
           total={total}
+          cashReceived={cashReceived}
+          balance={balance}
         />
         <button
           onClick={handleCancelLastSale}
-          className="hover:bg-red-200 bg-red-100 text-sm  font-semibold mt-5 text-red-800 px-4 py-2 rounded-lg"
+          className="hover:bg-red-700 bg-red-800 text-normal mt-5 text-white px-4 py-2 rounded"
         >
           Cancel Last Sale
         </button>
