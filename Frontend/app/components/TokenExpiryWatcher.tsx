@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
+import toast from "react-hot-toast";
 
 interface JwtPayload {
   exp: number;
@@ -19,17 +20,23 @@ export default function TokenExpiryWatcher() {
       const expiresAt = decoded.exp * 1000;
       const timeout = expiresAt - Date.now();
 
+      console.log("Expires At:", new Date(decoded.exp * 1000));
+      console.log(
+        "Remaining Minutes:",
+        Math.floor((decoded.exp * 1000 - Date.now()) / 1000 / 60),
+      );
+
       if (timeout <= 0) {
         localStorage.removeItem("token");
-        window.location.href = "/login";
+        window.location.href = "/auth/login";
         return;
       }
 
       const timer = setTimeout(() => {
-        alert("Session expired. Please login again.");
+        toast.error("Session expired. Please login again.");
 
         localStorage.removeItem("token");
-        window.location.href = "/login";
+        window.location.href = "/auth/login";
       }, timeout);
 
       return () => clearTimeout(timer);
