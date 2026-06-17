@@ -16,6 +16,7 @@ import ResponsiveDataView, {
   ColumnDef,
 } from "@/app/components/ResponsiveDataView";
 import toast from "react-hot-toast";
+import { Trash2 } from "lucide-react";
 
 export default function StockPage() {
   const [stockList, setStockList] = useState<StockItem[]>([]);
@@ -183,12 +184,12 @@ export default function StockPage() {
       align: "center",
       cardRole: "actions",
       render: (item) => (
-        <Button
+        <button
           onClick={() => handleDelete(item.id)}
-          className="w-full bg-red-800 text-white rounded hover:bg-red-700"
+          className="w-full lg:w-fit rounded text-red-800 hover:text-red-600 hover:bg-red-100 px-2 py-1 "
         >
-          Delete
-        </Button>
+          <Trash2 className="size-4 items-center mx-auto" />
+        </button>
       ),
     },
   ];

@@ -12,6 +12,7 @@ import {
   updateProductPrices,
 } from "@/app/services/productService";
 import { ProductItems } from "@/app/types/Product";
+import { Trash2 } from "lucide-react";
 import { useEffect, useEffectEvent, useRef, useState } from "react";
 import toast from "react-hot-toast";
 
@@ -135,12 +136,12 @@ export default function ProductPage() {
       align: "center",
       cardRole: "actions",
       render: (p) => (
-        <Button
+        <button
           onClick={() => handleDelete(p.id)}
-          className="w-full bg-red-900 hover:bg-red-700 text-white rounded"
+          className="w-full lg:w-fit rounded text-red-800 hover:text-red-600 hover:bg-red-100 px-2 py-1 "
         >
-          Delete
-        </Button>
+         <Trash2 className="size-4 items-center mx-auto" />
+        </button>
       ),
     },
   ];

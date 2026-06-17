@@ -10,6 +10,7 @@ import { loginSchema } from "@/app/schemas/loginSchema";
 import z from "zod";
 import Form from "next/form";
 import toast from "react-hot-toast";
+import { CircleUser, KeyRound, LogIn } from "lucide-react";
 
 type LoginErrors = {
   username: string;
@@ -112,8 +113,9 @@ export default function LoginPage() {
         >
           <label
             htmlFor="username"
-            className="font-medium text-sm text-gray-800"
+            className="flex text-center gap-2 my-auto font-medium text-sm text-gray-800"
           >
+            <CircleUser className="size-5 text-red-900" />
             Username
           </label>
           <input
@@ -129,13 +131,16 @@ export default function LoginPage() {
             autoComplete="true"
           />
           {errors?.username && (
-            <p className="text-red-500 text-xs font-medium mt-1">{errors.username}</p>
+            <p className="text-red-500 text-xs font-medium mt-1">
+              {errors.username}
+            </p>
           )}
 
           <label
             htmlFor="password"
-            className="font-medium text-sm text-gray-800"
+            className="flex gap-2 font-medium text-sm text-gray-800"
           >
+            <KeyRound className="size-5 text-red-900" />
             Password
           </label>
           <div className="relative">
@@ -192,14 +197,17 @@ export default function LoginPage() {
             </button>
           </div>
           {errors?.password && (
-            <p className="text-red-500 text-xs font-medium mt-1">{errors?.password}</p>
+            <p className="text-red-500 text-xs font-medium mt-1">
+              {errors?.password}
+            </p>
           )}
-          <div className="mx-auto text-sm w-full flex flex-col gap-1">
+          <div className="mx-auto text-sm w-full flex flex-col gap-1 mt-4">
             <button
               type="submit"
-              className="mx-auto bg-red-700 hover:bg-red-600 rounded-lg font-semibold text-white w-48 py-2"
+              className="flex gap-1 items-center justify-center mx-auto bg-red-700 hover:bg-red-600 rounded-lg font-semibold text-white w-48 py-2"
             >
               Login
+              <LogIn className="size-5"/>
             </button>
           </div>
         </Form>
