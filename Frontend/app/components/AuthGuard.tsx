@@ -28,12 +28,12 @@ export default function AuthGuard({ children }: AuthGuardProps) {
 
   if (loading) {
     return (
-      <div className="flex h-screen flex-col items-center justify-center bg-white text-red-800">
+      <div className="flex h-screen flex-col items-center justify-center bg-white text-red-900">
         <div className="mb-6 h-12 w-12 animate-spin rounded-full border-4 border-slate-200 border-t-red-800"></div>
 
-        <h1 className="text-xl font-bold">WEEHENA FARM SHOP</h1>
+        <h1 className="text-xl font-semibold">WEEHENA FARM SHOP</h1>
 
-        <p className="mt-2 font-semibold text-red-800">
+        <p className="mt-2 font-medium text-red-800">
           Authenticating user...
         </p>
       </div>
