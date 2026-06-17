@@ -73,7 +73,7 @@ export const isTokenExpired = () => {
 //Delete USer
 export const deleteUser = async (id: number) => {
   const token = localStorage.getItem("token");
-  const res = await fetch(`http://localhost:8080/api/users/${id}`, {
+  const res = await fetch(`${API_URL}/${id}`, {
     method: "DELETE",
     headers: {
       Authorization: `Bearer ${token}`,
