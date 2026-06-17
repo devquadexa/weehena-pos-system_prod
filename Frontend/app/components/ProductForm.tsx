@@ -117,15 +117,15 @@ export default function ProductForm({
       pricePerKg: parseFloat(data.get("pricePerKg") as string) || 0,
       weighted: (data.get("weighted") as string) === "true",
     };
-    // if (
-    //   !product.name ||
-    //   !product.barcode ||
-    //   !product.bulkPrice ||
-    //   !product.retailPrice
-    // ) {
-    //   alert("Please fill in all required fields with valid values.");
-    //   return;
-    // }
+    if (
+      !product.name ||
+      !product.barcode ||
+      !product.bulkPrice ||
+      !product.retailPrice
+    ) {
+      toast.error("Please fill in all required fields with valid values.");
+      return;
+    }
 
     const newProduct = {
       name: product.name,
@@ -178,13 +178,13 @@ export default function ProductForm({
         weighted: false,
       });
       // alert("Product added successfully!");
-      toast.success(`${product.name} added successfully!`);
+      toast.success(`${product.name} added successfully!`, { duration: 3000 });
       onAddSuccess?.();
       onClose();
     } catch (err) {
       console.error("Failed to add product:", err);
       // alert("Failed to add product");
-      toast.error("Failed to add product");
+      toast.error("Failed to add product" + (err as Error).message);
     }
   };
   useEffect(() => {

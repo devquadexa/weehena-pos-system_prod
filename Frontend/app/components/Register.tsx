@@ -95,7 +95,7 @@ export default function Register({
 
     try {
       await register(userData);
-      toast.success("User created successfully");
+      toast.success("User created successfully", { duration: 2000 });
       setFormData({
         username: "",
         password: "",
