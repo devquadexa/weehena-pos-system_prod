@@ -9,6 +9,7 @@ import { getUserFromToken } from "../services/userService";
 import { StockRequest } from "../types/Stock";
 import { stockSchema } from "../schemas/stockSchema";
 import toast from "react-hot-toast";
+import z from "zod/v4";
 
 type StockFormErrors = {
   barcode: string;
@@ -164,10 +165,11 @@ export default function ProductForm({
       weight: parseFloat(data.get("weight") as string) || 0,
       user: user.role,
     };
-    // if (!stock.barcode || !stock.outletId) {
-    //   alert("Please fill in all required fields with valid values.");
-    //   return;
-    // }
+
+    if (!stock.barcode || !stock.outletId) {
+      toast.error("Please fill in all required fields with valid values.");
+      return;
+    }
 
     const newStock = {
       barcode: stock.barcode,
@@ -190,17 +192,18 @@ export default function ProductForm({
     });
 
     if (!result.success) {
-      console.log(result.error.flatten());
+      // console.log(result.error.flatten());
 
-      const errors = result.error.flatten().fieldErrors;
+      // const errors = result.error.flatten().fieldErrors;
+      const { fieldErrors } = z.flattenError(result.error);
 
       setErrors({
-        barcode: errors.barcode?.[0] || "",
-        lowStockThresholdQty: errors.lowStockThresholdQty?.[0] || "",
-        lowStockThresholdWeight: errors.lowStockThresholdWeight?.[0] || "",
-        outletId: errors.outletId?.[0] || "",
-        quantity: errors.quantity?.[0] || "",
-        weight: errors.weight?.[0] || "",
+        barcode: fieldErrors.barcode?.[0] || "",
+        lowStockThresholdQty: fieldErrors.lowStockThresholdQty?.[0] || "",
+        lowStockThresholdWeight: fieldErrors.lowStockThresholdWeight?.[0] || "",
+        outletId: fieldErrors.outletId?.[0] || "",
+        quantity: fieldErrors.quantity?.[0] || "",
+        weight: fieldErrors.weight?.[0] || "",
       });
 
       return;
@@ -222,14 +225,6 @@ export default function ProductForm({
       onAddSuccess?.();
       setProduct(null);
       setProductError("");
-      // setErrors({
-      //   barcode: "",
-      //   lowStockThresholdQty: "",
-      //   lowStockThresholdWeight: "",
-      //   outletId: "",
-      //   quantity: "",
-      //   weight: "",
-      // });
       onClose();
     } catch (err) {
       console.error("Failed to add stock:", err);
