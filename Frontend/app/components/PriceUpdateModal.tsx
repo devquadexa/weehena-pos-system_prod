@@ -80,6 +80,7 @@ export default function PriceUpdateModal({
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       if (!validateForm()) return;
+      console.log("Calling onConfirm", prices);
       onConfirm(prices);
       onClose();
     }
@@ -120,7 +121,6 @@ export default function PriceUpdateModal({
               name="bulkPrice"
               type="number"
               step="0.01"
-              min={1}
               value={prices.bulkPrice}
               onChange={handleChange}
               onKeyDown={handleKeyDown}
@@ -146,7 +146,6 @@ export default function PriceUpdateModal({
               name="retailPrice"
               type="number"
               step="0.01"
-              min={1}
               value={prices.retailPrice}
               onChange={handleChange}
               onKeyDown={handleKeyDown}
@@ -173,7 +172,6 @@ export default function PriceUpdateModal({
                 name="packPrice"
                 type="number"
                 step="0.01"
-                min={1}
                 value={prices.packPrice}
                 onChange={handleChange}
                 onKeyDown={handleKeyDown}
@@ -201,7 +199,6 @@ export default function PriceUpdateModal({
                 name="pricePerKg"
                 type="number"
                 step="0.01"
-                min={1}
                 value={prices.pricePerKg}
                 onChange={handleChange}
                 onKeyDown={handleKeyDown}
@@ -220,6 +217,7 @@ export default function PriceUpdateModal({
           <Button
             onClick={() => {
               if (!validateForm()) return;
+              console.log("Calling onConfirm", prices);
               onConfirm(prices);
               onClose();
             }}
