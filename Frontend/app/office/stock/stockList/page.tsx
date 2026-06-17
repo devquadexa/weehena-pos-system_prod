@@ -69,6 +69,7 @@ export default function StockPage() {
     try {
       await deleteStock(id);
       await loadStock();
+      toast.success("Stock deleted successfully");
     } catch (err) {
       console.error("Failed to delete stock:", err);
       toast.error("Failed to delete stock");
