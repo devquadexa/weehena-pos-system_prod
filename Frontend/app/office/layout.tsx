@@ -7,6 +7,7 @@ import Image from "next/image";
 import AdminGuard from "../components/AdminGuard";
 import { logout } from "../services/userService";
 import { Toaster } from "react-hot-toast";
+import { LogOut } from "lucide-react";
 
 interface Props {
   children: ReactNode;
@@ -259,9 +260,10 @@ export default function OfficeLayout({ children }: Props) {
                 logout();
                 router.push("/auth/login");
               }}
-              className="w-full text-center text-red-700 font-semibold px-4 py-2 rounded-md hover:bg-red-100"
+              className="flex items-center justify-center gap-2 w-full text-center text-red-700 font-semibold px-4 py-2 rounded-md hover:bg-red-100"
             >
               Logout
+              <LogOut className="size-4" />
             </button>
           </div>
         </aside>
