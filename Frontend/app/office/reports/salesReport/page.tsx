@@ -201,7 +201,7 @@ export default function ReportPage() {
           </div>
 
           <div className="text-gray-800 mt-6  font-semibold">
-            <h1 className="text-lg">Sales Items</h1>
+            <h1 className="text-base">Sales Items</h1>
           </div>
 
           <ResponsiveDataView
@@ -213,14 +213,14 @@ export default function ReportPage() {
               cellClassName: "border border-gray-800",
             }))}
             getRowKey={(_, index) => index}
-            tableClassName="w-full border border-gray-300 text-sm mt-2"
-            headerRowClassName=""
+            tableClassName="w-full border border-gray-300 text-xs mt-2"
+            headerRowClassName="text-xs"
             striped={false}
             emptyMessage="No sales items"
           />
 
           <div className="text-gray-800 mt-6  font-semibold">
-            <h1 className="text-lg">Cancelled Sales</h1>
+            <h1 className="text-base">Cancelled Sales</h1>
           </div>
 
           <ResponsiveDataView
@@ -232,22 +232,22 @@ export default function ReportPage() {
               cellClassName: "border border-gray-800",
             }))}
             getRowKey={(_, index) => index}
-            tableClassName="w-full border border-gray-300 text-sm mt-2"
-            headerRowClassName=""
+            tableClassName="w-full border border-gray-300 text-xs mt-2"
+            headerRowClassName="text-xs"
             striped={false}
             emptyMessage="No cancelled sales"
           />
 
           <div className="text-gray-800 mt-6  font-semibold">
-            <h1 className="text-lg">Sales Summary</h1>
+            <h1 className="text-base">Sales Summary</h1>
           </div>
 
           {reports.map((r, i) => (
             <div
               key={i}
-              className="w-full max-w-md p-4 rounded text-sm text-gray-900 font-medium mt-4"
+              className="w-full max-w-md px-4 rounded text-gray-900 font-medium mt-2"
             >
-              <div className="grid grid-cols-2 gap-y-3 gap-x-6 text-sm">
+              <div className="grid grid-cols-2 gap-y-3 gap-x-6 text-xs">
                 <span className="text-gray-700 font-semibold">Date :</span>
                 <span className="text-gray-900 font-medium text-right">
                   {r.date}
