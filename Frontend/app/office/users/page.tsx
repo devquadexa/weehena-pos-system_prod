@@ -5,9 +5,11 @@ import Register from "@/app/components/Register";
 import ResponsiveDataView, {
   ColumnDef,
 } from "@/app/components/ResponsiveDataView";
-import { getUsers } from "@/app/services/userService";
+import { deleteUser, getUsers } from "@/app/services/userService";
 import { UserData } from "@/app/types/User";
+import { Trash2 } from "lucide-react";
 import { useEffect, useEffectEvent, useRef, useState } from "react";
+import toast from "react-hot-toast";
 
 export default function UsersPage() {
   const [formOpen, setFormOpen] = useState(false);
@@ -33,6 +35,21 @@ export default function UsersPage() {
     updateLoadUsers();
   }, []);
 
+  // Delete User
+  const handleDelete = async (id: number) => {
+    const confirmDelete = confirm("Are you sure to delete this user?");
+    if (!confirmDelete) return;
+
+    try {
+      await deleteUser(id);
+      await loadUsers();
+      toast.success("user deleted successfully");
+    } catch (err) {
+      console.error("Failed to delete user:", err);
+      toast.error("Failed to delete user");
+    }
+  };
+
   const userColumns: ColumnDef<UserData>[] = [
     {
       header: "Username",
@@ -44,6 +61,19 @@ export default function UsersPage() {
       render: (item) => item.role,
       cardRole: "title",
     },
+    {
+      header: "Action",
+      align: "center",
+      cardRole: "actions",
+      render: (user: UserData) => (
+        <button
+          onClick={() => handleDelete(user.id)}
+          className="w-full lg:w-fit rounded text-red-800 hover:text-red-600 hover:bg-red-100 px-2 py-1"
+        >
+          <Trash2 className="size-4" />
+        </button>
+      ),
+    },
   ];
 
   return (
@@ -53,7 +83,7 @@ export default function UsersPage() {
       </h1>
       <Button
         onClick={() => setFormOpen(true)}
-        className="md:w-40 sm:w-auto shrink-0 bg-green-900 hover:bg-green-700 text-white px-4 rounded"
+        className="md:w-40 sm:w-auto shrink-0 lg:w-80 bg-green-900 hover:bg-green-700 text-white px-4 rounded"
       >
         Add User
       </Button>
@@ -74,6 +104,7 @@ export default function UsersPage() {
           columns={userColumns}
           getRowKey={(u) => u.id}
           emptyMessage="No Users"
+          tableClassName="w-full border-2"
           scrollable
         />
       </div>
