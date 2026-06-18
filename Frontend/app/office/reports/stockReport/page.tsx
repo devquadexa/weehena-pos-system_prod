@@ -166,7 +166,7 @@ export default function StockReportPage() {
           </div>
 
           <div className="text-gray-800 mt-6  font-semibold">
-            <h1 className="text-lg">Stock Items</h1>
+            <h1 className="text-base">Stock Items</h1>
           </div>
 
           <ResponsiveDataView
@@ -178,8 +178,8 @@ export default function StockReportPage() {
               cellClassName: "border border-gray-800",
             }))}
             getRowKey={(_, index) => index}
-            tableClassName="w-full text-sm mt-2 border border-gray-300"
-            headerRowClassName=""
+            tableClassName="w-full text-xs mt-2 border border-gray-300"
+            headerRowClassName="text-xs"
             striped={false}
             emptyMessage="No stock report items"
           />

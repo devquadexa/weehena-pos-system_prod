@@ -62,15 +62,9 @@ export default function ResponsiveDataView<T>({
     : "";
 
   return (
-    <div
-      className={
-        scrollable ? "flex flex-col h-full min-h-0" : "contents"
-      }
-    >
+    <div className={scrollable ? "flex flex-col h-full min-h-0" : "contents"}>
       {/* Mobile / tablet cards */}
-      <div
-        className={`lg:hidden print:hidden space-y-3 ${scrollClass}`}
-      >
+      <div className={`lg:hidden print:hidden space-y-3 ${scrollClass}`}>
         {data.map((row, index) => {
           const rowClass = getRowClassName?.(row) ?? "";
           return (

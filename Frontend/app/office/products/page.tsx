@@ -12,6 +12,7 @@ import {
   updateProductPrices,
 } from "@/app/services/productService";
 import { ProductItems } from "@/app/types/Product";
+import { Box, Trash2 } from "lucide-react";
 import { useEffect, useEffectEvent, useRef, useState } from "react";
 import toast from "react-hot-toast";
 
@@ -64,8 +65,6 @@ export default function ProductPage() {
     }
   };
 
-  
-
   const filteredProducts = products.filter(
     (item) =>
       item.barcode?.toString().includes(search) ||
@@ -79,7 +78,12 @@ export default function ProductPage() {
     },
     {
       header: "Product Name",
-      render: (p) => p.name,
+      render: (p) => (
+        <div className="flex items-center gap-2">
+          <Box className="size-4 text-red-900 shrink-0" />
+          <span>{p.name}</span>
+        </div>
+      ),
       cardRole: "title",
     },
     {
@@ -135,12 +139,12 @@ export default function ProductPage() {
       align: "center",
       cardRole: "actions",
       render: (p) => (
-        <Button
+        <button
           onClick={() => handleDelete(p.id)}
-          className="w-full bg-red-900 hover:bg-red-700 text-white rounded"
+          className="w-full lg:w-fit rounded text-red-800 hover:text-red-600 hover:bg-red-100 px-2 py-1 "
         >
-          Delete
-        </Button>
+          <Trash2 className="size-4 items-center mx-auto" />
+        </button>
       ),
     },
   ];

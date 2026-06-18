@@ -44,7 +44,7 @@ export const register = async (data: UserRequest) => {
 };
 
 // Get Users
-export const getUsers = async () =>{
+export const getUsers = async () => {
   const token = localStorage.getItem("token");
   const res = await fetch(`${API_URL}`, {
     headers: {
@@ -53,7 +53,7 @@ export const getUsers = async () =>{
   });
   if (!res.ok) throw new Error("Failed to fetch users");
   return res.json();
-}
+};
 
 // check if token is expired
 export const isTokenExpired = () => {
@@ -68,6 +68,18 @@ export const isTokenExpired = () => {
   } catch {
     return true;
   }
+};
+
+//Delete USer
+export const deleteUser = async (id: number) => {
+  const token = localStorage.getItem("token");
+  const res = await fetch(`${API_URL}/${id}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  if (!res.ok) throw new Error("Failed to delete user");
 };
 
 export const logout = () => {

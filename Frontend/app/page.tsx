@@ -7,6 +7,7 @@ import { getStock } from "./services/stockService";
 import { useRouter } from "next/navigation";
 import AuthGuard from "./components/AuthGuard";
 import { getUserFromToken, logout } from "./services/userService";
+import { LogOut } from "lucide-react";
 
 export default function Home() {
   const router = useRouter();
@@ -113,9 +114,10 @@ export default function Home() {
             logout();
             router.push("/auth/login");
           }}
-          className="text-center text-sm font-bold w-56 mt-4 left-4 text-red-800  px-6 py-3 rounded-xl hover:bg-red-100"
+          className="flex gap-2 items-center justify-center text-sm font-semibold w-56 mt-4 left-4 text-red-800  px-6 py-3 rounded-xl hover:bg-red-100"
         >
           Logout
+          <LogOut className="size-5"/>
         </button>
       </div>
     </AuthGuard>

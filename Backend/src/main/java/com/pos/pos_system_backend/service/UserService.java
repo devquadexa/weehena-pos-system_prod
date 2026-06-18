@@ -44,4 +44,11 @@ public class UserService {
                 ))
                 .toList();
     }
+
+    public void deleteUser(Long id) {
+        if (!repo.existsById(id)) {
+            throw new RuntimeException("User not found");
+        }
+        repo.deleteById(id);
+    }
 }

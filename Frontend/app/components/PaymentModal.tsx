@@ -62,6 +62,12 @@ export default function PaymentModal({
               type="number"
               value={cashReceived}
               onChange={(e) => setCashReceived(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  onConfirm(cash);
+                  onClose();
+                }
+              }}
               className="w-full text-black border-2 border-red-800  bg-red-50 p-2 rounded"
             />
           </div>

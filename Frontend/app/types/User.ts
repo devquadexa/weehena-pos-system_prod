@@ -5,7 +5,7 @@ export interface UserRequest {
 }
 
 export interface UserData {
-  id: string,
+  id: number,
   username: string;
   role: "ADMIN" | "MANAGER" | "CASHIER";
 }

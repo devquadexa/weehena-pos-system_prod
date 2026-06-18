@@ -1,3 +1,5 @@
+import toast from "react-hot-toast";
+
 const API_URL = "https://weehenapos360.cloud/api/auth";
 
 export const getUser = async (username: string, password: string) => {
@@ -17,7 +19,9 @@ export const getUser = async (username: string, password: string) => {
     localStorage.setItem("token", token);
     return token;
   } catch (err) {
-    alert("Invalid login credentials");
+    toast.error("Invalid login credentials, Please try again !", {
+      duration: 4000,
+    });
     console.error("Login error:", err);
   }
 };

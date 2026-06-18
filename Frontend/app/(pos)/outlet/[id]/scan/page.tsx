@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useContext, useRef} from "react";
+import { useState, useContext, useRef } from "react";
 import { CartContext } from "@/app/context/CartContext";
 import BarcodeInput from "@/app/components/BarcodeInput";
 import CartTable from "@/app/components/CartTable";
@@ -18,6 +18,7 @@ import { useParams } from "next/navigation";
 import WeightModal from "@/app/components/WeightModal";
 import { printReceipt } from "@/app/services/receiptPrinter";
 import PaymentModal from "@/app/components/PaymentModal";
+import toast from "react-hot-toast";
 
 export default function ScanPage() {
   const [barcode, setBarcode] = useState<string>("");
@@ -64,7 +65,7 @@ export default function ScanPage() {
     try {
       product = await fetchProduct(barcode);
     } catch {
-      alert("Product not found");
+      toast.error("Product not found");
       return;
     }
 
@@ -174,7 +175,9 @@ export default function ScanPage() {
 
       const newInvoice = saleData.invoiceNo;
       setInvoiceNo(newInvoice);
-      alert(`Payment Done\nInvoice: ${newInvoice}`);
+      toast.success(`Payment Done\nInvoice: ${newInvoice}`, {
+        duration: 4000,
+      });
       await printReceipt(
         {
           cart,
@@ -186,12 +189,12 @@ export default function ScanPage() {
           balance,
         },
         // "BIXOLON SPP-R310",
-        // "XP-80C (copy 1)",
-        "XP-80C",
+        "XP-80C (copy 1)",
+        // "XP-80C", // uncomment this when push
       );
     } catch (error: unknown) {
       console.error(error);
-      alert("Payment Failed ❌ " + (error as Error).message);
+      toast.error("Payment Failed ❌ " + (error as Error).message);
     } finally {
       setLoading(false);
     }
@@ -204,9 +207,13 @@ export default function ScanPage() {
 
     try {
       const sale = await cancelLastSale();
-      alert(`Sale ${sale.invoiceNo} cancelled successfully`);
+      toast.success(`Sale ${sale.invoiceNo} cancelled successfully`, {
+        duration: 4000,
+      });
     } catch (err: unknown) {
-      alert("Faild to cancel sale" + (err as Error).message);
+      toast.error((err as Error).message, {
+        duration: 3000,
+      });
     }
   };
 
