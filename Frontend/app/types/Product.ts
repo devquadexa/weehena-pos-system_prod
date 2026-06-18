@@ -1,6 +1,8 @@
 export interface Product {
   barcode: string;
   name: string;
+  bulkPrice: number;
+  retailPrice: number;
   packPrice: number;
   pricePerKg: number;
   weighted: boolean;

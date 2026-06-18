@@ -3,6 +3,8 @@ export interface Product {
   name: string;
   packPrice: number;
   pricePerKg: number;
+  retailPrice:number;
+  bulkPrice:number;
   weighted: boolean;
 }
 
