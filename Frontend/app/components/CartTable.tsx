@@ -58,13 +58,13 @@ export default function CartTable({ cart, onDelete }: Props) {
               </td>
               <td className="border text-sm text-gray-700 border-gray-400 p-2 text-right">
                 {item.weighted
-                  ? item.pricePerKg.toFixed(2)
-                  : item.packPrice.toFixed(2)}
+                  ? item.retailPrice.toFixed(2)
+                  : item.retailPrice.toFixed(2)}
               </td>
               <td className="border text-sm text-gray-700 border-gray-400 p-2 text-right">
                 {item.weighted
-                  ? (item.pricePerKg * item.value).toFixed(2)
-                  : (item.packPrice * item.value).toFixed(2)}
+                  ? (item.retailPrice * item.value).toFixed(2)
+                  : (item.retailPrice * item.value).toFixed(2)}
               </td>
               <td className="border text-sm text-gray-700 border-gray-400 p-2 text-center">
                 <button

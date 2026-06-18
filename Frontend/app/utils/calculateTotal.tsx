@@ -9,8 +9,8 @@ export const calculateTotal = (
     (sum, item) =>
       sum +
       (item.weighted
-        ? item.pricePerKg * item.value // weight * price per kg
-        : item.packPrice * item.value), //qty * price per pack
+        ? item.retailPrice * item.value // weight * price per kg
+        : item.retailPrice * item.value), //qty * price per pack
     0,
   );
 

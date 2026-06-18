@@ -50,15 +50,19 @@ public class SaleService {
             double itemTotal;
 
             if (product.isWeighted()) {
-                itemTotal = item.getValue() * product.getPricePerKg();
+                itemTotal = item.getValue() * product.getRetailPrice();
             } else {
                 double unitPrice = switch (item.getPriceType()) {
                     case BULK -> product.getBulkPrice();
-                    case PACK -> product.getPackPrice();
+                    case RETAIL -> product.getRetailPrice();
+//                    case PACK -> product.getPackPrice();
                     default -> product.getRetailPrice();
+
                 };
+                System.out.println(unitPrice);
                 itemTotal = unitPrice * item.getValue();
             }
+
 
             stockService.reduceStock(
                     item.getBarcode(),
