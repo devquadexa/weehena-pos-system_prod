@@ -363,7 +363,7 @@ export default function ProductForm({
               name="lowStockThresholdQty"
               placeholder="Low Stock Threshold (Qty)"
               disabled={disableQty}
-              min={20}
+              min={10}
               value={formData.lowStockThresholdQty}
               onChange={handleChange}
               className={`w-full ${disableQty ? "bg-gray-200" : "bg-red-50"} p-2 text-gray-700 text-md border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-red-800`}
@@ -384,7 +384,7 @@ export default function ProductForm({
               name="lowStockThresholdWeight"
               placeholder="Low Stock Threshold (Weight)"
               step={0.01}
-              min={20}
+              min={10}
               value={formData.lowStockThresholdWeight}
               disabled={disableWeight}
               onChange={handleChange}
