@@ -7,15 +7,16 @@ import Image from "next/image";
 import AdminGuard from "../components/AdminGuard";
 import { logout } from "../services/userService";
 import { Toaster } from "react-hot-toast";
-import { LogOut } from "lucide-react";
+import { Box, ClipboardMinus, House, Layers, LogOut, UsersRound } from "lucide-react";
 
 interface Props {
   children: ReactNode;
 }
 
 const navItems = [
-  { name: "Products", path: "/products" },
+  { icon: <Box className="size-5" />, name: "Products", path: "/products" },
   {
+    icon: <Layers className="size-5" />,
     name: "Stock",
     path: "/stock",
     children: [
@@ -24,6 +25,7 @@ const navItems = [
     ],
   },
   {
+    icon: <ClipboardMinus className="size-5" />,
     name: "Reports",
     path: "/reports",
     children: [
@@ -31,7 +33,7 @@ const navItems = [
       { name: "Day-End Stock Report", path: "/reports/stockReport" },
     ],
   },
-  { name: "Users", path: "/users" },
+  { icon: <UsersRound className="size-5" />, name: "Users", path: "/users" },
 ];
 
 function getActiveParentMenu(pathname: string): string | null {
@@ -180,12 +182,13 @@ export default function OfficeLayout({ children }: Props) {
                     onClick={() =>
                       item.children ? toggleMenu(item.name) : null
                     }
-                    className={`px-4 py-2 rounded-md text-left cursor-pointer transition ${
+                    className={`flex items-center gap-2 px-4 py-2 rounded-md text-left cursor-pointer transition ${
                       isActive
                         ? "bg-red-100 text-red-600 font-semibold"
                         : "hover:bg-gray-100 text-red-900 font-semibold"
                     }`}
                   >
+                    {item.icon}
                     {item.children ? (
                       <span className="flex items-center justify-between gap-2">
                         {item.name}
@@ -250,8 +253,9 @@ export default function OfficeLayout({ children }: Props) {
                 closeSidebar();
                 router.push("/");
               }}
-              className="w-full text-center bg-red-700 text-white px-4 py-2 rounded-md hover:bg-red-600"
+              className="flex items-center justify-center gap-2 w-full text-center bg-red-700 text-white px-4 py-2 rounded-md hover:bg-red-600"
             >
+              <House className="size-5" />
               Back to home
             </button>
             <button
