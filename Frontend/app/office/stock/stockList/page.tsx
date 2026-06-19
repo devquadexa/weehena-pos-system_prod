@@ -103,6 +103,9 @@ export default function StockPage() {
       setModalOpen(false);
       setSelectedStock(null);
       await loadStock();
+      toast.success(`${selectedStock.productName} stock updated successfully`, {
+        duration: 4000,
+      });
     } catch (err) {
       console.error("Failed to update stock:", err);
       toast.error("Failed to update stock");

@@ -35,7 +35,16 @@ export default function RootLayout({
           <TokenExpiryWatcher />
 
           {children}
-          <Toaster />
+          <Toaster
+            toastOptions={{
+              success: {
+                duration: 5000,
+              },
+              error: {
+                duration: 5000,
+              },
+            }}
+          />
         </CartProvider>
       </body>
     </html>
