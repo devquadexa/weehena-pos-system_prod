@@ -4,21 +4,22 @@ const API_URL = "https://weehenapos360.cloud/api/sales";
 
 export const processSale = async (saleData: SaleData) => {
   const token = localStorage.getItem("token");
-  const response = await fetch(`${API_URL}`, {
+  const res = await fetch(`${API_URL}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
+
     body: JSON.stringify(saleData),
   });
 
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(text || "Sale failed");
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(errorText || "Sale failed");
   }
-
-  return response.text();
+  console.log(saleData);
+  return res.text();
 };
 
 export const cancelLastSale = async () => {
