@@ -111,7 +111,7 @@ export default function Register({
       onClose();
     } catch (error) {
       console.error("Error creating user:", error);
-      toast.error("Failed to create user");
+      toast.error((error as Error).message);
     }
   };
 
