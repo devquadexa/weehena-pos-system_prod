@@ -188,9 +188,7 @@ export default function ScanPage() {
           cashReceived,
           balance,
         },
-        // "BIXOLON SPP-R310",
-        "XP-80C (copy 1)",
-        // "XP-80C", // uncomment this when push
+        "XP-80C",//shop printer
       );
     } catch (error: unknown) {
       console.error(error);
