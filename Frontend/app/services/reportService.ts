@@ -17,7 +17,8 @@ export const getDailyReport = async (
   });
 
   if (!res.ok) {
-    throw new Error("Failed to fetch report");
+    const errorText = await res.text();
+    throw new Error(errorText || "Failed to fetch report");
   }
 
   return res.json();
@@ -37,7 +38,8 @@ export const getSoldItems = async (
   });
 
   if (!res.ok) {
-    throw new Error("Failed to fetch sold items");
+    const errorText = await res.text();
+    throw new Error(errorText || "Failed to fetch sold items");
   }
 
   return res.json();
@@ -57,8 +59,9 @@ export const getDayEndStockReport = async (
     },
   });
 
+  const errorText = await res.text();
   if (!res.ok) {
-    throw new Error("Failed to fetch day-end stock report");
+    throw new Error(errorText || "Failed to fetch day-end stock report");
   }
 
   return res.json();
@@ -78,8 +81,10 @@ export const getCancelledSales = async (
     },
   });
 
+  
   if (!res.ok) {
-    throw new Error("Failed to fetch cancelled sale items");
+    const errorText = await res.text();
+    throw new Error(errorText || "Failed to fetch cancelled sale items");
   }
 
   return res.json();
