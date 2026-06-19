@@ -7,7 +7,7 @@ import { getStock } from "./services/stockService";
 import { useRouter } from "next/navigation";
 import AuthGuard from "./components/AuthGuard";
 import { getUserFromToken, logout } from "./services/userService";
-import { LogOut } from "lucide-react";
+import { LayoutDashboard, LogOut, ShoppingCart, Store } from "lucide-react";
 
 export default function Home() {
   const router = useRouter();
@@ -61,10 +61,12 @@ export default function Home() {
             <>
               <label
                 htmlFor="outletId"
-                className="text-md text-gray-800 font-sans font-medium"
+                className="flex items-center gap-4 justify-center mx-auto text-md text-gray-800 font-sans font-medium"
               >
+                <Store className="size-8 text-red-800" />
                 Select your outlet to start selling
               </label>
+
               <select
                 id="outletId"
                 value={outletId}
@@ -83,27 +85,24 @@ export default function Home() {
               </select>
               <Link
                 href={outletId ? `/outlet/${outletId}/scan` : "#"}
-                className={`w-56 text-center shadow drop-shadow-xl shadow-gray-500 bg-red-700 text-sm font-medium text-white px-6 py-3 rounded-xl ${
+                className={`flex items-center w-56 text-center shadow drop-shadow-xl shadow-gray-500 bg-red-700 text-sm font-medium text-white px-6 py-3 rounded-xl ${
                   outletId
                     ? "hover:bg-red-600"
                     : "cursor-not-allowed opacity-50"
                 }`}
               >
+                <ShoppingCart className="size-8" />
                 {outletId ? `Go to Shop (${outletId})` : "No outlet available"}
               </Link>
             </>
           )}
           {(user?.role === "ADMIN" || user?.role === "MANAGER") && (
             <>
-              {/* <label
-                htmlFor="outletId"
-                className="text-md text-gray-800 font-sans font-medium"
-              >
-              </label> */}
               <Link
                 href="/office/products"
-                className="w-56 text-center shadow drop-shadow-lg shadow-gray-600 bg-red-700 text-sm hover:bg-red-600 font-medium text-white px-6 py-3 rounded-xl"
+                className="flex items-center w-56 text-center shadow drop-shadow-lg shadow-gray-600 bg-red-700 text-sm hover:bg-red-600 font-medium text-white px-6 py-3 rounded-xl"
               >
+                <LayoutDashboard className="size-8" />
                 Go to Office Dashboard
               </Link>
             </>
@@ -114,10 +113,10 @@ export default function Home() {
             logout();
             router.push("/auth/login");
           }}
-          className="flex gap-2 items-center justify-center text-sm font-semibold w-56 mt-4 left-4 text-red-800  px-6 py-3 rounded-xl hover:bg-red-100"
+          className="flex gap-2 items-center justify-center text-base font-semibold w-56 mt-4 left-4 text-red-800  px-6 py-3 rounded-xl hover:bg-red-100"
         >
           Logout
-          <LogOut className="size-5"/>
+          <LogOut className="size-5" />
         </button>
       </div>
     </AuthGuard>

@@ -2,6 +2,7 @@
 
 import { useEffect, useEffectEvent, useState } from "react";
 import { CartItem } from "../types";
+import { X } from "lucide-react";
 
 interface Props {
   cart: CartItem[];
@@ -22,7 +23,7 @@ export default function CartTable({ cart, onDelete }: Props) {
   return (
     isClient && (
       <table className=" w-full  mt-5 border-collapse  border border-gray-300 shadow-lg">
-        <thead className="bg-red-700">
+        <thead className="bg-red-900">
           <tr>
             <th className="border text-sm font-medium border-gray-400 p-2 w-50">
               Barcode
@@ -69,9 +70,9 @@ export default function CartTable({ cart, onDelete }: Props) {
               <td className="border text-sm text-gray-700 border-gray-400 p-2 text-center">
                 <button
                   onClick={() => onDelete(item.barcode)}
-                  className=" text-white bg-red-700 px-3 py-1 rounded hover:bg-red-600"
+                  className=" text-red-900 bg-red-200 px-5 py-2 rounded hover:bg-red-300"
                 >
-                  X
+                  <X className="size-4" />
                 </button>
               </td>
             </tr>
