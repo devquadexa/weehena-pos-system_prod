@@ -56,7 +56,6 @@ export default function LoginPage() {
     });
 
     if (!result.success) {
-      // const errors = result.error.flatten().fieldErrors;
       const { fieldErrors } = z.flattenError(result.error);
 
       setErrors({
@@ -82,7 +81,8 @@ export default function LoginPage() {
         toast.error("Unauthorized role");
       }
     } catch (err) {
-      toast.error("Invalid login credentials");
+      // toast.error("Invalid login credentials");
+      toast.error((err as Error).message);
       console.error("Login error:", err);
     }
   };
@@ -207,7 +207,7 @@ export default function LoginPage() {
               className="flex gap-1 items-center justify-center mx-auto bg-red-700 hover:bg-red-600 rounded-lg font-semibold text-white w-48 py-2"
             >
               Login
-              <LogIn className="size-5"/>
+              <LogIn className="size-5" />
             </button>
           </div>
         </Form>
