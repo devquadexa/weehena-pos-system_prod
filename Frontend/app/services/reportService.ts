@@ -59,8 +59,8 @@ export const getDayEndStockReport = async (
     },
   });
 
-  const errorText = await res.text();
   if (!res.ok) {
+    const errorText = await res.text();
     throw new Error(errorText || "Failed to fetch day-end stock report");
   }
 
