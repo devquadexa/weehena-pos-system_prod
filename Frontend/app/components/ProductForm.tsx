@@ -177,14 +177,12 @@ export default function ProductForm({
         pricePerKg: 0,
         weighted: false,
       });
-      // alert("Product added successfully!");
-      toast.success(`${product.name} added successfully!`, { duration: 3000 });
+      toast.success(`${product.name} added successfully!`);
       onAddSuccess?.();
       onClose();
     } catch (err) {
       console.error("Failed to add product:", err);
-      // alert("Failed to add product");
-      toast.error("Failed to add product" + (err as Error).message);
+      toast.error((err as Error).message);
     }
   };
   useEffect(() => {
