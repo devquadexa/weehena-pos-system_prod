@@ -10,11 +10,14 @@ export const getStock = async (): Promise<StockItem[]> => {
       Authorization: `Bearer ${token}`,
     },
   });
-  if (!res.ok) throw new Error("Failed to fetch stock");
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(errorText || "Failed to fetch stock");
+  }
   return res.json();
 };
 
-// Add stock 
+// Add stock
 export const addStock = async (stock: StockRequest) => {
   const token = localStorage.getItem("token");
   const res = await fetch(API_URL, {
@@ -25,7 +28,11 @@ export const addStock = async (stock: StockRequest) => {
     },
     body: JSON.stringify(stock),
   });
-  if (!res.ok) throw new Error("Failed to add stock");
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(errorText || "Failed to add stock");
+  }
   return res.json();
 };
 
@@ -52,5 +59,9 @@ export const deleteStock = async (id: number) => {
       Authorization: `Bearer ${token}`,
     },
   });
-  if (!res.ok) throw new Error("Failed to delete stock");
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(errorText || "Failed to delete stock");
+  }
 };
