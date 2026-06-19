@@ -39,7 +39,11 @@ export const register = async (data: UserRequest) => {
     },
     body: JSON.stringify(data),
   });
-  if (!res.ok) throw new Error("Failed to register user");
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(errorText || "Failed to register user");
+  }
   return await res.text();
 };
 
