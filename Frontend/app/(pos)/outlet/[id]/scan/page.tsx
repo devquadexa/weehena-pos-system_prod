@@ -190,6 +190,7 @@ export default function ScanPage() {
           balance,
         },
         "XP-80C", //shop printer
+        // "XP-80C (copy 1)", //test printer
       );
     } catch (error: unknown) {
       console.error(error);
