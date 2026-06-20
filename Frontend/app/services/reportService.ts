@@ -3,6 +3,9 @@ import { CancelledSaleItem } from "../types/Sale";
 
 const API_URL = "https://weehenapos360.cloud/api/reports";
 
+//Local DB
+// const API_URL = "http://localhost:8080/api/reports";
+
 export const getDailyReport = async (
   date: string,
   outletId: string,

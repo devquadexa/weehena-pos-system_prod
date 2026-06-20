@@ -2,6 +2,9 @@ import { SaleData } from "../types/Sale";
 
 const API_URL = "https://weehenapos360.cloud/api/sales";
 
+//Local DB
+// const API_URL = "http://localhost:8080/api/sales";
+
 export const processSale = async (saleData: SaleData) => {
   const token = localStorage.getItem("token");
   const res = await fetch(`${API_URL}`, {

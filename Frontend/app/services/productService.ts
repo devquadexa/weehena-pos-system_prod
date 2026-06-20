@@ -7,6 +7,9 @@ import {
 
 const API_URL = "https://weehenapos360.cloud/api/products";
 
+//Local DB
+// const API_URL = "http://localhost:8080/api/products";
+
 // Get all products
 export const getProducts = async (): Promise<ProductItems[]> => {
   const token = localStorage.getItem("token");

@@ -3,6 +3,9 @@ import { UserRequest } from "../types/User";
 
 const API_URL = "https://weehenapos360.cloud/api/users";
 
+//Local DB
+// const API_URL = "http://localhost:8080/api/users";
+
 export interface JwtPayload {
   exp: number;
   sub?: string; // username (Spring default)

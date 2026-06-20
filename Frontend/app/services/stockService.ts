@@ -2,6 +2,9 @@ import { StockItem, StockRequest, StockUpdateRequest } from "../types/Stock";
 
 const API_URL = "https://weehenapos360.cloud/api/stock";
 
+//Local DB
+// const API_URL = "http://localhost:8080/api/stock";
+
 // Get all stock
 export const getStock = async (): Promise<StockItem[]> => {
   const token = localStorage.getItem("token");
