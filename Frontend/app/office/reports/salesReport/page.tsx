@@ -14,6 +14,7 @@ import { getStock } from "@/app/services/stockService";
 import { reportData, SoldItemReport } from "@/app/types/Report";
 import { CancelledSaleItem } from "@/app/types/Sale";
 import toast from "react-hot-toast";
+import { BadgeDollarSign } from "lucide-react";
 
 export default function ReportPage() {
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
@@ -150,9 +151,12 @@ export default function ReportPage() {
 
   return (
     <div className="text-black min-w-0">
-      <h1 className="text-lg sm:text-xl text-red-950 font-bold mb-4">
-        Daily Reports
-      </h1>
+      <div className="flex gap-2 items-center mb-4">
+        <BadgeDollarSign className="size-8 text-red-900" />
+        <h1 className="text-lg sm:text-xl text-red-950 font-bold  shrink-0">
+          Daily Sales Reports
+        </h1>
+      </div>
 
       <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center mb-6 sm:mb-10">
         <input

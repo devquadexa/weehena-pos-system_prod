@@ -7,7 +7,7 @@ import ResponsiveDataView, {
 } from "@/app/components/ResponsiveDataView";
 import { deleteUser, getUsers } from "@/app/services/userService";
 import { UserData } from "@/app/types/User";
-import { Trash2 } from "lucide-react";
+import { Trash2, User } from "lucide-react";
 import { useEffect, useEffectEvent, useRef, useState } from "react";
 import toast from "react-hot-toast";
 
@@ -17,6 +17,8 @@ export default function UsersPage() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [users, setUsers] = useState<UserData[]>([]);
+
+  const [search, setSearch] = useState("");
 
   const loadUsers = async () => {
     try {
@@ -76,17 +78,37 @@ export default function UsersPage() {
     },
   ];
 
+  const filteredUsers = users.filter(
+    (item) =>
+      item.username?.toLowerCase().includes(search.toLowerCase()) ||
+      item.role?.toLowerCase().includes(search.toLowerCase()),
+  );
+
   return (
     <div className="flex flex-col h-full min-h-0 min-w-0 text-xs">
-      <h1 className="text-lg sm:text-xl text-red-950 font-bold mb-4 shrink-0">
-        User Management
-      </h1>
-      <Button
-        onClick={() => setFormOpen(true)}
-        className="md:w-40 sm:w-auto shrink-0 lg:w-80 bg-green-900 hover:bg-green-700 text-white px-4 rounded"
-      >
-        Add User
-      </Button>
+      <div className="flex gap-2 items-center mb-4">
+        <User className="size-8 text-red-900" />
+        <h1 className="text-lg sm:text-xl text-red-950 font-bold  shrink-0">
+          User Management
+        </h1>
+      </div>
+
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mt-4 shrink-0">
+        <input
+          id="search"
+          placeholder="Search by username or role"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="p-2 border w-full sm:max-w-md border-gray-300 text-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-red-800"
+        />
+        <Button
+          onClick={() => setFormOpen(true)}
+          className="w-full sm:w-auto shrink-0 bg-green-900 hover:bg-green-700 text-white px-4 rounded"
+        >
+          Add User
+        </Button>
+      </div>
+
       <Register
         isOpen={formOpen}
         onClose={() => {
@@ -96,11 +118,12 @@ export default function UsersPage() {
           }, 0);
         }}
         heading="Register User"
+        onAddSuccess={loadUsers}
       />
 
       <div className="flex-1 min-h-0 mt-5">
         <ResponsiveDataView
-          data={users}
+          data={filteredUsers}
           columns={userColumns}
           getRowKey={(u) => u.id}
           emptyMessage="No Users"

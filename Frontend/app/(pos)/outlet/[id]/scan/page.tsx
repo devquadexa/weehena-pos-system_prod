@@ -19,6 +19,7 @@ import WeightModal from "@/app/components/WeightModal";
 import { printReceipt } from "@/app/services/receiptPrinter";
 import PaymentModal from "@/app/components/PaymentModal";
 import toast from "react-hot-toast";
+import { DollarSign, Percent, ShoppingCart, X } from "lucide-react";
 
 export default function ScanPage() {
   const [barcode, setBarcode] = useState<string>("");
@@ -188,7 +189,8 @@ export default function ScanPage() {
           cashReceived,
           balance,
         },
-        "XP-80C",//shop printer
+        "XP-80C", //shop printer
+        // "XP-80C (copy 1)", //test printer
       );
     } catch (error: unknown) {
       console.error(error);
@@ -235,23 +237,28 @@ export default function ScanPage() {
       />
 
       <div className="mt-4 ">
+        {/* Pay Button */}
         <Button
           onClick={() => {
             if (cart.length === 0 || loading) return;
-            // handlePay();
             setPaymentModalOpen(true);
           }}
-          className="bg-blue-600 hover:bg-blue-500 text-white mr-3  rounded disabled:bg-gray-400"
+          className="bg-blue-600 hover:bg-blue-500 text-white mr-3 rounded disabled:bg-gray-400"
         >
+          <DollarSign className="size-5 mx-auto"/>
           {loading ? "Processing..." : "Pay"}
         </Button>
 
+        {/* Discount Button */}
         <Button
           onClick={() => setDiscountModalOpen(true)}
-          className=" mr-3 mt-4 bg-amber-500 hover:bg-amber-400 rounded text-white"
+          className=" mr-3 mt-4 bg-amber-500 hover:bg-amber-600 rounded text-white"
         >
+          <Percent className="size-5 mx-auto"/>
           Discount
         </Button>
+
+        {/* Clear Cart Button */}
         <Button
           onClick={() => {
             setCart([]);
@@ -260,6 +267,7 @@ export default function ScanPage() {
           }}
           className="bg-red-800 hover:bg-red-700"
         >
+          <ShoppingCart className="size-5 mx-auto"/>
           Clear Cart
         </Button>
       </div>
@@ -321,8 +329,9 @@ export default function ScanPage() {
         />
         <button
           onClick={handleCancelLastSale}
-          className="hover:bg-red-700 bg-red-800 text-normal mt-5 text-white px-4 py-2 rounded"
+          className="flex gap-2 items-center hover:bg-red-700 bg-red-800 text-normal mt-5 text-white px-4 py-2 rounded"
         >
+          <X className="size-5"/>
           Cancel Last Sale
         </button>
       </div>

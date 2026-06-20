@@ -4,6 +4,7 @@ import { ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import PosGuard from "@/app/components/PosGuard";
+import { House } from "lucide-react";
 
 interface Props {
   children: ReactNode;
@@ -26,11 +27,12 @@ export default async function ScanLayout({ children, params }: Props) {
               className="inline-block mr-3 size-10 bg-white rounded-full"
             />
           </Link>
-          <p className="my-auto"> Weehena Farm Shop - ({id})</p>
+          <p className="my-auto"> Weehena Farm Shop - {id}</p>
           <Link
             href="/"
-            className="ml-auto hover:bg-red-700 font-normal text-lg text-white px-4 py-2 rounded"
+            className="flex items-center gap-2 ml-auto hover:bg-red-700 font-normal text-base text-white px-4 py-2 rounded"
           >
+            <House className="size-5"/>
             Back to Home
           </Link>
         </div>

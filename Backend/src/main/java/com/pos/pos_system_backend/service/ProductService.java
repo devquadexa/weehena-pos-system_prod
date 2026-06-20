@@ -7,6 +7,7 @@ import com.pos.pos_system_backend.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ProductService {
@@ -19,6 +20,12 @@ public class ProductService {
     }
 
     public Product addProduct(ProductRequest req) {
+
+        Optional<Product> existingProductOpt = repo.findByBarcode(req.getBarcode());
+
+        if (existingProductOpt.isPresent()) {
+            throw new RuntimeException("Product already exists");
+        }
 
         validateProduct(req);
 

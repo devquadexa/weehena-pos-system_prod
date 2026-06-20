@@ -2,7 +2,6 @@
 
 import { ReactNode, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 
 type AuthGuardProps = {
   children: ReactNode;

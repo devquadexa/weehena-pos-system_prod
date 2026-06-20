@@ -3,6 +3,9 @@ import { CancelledSaleItem } from "../types/Sale";
 
 const API_URL = "https://weehenapos360.cloud/api/reports";
 
+//Local DB
+// const API_URL = "http://localhost:8080/api/reports";
+
 export const getDailyReport = async (
   date: string,
   outletId: string,
@@ -17,7 +20,8 @@ export const getDailyReport = async (
   });
 
   if (!res.ok) {
-    throw new Error("Failed to fetch report");
+    const errorText = await res.text();
+    throw new Error(errorText || "Failed to fetch report");
   }
 
   return res.json();
@@ -37,7 +41,8 @@ export const getSoldItems = async (
   });
 
   if (!res.ok) {
-    throw new Error("Failed to fetch sold items");
+    const errorText = await res.text();
+    throw new Error(errorText || "Failed to fetch sold items");
   }
 
   return res.json();
@@ -58,7 +63,8 @@ export const getDayEndStockReport = async (
   });
 
   if (!res.ok) {
-    throw new Error("Failed to fetch day-end stock report");
+    const errorText = await res.text();
+    throw new Error(errorText || "Failed to fetch day-end stock report");
   }
 
   return res.json();
@@ -78,8 +84,10 @@ export const getCancelledSales = async (
     },
   });
 
+  
   if (!res.ok) {
-    throw new Error("Failed to fetch cancelled sale items");
+    const errorText = await res.text();
+    throw new Error(errorText || "Failed to fetch cancelled sale items");
   }
 
   return res.json();

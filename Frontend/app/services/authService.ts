@@ -2,6 +2,9 @@ import toast from "react-hot-toast";
 
 const API_URL = "https://weehenapos360.cloud/api/auth";
 
+//Local DB
+// const API_URL = "http://localhost:8080/api/auth";
+
 export const getUser = async (username: string, password: string) => {
   try {
     const res = await fetch(`${API_URL}/login`, {

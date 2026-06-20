@@ -7,7 +7,7 @@ import Image from "next/image";
 import AdminGuard from "../components/AdminGuard";
 import { logout } from "../services/userService";
 import { Toaster } from "react-hot-toast";
-import { Box, ClipboardMinus, House, Layers, LogOut, UsersRound } from "lucide-react";
+import { Box, ClipboardMinus, House, Layers, LogOut, UsersRound,History, List, BadgeDollarSign } from "lucide-react";
 
 interface Props {
   children: ReactNode;
@@ -20,8 +20,8 @@ const navItems = [
     name: "Stock",
     path: "/stock",
     children: [
-      { name: "Stock List", path: "/stock/stockList" },
-      { name: "Stock Update History", path: "/stock/history" },
+      { icon: <List className="size-4" />, name: "Stock List", path: "/stock/stockList" },
+      { icon: <History className="size-4" />, name: "Stock Update History", path: "/stock/history" },
     ],
   },
   {
@@ -29,8 +29,8 @@ const navItems = [
     name: "Reports",
     path: "/reports",
     children: [
-      { name: "Daily Sales Report", path: "/reports/salesReport" },
-      { name: "Day-End Stock Report", path: "/reports/stockReport" },
+      { icon: <BadgeDollarSign className="size-4" />, name: "Daily Sales Report", path: "/reports/salesReport" },
+      { icon: <Layers className="size-4" />, name: "Day-End Stock Report", path: "/reports/stockReport" },
     ],
   },
   { icon: <UsersRound className="size-5" />, name: "Users", path: "/users" },
@@ -229,12 +229,13 @@ export default function OfficeLayout({ children }: Props) {
                             key={child.name}
                             href={`/office${child.path}`}
                             onClick={closeSidebar}
-                            className={`block px-3 py-1.5 rounded-md text-sm font-medium transition ${
+                            className={`flex gap-1 items-center px-3 py-1.5 rounded-md text-sm font-medium transition ${
                               isChildActive
                                 ? "text-red-600 font-semibold bg-red-50"
                                 : "text-gray-600 hover:text-red-500 hover:bg-gray-100"
                             }`}
                           >
+                            {child.icon}
                             {child.name}
                           </Link>
                         );

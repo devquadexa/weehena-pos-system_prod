@@ -228,7 +228,7 @@ export default function ProductForm({
       onClose();
     } catch (err) {
       console.error("Failed to add stock:", err);
-      toast.error("Failed to add Stock");
+      toast.error((err as Error).message);
     }
   };
   useEffect(() => {

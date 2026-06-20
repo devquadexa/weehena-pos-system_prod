@@ -11,6 +11,7 @@ import ResponsiveDataView, {
   ColumnDef,
 } from "@/app/components/ResponsiveDataView";
 import toast from "react-hot-toast";
+import { Layers } from "lucide-react";
 
 export default function StockReportPage() {
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
@@ -65,6 +66,9 @@ export default function StockReportPage() {
     const res = await fetch(
       `https://weehenapos360.cloud/api/reports/product-sales?barcode=${barcode}&outletId=${outlet}&date=${date}`,
     );
+    // const res = await fetch(
+    //   `http://localhost:8080/api/reports/product-sales?barcode=${barcode}&outletId=${outlet}&date=${date}`,
+    // );
 
     const data = await res.json();
 
@@ -118,9 +122,15 @@ export default function StockReportPage() {
 
   return (
     <div className="text-black min-w-0">
-      <h1 className="text-lg sm:text-xl text-red-950 font-bold mb-4">
+      <div className="flex gap-2 items-center mb-4">
+        <Layers className="size-8 text-red-900" />
+        <h1 className="text-lg sm:text-xl text-red-950 font-bold  shrink-0">
+          Day-End Stock Report
+        </h1>
+      </div>
+      {/* <h1 className="text-lg sm:text-xl text-red-950 font-bold mb-4">
         Day-End Stock Report
-      </h1>
+      </h1> */}
       <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center mb-6 sm:mb-10">
         <input
           id="date"

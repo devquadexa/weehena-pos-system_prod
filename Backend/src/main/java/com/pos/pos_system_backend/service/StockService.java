@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -32,7 +33,6 @@ public class StockService {
 
     //Long barcode, String outletId, int qty, double weight, int thresholdQty, double thresholdWeight
     public Stock addStock(StockRequest req) {
-
 
 
         Product product = productRepo.findByBarcode(req.getBarcode())
@@ -63,9 +63,9 @@ public class StockService {
         history.setProductName(product.getName());
         history.setOutletId(req.getOutletId());
 
-        if(product.isWeighted()) {
+        if (product.isWeighted()) {
             history.setNewStock(req.getWeight());
-        }else{
+        } else {
             history.setNewStock(req.getQuantity());
         }
 
@@ -74,8 +74,6 @@ public class StockService {
         history.setChangedBy(req.getUser());
         history.setChangedAt(LocalDateTime.now());
         stockHistoryRepository.save(history);
-
-
 
 
         return repo.save(stock);
@@ -196,12 +194,25 @@ public class StockService {
         );
     }
 
+    public List<StockHistory> getStockHistoryForPeriod(
+            String outletId,
+            LocalDate startDate,
+            LocalDate endDate) {
+
+        return stockHistoryRepository.getStockHistoryForPeriod(
+                outletId,
+                startDate.atStartOfDay(),
+                endDate.plusDays(1).atStartOfDay().minusNanos(1)
+        );
+    }
+
+
     public void validateStock(StockRequest req, Product product) {
 
         if (product.isWeighted()) {
             if (req.getQuantity() != 0 || req.getLowStockThresholdQty() != 0) {
                 throw new RuntimeException("Quantity is not available for weighted products");
-            } else if (req.getWeight() == 0  || req.getLowStockThresholdWeight() == 0) {
+            } else if (req.getWeight() == 0 || req.getLowStockThresholdWeight() == 0) {
                 throw new RuntimeException("Weight is required for weighted product stock");
             }
         } else {

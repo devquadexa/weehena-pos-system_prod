@@ -13,7 +13,9 @@ export default function Register({
   isOpen,
   onClose,
   heading,
+  onAddSuccess,
 }: {
+  onAddSuccess?: () => void;
   isOpen: boolean;
   onClose: () => void;
   heading: string;
@@ -78,9 +80,6 @@ export default function Register({
     });
 
     if (!result.success) {
-      // console.log(result.error.flatten());
-
-      // const errors = result.error.flatten().fieldErrors;
       const { fieldErrors } = z.flattenError(result.error);
 
       setErrors({
@@ -108,10 +107,11 @@ export default function Register({
         confirmPassword: "",
         role: "",
       });
+      onAddSuccess?.();
       onClose();
     } catch (error) {
       console.error("Error creating user:", error);
-      toast.error("Failed to create user");
+      toast.error((error as Error).message);
     }
   };
 

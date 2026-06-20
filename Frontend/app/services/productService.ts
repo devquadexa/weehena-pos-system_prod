@@ -1,7 +1,14 @@
 import { Product } from "../types";
-import { ProductItems, ProductRequest, UpdatePriceRequest } from "../types/Product";
+import {
+  ProductItems,
+  ProductRequest,
+  UpdatePriceRequest,
+} from "../types/Product";
 
 const API_URL = "https://weehenapos360.cloud/api/products";
+
+//Local DB
+// const API_URL = "http://localhost:8080/api/products";
 
 // Get all products
 export const getProducts = async (): Promise<ProductItems[]> => {
@@ -26,7 +33,11 @@ export const addProduct = async (product: ProductRequest) => {
     },
     body: JSON.stringify(product),
   });
-  if (!res.ok) throw new Error("Failed to add product");
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(errorText || "Failed to add product");
+  }
   return res.json();
 };
 
@@ -52,7 +63,10 @@ export const fetchProduct = async (barcode: string): Promise<Product> => {
       },
     });
 
-    if (!res.ok) throw new Error("Product not found");
+    if (!res.ok) {
+      const errorText = await res.text();
+      throw new Error(errorText || "Product not found");
+    }
 
     const data = await res.json();
     return data;
@@ -63,9 +77,7 @@ export const fetchProduct = async (barcode: string): Promise<Product> => {
 };
 
 //Update Product Prices
-export const updateProductPrices = async (
-  body: UpdatePriceRequest
-) => {
+export const updateProductPrices = async (body: UpdatePriceRequest) => {
   const token = localStorage.getItem("token");
 
   const res = await fetch(`${API_URL}/prices`, {
