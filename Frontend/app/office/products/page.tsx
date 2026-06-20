@@ -181,11 +181,14 @@ export default function ProductPage() {
 
   return (
     <div className="flex flex-col h-full min-h-0 min-w-0">
-      <h1 className="text-lg sm:text-xl text-red-950 font-bold mb-4 shrink-0">
-        Product Management
-      </h1>
+      <div className="flex gap-2 items-center mb-4">
+        <Box className="size-8 text-red-900" />
+        <h1 className="text-lg sm:text-xl text-red-950 font-bold  shrink-0">
+          Product Management
+        </h1>
+      </div>
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-4 text-xs shrink-0">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mt-4 mb-4 text-xs shrink-0">
         <input
           id="search"
           placeholder="Search by barcode or product name"

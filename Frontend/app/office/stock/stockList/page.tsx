@@ -16,7 +16,7 @@ import ResponsiveDataView, {
   ColumnDef,
 } from "@/app/components/ResponsiveDataView";
 import toast from "react-hot-toast";
-import { Trash2 } from "lucide-react";
+import { Layers, Trash2 } from "lucide-react";
 
 export default function StockPage() {
   const [stockList, setStockList] = useState<StockItem[]>([]);
@@ -224,11 +224,14 @@ export default function StockPage() {
 
   return (
     <div className="flex flex-col h-full min-h-0 min-w-0 text-xs">
-      <h1 className="text-lg sm:text-xl text-red-950 font-bold mb-4 shrink-0">
-        Stock Management
-      </h1>
+      <div className="flex gap-2 items-center mb-4">
+        <Layers className="size-8 text-red-900" />
+        <h1 className="text-lg sm:text-xl text-red-950 font-bold  shrink-0">
+          Stock Management
+        </h1>
+      </div>
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-4 shrink-0">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mt-4 shrink-0">
         <input
           id="search"
           placeholder="Search by barcode, product name or outlet ID"
