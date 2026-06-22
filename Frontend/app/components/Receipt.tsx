@@ -79,12 +79,12 @@ export default function Receipt({
               <span className="w-48 text-left">{item.name}</span>
               <span className="w-16">
                 {" "}
-                {item.weighted ? item.pricePerKg : item.packPrice}
+                {item.weighted ? item.retailPrice : item.retailPrice}
               </span>
               <span className="w-16">
                 {item.weighted
-                  ? (item.pricePerKg * item.value).toFixed(2)
-                  : (item.packPrice * item.value).toFixed(2)}
+                  ? (item.retailPrice * item.value).toFixed(2)
+                  : (item.retailPrice * item.value).toFixed(2)}
               </span>
             </div>
           ))}

@@ -198,12 +198,12 @@ export async function printReceipt(
         : `${item.value}`;
 
       const price = item.weighted
-        ? item.pricePerKg.toFixed(2)
-        : item.packPrice.toFixed(2);
+        ? item.retailPrice.toFixed(2)
+        : item.retailPrice.toFixed(2);
 
       const lineTotal = item.weighted
-        ? item.pricePerKg * item.value
-        : item.packPrice * item.value;
+        ? item.retailPrice * item.value
+        : item.retailPrice * item.value;
 
       const ITEM_WIDTH = 22;
 
