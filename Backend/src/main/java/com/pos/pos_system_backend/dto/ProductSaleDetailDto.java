@@ -3,7 +3,7 @@ package com.pos.pos_system_backend.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 
 @Data
@@ -19,8 +19,8 @@ public class ProductSaleDetailDto {
 
     private String saleStatus;
 
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime saleDate;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Colombo")
+    private OffsetDateTime saleDate;
 
     private double saleQty;
 
