@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -17,6 +19,8 @@ import java.util.Map;
 
 @Service
 public class ReportService {
+
+        private static final ZoneId APP_TIME_ZONE = ZoneId.of("Asia/Colombo");
 
     private final SaleRepository saleRepo;
     private final ProductRepository productRepo;
@@ -35,6 +39,8 @@ public class ReportService {
 
         LocalDateTime start = localDate.atStartOfDay();
         LocalDateTime end = localDate.plusDays(1).atStartOfDay();
+        OffsetDateTime stockStart = localDate.atStartOfDay(APP_TIME_ZONE).toOffsetDateTime();
+        OffsetDateTime stockEnd = localDate.plusDays(1).atStartOfDay(APP_TIME_ZONE).toOffsetDateTime();
 
         if (outletId != null) {
             return List.of(buildReport(outletId, start, end, date));
@@ -96,6 +102,8 @@ public class ReportService {
 
         LocalDateTime start = localDate.atStartOfDay();
         LocalDateTime end = localDate.plusDays(1).atStartOfDay();
+        OffsetDateTime stockStart = localDate.atStartOfDay(APP_TIME_ZONE).toOffsetDateTime();
+        OffsetDateTime stockEnd = localDate.plusDays(1).atStartOfDay(APP_TIME_ZONE).toOffsetDateTime();
 
         List<Product> products = productRepo.findAll();
 
@@ -105,8 +113,8 @@ public class ReportService {
         // STOCK IN
         for (Object[] row : stockRepo.getStockInByDate(
                 outletId,
-                start,
-                end
+                stockStart,
+                stockEnd
         )) {
 
             stockInMap.put(

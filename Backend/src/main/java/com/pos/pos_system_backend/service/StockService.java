@@ -13,12 +13,15 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class StockService {
+
+    private static final ZoneId APP_TIME_ZONE = ZoneId.of("Asia/Colombo");
 
     private final StockRepository repo;
     private final ProductRepository productRepo;
@@ -72,7 +75,7 @@ public class StockService {
         history.setOldStock(0);
         history.setUpdatedStock(0);
         history.setChangedBy(req.getUser());
-        history.setChangedAt(LocalDateTime.now());
+        history.setChangedAt(OffsetDateTime.now(APP_TIME_ZONE));
         stockHistoryRepository.save(history);
 
 
@@ -148,7 +151,7 @@ public class StockService {
         history.setBarcode(stock.getBarcode());
         history.setOutletId(stock.getOutletId());
         history.setChangedBy(user);
-        history.setChangedAt(LocalDateTime.now());
+        history.setChangedAt(OffsetDateTime.now(APP_TIME_ZONE));
 
         if (product.isWeighted()) {
             //update stock weight
@@ -199,10 +202,13 @@ public class StockService {
             LocalDate startDate,
             LocalDate endDate) {
 
+        OffsetDateTime start = startDate.atStartOfDay(APP_TIME_ZONE).toOffsetDateTime();
+        OffsetDateTime end = endDate.plusDays(1).atStartOfDay(APP_TIME_ZONE).minusNanos(1).toOffsetDateTime();
+
         return stockHistoryRepository.getStockHistoryForPeriod(
                 outletId,
-                startDate.atStartOfDay(),
-                endDate.plusDays(1).atStartOfDay().minusNanos(1)
+            start,
+            end
         );
     }
 
