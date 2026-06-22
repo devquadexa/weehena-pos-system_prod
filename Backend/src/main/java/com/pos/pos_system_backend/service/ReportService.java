@@ -20,7 +20,7 @@ import java.util.Map;
 @Service
 public class ReportService {
 
-        private static final ZoneId APP_TIME_ZONE = ZoneId.of("Asia/Colombo");
+    private static final ZoneId APP_TIME_ZONE = ZoneId.of("Asia/Colombo");
 
     private final SaleRepository saleRepo;
     private final ProductRepository productRepo;
@@ -36,11 +36,11 @@ public class ReportService {
     public List<DailyReportResponse> getDailyReport(String date, String outletId) {
 
         LocalDate localDate = LocalDate.parse(date);
-
-        LocalDateTime start = localDate.atStartOfDay();
-        LocalDateTime end = localDate.plusDays(1).atStartOfDay();
-        OffsetDateTime stockStart = localDate.atStartOfDay(APP_TIME_ZONE).toOffsetDateTime();
-        OffsetDateTime stockEnd = localDate.plusDays(1).atStartOfDay(APP_TIME_ZONE).toOffsetDateTime();
+//
+//        LocalDateTime start = localDate.atStartOfDay();
+//        LocalDateTime end = localDate.plusDays(1).atStartOfDay();
+        OffsetDateTime start = localDate.atStartOfDay(APP_TIME_ZONE).toOffsetDateTime();
+        OffsetDateTime end = localDate.plusDays(1).atStartOfDay(APP_TIME_ZONE).toOffsetDateTime();
 
         if (outletId != null) {
             return List.of(buildReport(outletId, start, end, date));
@@ -52,7 +52,7 @@ public class ReportService {
         return outlets.stream().map(o -> buildReport(o, start, end, date)).toList();
     }
 
-    public DailyReportResponse buildReport(String outletId, LocalDateTime start, LocalDateTime end, String date) {
+    public DailyReportResponse buildReport(String outletId, OffsetDateTime start, OffsetDateTime end, String date) {
 
         double totalDiscount = saleRepo.getTotalDiscount(outletId, start, end);
         double totalSales = saleRepo.getTotalSales(outletId, start, end);
@@ -73,8 +73,10 @@ public class ReportService {
 
         LocalDate localDate = LocalDate.parse(date);
 
-        LocalDateTime start = localDate.atStartOfDay();
-        LocalDateTime end = localDate.plusDays(1).atStartOfDay();
+//        LocalDateTime start = localDate.atStartOfDay();
+//        LocalDateTime end = localDate.plusDays(1).atStartOfDay();
+        OffsetDateTime start = localDate.atStartOfDay(APP_TIME_ZONE).toOffsetDateTime();
+        OffsetDateTime end = localDate.plusDays(1).atStartOfDay(APP_TIME_ZONE).toOffsetDateTime();
 
         List<Object[]> results = saleRepo.getSoldItemsReport(outletId, start, end);
 
@@ -100,10 +102,10 @@ public class ReportService {
 
         LocalDate localDate = LocalDate.parse(date);
 
-        LocalDateTime start = localDate.atStartOfDay();
-        LocalDateTime end = localDate.plusDays(1).atStartOfDay();
-        OffsetDateTime stockStart = localDate.atStartOfDay(APP_TIME_ZONE).toOffsetDateTime();
-        OffsetDateTime stockEnd = localDate.plusDays(1).atStartOfDay(APP_TIME_ZONE).toOffsetDateTime();
+//        LocalDateTime start = localDate.atStartOfDay();
+//        LocalDateTime end = localDate.plusDays(1).atStartOfDay();
+        OffsetDateTime start = localDate.atStartOfDay(APP_TIME_ZONE).toOffsetDateTime();
+        OffsetDateTime end = localDate.plusDays(1).atStartOfDay(APP_TIME_ZONE).toOffsetDateTime();
 
         List<Product> products = productRepo.findAll();
 
@@ -113,8 +115,8 @@ public class ReportService {
         // STOCK IN
         for (Object[] row : stockRepo.getStockInByDate(
                 outletId,
-                stockStart,
-                stockEnd
+                start,
+                end
         )) {
 
             stockInMap.put(
@@ -199,10 +201,12 @@ public class ReportService {
 
         LocalDate localDate = LocalDate.parse(date);
 
-        LocalDateTime start = localDate.atStartOfDay();
+//        LocalDateTime start = localDate.atStartOfDay();
+//
+//        LocalDateTime end = localDate.plusDays(1).atStartOfDay();
 
-        LocalDateTime end =
-                localDate.plusDays(1).atStartOfDay();
+        OffsetDateTime start = localDate.atStartOfDay(APP_TIME_ZONE).toOffsetDateTime();
+        OffsetDateTime end = localDate.plusDays(1).atStartOfDay(APP_TIME_ZONE).toOffsetDateTime();
 
         List<Object[]> results =
                 saleRepo.getProductSales(
@@ -255,8 +259,11 @@ public class ReportService {
 
         LocalDate localDate = LocalDate.parse(date);
 
-        LocalDateTime start = localDate.atStartOfDay();
-        LocalDateTime end = localDate.plusDays(1).atStartOfDay();
+//        LocalDateTime start = localDate.atStartOfDay();
+//        LocalDateTime end = localDate.plusDays(1).atStartOfDay();
+
+        OffsetDateTime start = localDate.atStartOfDay(APP_TIME_ZONE).toOffsetDateTime();
+        OffsetDateTime end = localDate.plusDays(1).atStartOfDay(APP_TIME_ZONE).toOffsetDateTime();
 
         List<Object[]> results =
                 saleRepo.getCancelledSaleItems(outletId, start, end);

@@ -11,7 +11,8 @@ import org.springframework.stereotype.Service;
 
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
 @Service
@@ -21,6 +22,8 @@ public class SaleService {
     private final StockService stockService;
     private final StockRepository stockRepo;
     private final ProductRepository productRepo;
+
+    private static final ZoneId APP_TIME_ZONE = ZoneId.of("Asia/Colombo");
 
     public SaleService(SaleRepository repo, StockService stockService, StockRepository stockRepo, ProductRepository productRepo) {
         this.repo = repo;
@@ -38,7 +41,7 @@ public class SaleService {
         sale.setInvoiceNo(req.getInvoiceNo());
         sale.setOutletId(req.getOutletId());
         sale.setDiscountAmount(req.getDiscountAmount());
-        sale.setDate(LocalDateTime.now());
+        sale.setDate(OffsetDateTime.now(APP_TIME_ZONE));
         sale.setStatus(SaleStatus.ACTIVE);
 
         // attach items to sale
@@ -86,8 +89,8 @@ public class SaleService {
 
     public List<Sale> getSalesByDateAndOutletId(LocalDate date, String outletId) {
 
-        LocalDateTime start = date.atStartOfDay();
-        LocalDateTime end = date.atTime(23, 59, 59);
+        OffsetDateTime start = date.atStartOfDay(APP_TIME_ZONE).toOffsetDateTime();
+        OffsetDateTime end = date.plusDays(1).atStartOfDay(APP_TIME_ZONE).minusNanos(1).toOffsetDateTime();
 
         return repo.findByDateAndOutletId(start, end, outletId);
     }

@@ -1,10 +1,11 @@
 package com.pos.pos_system_backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.pos.pos_system_backend.enums.SaleStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @Data
@@ -25,7 +26,10 @@ public class Sale {
     @Enumerated(EnumType.STRING)
     private SaleStatus status = SaleStatus.ACTIVE;
 
-    private LocalDateTime date;
+    //    private LocalDateTime date;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Colombo")
+    private OffsetDateTime date;
+
 
     @OneToMany(mappedBy = "sale", cascade = CascadeType.ALL)
     private List<SaleItem> items;
