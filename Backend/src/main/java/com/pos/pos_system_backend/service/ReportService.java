@@ -9,7 +9,6 @@ import com.pos.pos_system_backend.repository.StockRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -231,7 +230,7 @@ public class ReportService {
 
             dto.setSaleStatus(String.valueOf(r[4]));
 
-            dto.setSaleDate(LocalDateTime.parse(String.valueOf(r[5])));
+            dto.setSaleDate(OffsetDateTime.parse(String.valueOf(r[5])));
 
             dto.setSaleQty(
                     ((Number) r[6]).doubleValue()
@@ -276,7 +275,7 @@ public class ReportService {
             dto.setInvoiceNo((String) r[0]);
 
             dto.setDate(
-                    ((LocalDateTime) r[1])
+                    ((OffsetDateTime) r[1])
                             .toLocalDate()
                             .toString()
             );
