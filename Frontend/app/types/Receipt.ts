@@ -1,10 +1,4 @@
-export interface CartItem {
-  name: string;
-  value: number;
-  weighted: boolean;
-  pricePerKg: number;
-  packPrice: number;
-}
+import { CartItem } from "./Product";
 
 export interface ReceiptData {
   cart: CartItem[];
