@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 public interface StockHistoryRepository extends JpaRepository<StockHistory, Long> {
@@ -19,7 +19,7 @@ public interface StockHistoryRepository extends JpaRepository<StockHistory, Long
        """)
     List<StockHistory> getStockHistoryForPeriod(
             @Param("outletId") String outletId,
-            @Param("startDate") LocalDateTime startDate,
-            @Param("endDate") LocalDateTime endDate);
+          @Param("startDate") OffsetDateTime startDate,
+          @Param("endDate") OffsetDateTime endDate);
 }
 

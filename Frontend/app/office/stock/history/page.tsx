@@ -14,6 +14,22 @@ const stockBadge = (value: string | number, color: string) => (
   </div>
 );
 
+const formatStockHistoryTimestamp = (value: string) => {
+  if (!value) return "-";
+
+  const normalized = value.replace("T", " ").split(".")[0].trim();
+  const [datePart, timePart] = normalized.split(" ");
+
+  if (!datePart || !timePart) return value;
+
+  const [year, month, day] = datePart.split("-");
+  const [hour, minute, second = "00"] = timePart.split(":");
+
+  if (!year || !month || !day || !hour || !minute) return value;
+
+  return `${day}/${month}/${year} ${hour}:${minute}:${second}`;
+};
+
 export default function HistoryPage() {
   const [history, setHistory] = useState<StockHistoryItem[]>([]);
 
@@ -110,7 +126,7 @@ export default function HistoryPage() {
     },
     {
       header: "Date",
-      render: (h) => h.changedAt,
+      render: (h) => formatStockHistoryTimestamp(h.changedAt),
     },
   ];
 
