@@ -16,7 +16,7 @@ import ResponsiveDataView, {
   ColumnDef,
 } from "@/app/components/ResponsiveDataView";
 import toast from "react-hot-toast";
-import { Layers, Trash2 } from "lucide-react";
+import { CircleAlert, Layers, Trash2 } from "lucide-react";
 
 export default function StockPage() {
   const [stockList, setStockList] = useState<StockItem[]>([]);
@@ -223,6 +223,31 @@ export default function StockPage() {
       toast.error("Failed to update stock");
     }
   };
+
+  // Notify on low stocks
+  const notifiedRef = useRef(new Set<number>());
+
+  useEffect(() => {
+    const lowStockItems = stockList.filter(
+      (item) =>
+        (item.weight < item.lowStockThresholdWeight ||
+          item.quantity < item.lowStockThresholdQty) &&
+        !notifiedRef.current.has(item.id),
+    );
+
+    lowStockItems.forEach((item, index) => {
+      setTimeout(() => {
+        toast(`${item.productName} is low on stock`, {
+          className: "font-semibold text-sm !text-red-800 !rounded-xl ",
+          icon: (
+            <CircleAlert className="warning-icon rounded w-5 h-5 shrink-0 text-red-700" />
+          ),
+        });
+
+        notifiedRef.current.add(item.id);
+      }, index * 3000);
+    });
+  }, [stockList]);
 
   return (
     <div className="flex flex-col h-full min-h-0 min-w-0 text-xs">
