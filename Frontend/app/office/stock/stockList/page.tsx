@@ -63,14 +63,16 @@ export default function StockPage() {
   };
 
   // Delete stock
-  const handleDelete = async (id: number) => {
-    const confirmDelete = confirm("Are you sure to delete this stock?");
+  const handleDelete = async (stock: StockItem) => {
+    const confirmDelete = confirm(
+      `Are you sure to delete this stock ${stock.productName}?`,
+    );
     if (!confirmDelete) return;
 
     try {
-      await deleteStock(id);
+      await deleteStock(stock.id);
       await loadStock();
-      toast.success("Stock deleted successfully");
+      toast.success(`Stock ${stock.productName} deleted successfully`);
     } catch (err) {
       console.error("Failed to delete stock:", err);
       toast.error("Failed to delete stock");
@@ -114,7 +116,7 @@ export default function StockPage() {
   const stockRowClass = (item: StockItem) =>
     item.weight < item.lowStockThresholdWeight ||
     item.quantity < item.lowStockThresholdQty
-      ? "bg-red-300"
+      ? "!bg-red-300"
       : "";
 
   const stockColumns: ColumnDef<StockItem>[] = [
@@ -186,9 +188,9 @@ export default function StockPage() {
       header: "Action",
       align: "center",
       cardRole: "actions",
-      render: (item) => (
+      render: (stock) => (
         <button
-          onClick={() => handleDelete(item.id)}
+          onClick={() => handleDelete(stock)}
           className="w-full lg:w-fit rounded text-red-800 hover:text-red-600 hover:bg-red-100 px-2 py-1 "
         >
           <Trash2 className="size-4 items-center mx-auto" />

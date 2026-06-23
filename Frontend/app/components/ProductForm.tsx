@@ -181,8 +181,8 @@ export default function ProductForm({
       onAddSuccess?.();
       onClose();
     } catch (err) {
-      console.error("Failed to add product:", err);
-      toast.error((err as Error).message);
+      console.error("Failed to add product:", (err as Error).message);
+      toast.error("Failed to add product");
     }
   };
   useEffect(() => {

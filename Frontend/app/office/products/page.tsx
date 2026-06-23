@@ -52,13 +52,14 @@ export default function ProductPage() {
   }, []);
 
   // Delete product
-  const handleDelete = async (id: number) => {
-    const confirmDelete = confirm("Are you sure to delete this product?");
+  const handleDelete = async (product: ProductItems) => {
+    const confirmDelete = confirm(`Are you sure to delete this product ${product.name}?`);
     if (!confirmDelete) return;
 
     try {
-      await deleteProduct(id);
+      await deleteProduct(product.id);
       await loadProducts();
+      toast.success(`Product ${product.name} deleted successfully!`);
     } catch (err) {
       console.error("Failed to delete product:", err);
       toast.error("Failed to delete product");
@@ -140,7 +141,7 @@ export default function ProductPage() {
       cardRole: "actions",
       render: (p) => (
         <button
-          onClick={() => handleDelete(p.id)}
+          onClick={() => handleDelete(p)}
           className="w-full lg:w-fit rounded text-red-800 hover:text-red-600 hover:bg-red-100 px-2 py-1 "
         >
           <Trash2 className="size-4 items-center mx-auto" />

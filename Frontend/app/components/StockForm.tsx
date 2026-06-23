@@ -227,8 +227,8 @@ export default function ProductForm({
       setProductError("");
       onClose();
     } catch (err) {
-      console.error("Failed to add stock:", err);
-      toast.error((err as Error).message);
+      console.error("Failed to add stock:", (err as Error).message);
+      toast.error("Failed to add stock");
     }
   };
   useEffect(() => {
