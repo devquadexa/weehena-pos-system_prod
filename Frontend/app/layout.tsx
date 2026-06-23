@@ -32,9 +32,6 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <CartProvider>
-          <TokenExpiryWatcher />
-
-          {children}
           <Toaster
             toastOptions={{
               success: {
@@ -45,6 +42,8 @@ export default function RootLayout({
               },
             }}
           />
+          <TokenExpiryWatcher />
+          {children}
         </CartProvider>
       </body>
     </html>
