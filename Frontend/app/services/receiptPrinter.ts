@@ -175,8 +175,8 @@ export async function printReceipt(
     receipt += GS + "!" + "\x00";
     receipt += BOLD_OFF;
 
-    receipt += "Katunayake\n";
-    receipt += "Tel: 077-1234567\n\n";
+    receipt += "Katunayake\n\n";
+    // receipt += "Tel: 077-1234567\n\n";
 
     // Invoice
     receipt += "------------------------------------------------\n";
