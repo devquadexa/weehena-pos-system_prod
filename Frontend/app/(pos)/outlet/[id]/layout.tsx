@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import PosGuard from "@/app/components/PosGuard";
 import { House } from "lucide-react";
+import UserBadge from "@/app/components/UserBadge";
 
 interface Props {
   children: ReactNode;
@@ -28,6 +29,7 @@ export default async function ScanLayout({ children, params }: Props) {
             />
           </Link>
           <p className="my-auto"> Weehena Farm Shop - {id}</p>
+          <UserBadge className=""/> 
           <Link
             href="/"
             className="flex items-center gap-2 ml-auto hover:bg-red-700 font-normal text-base text-white px-4 py-2 rounded"
