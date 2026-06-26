@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import AuthGuard from "./components/AuthGuard";
 import { getUserFromToken, logout } from "./services/userService";
 import { LayoutDashboard, LogOut, ShoppingCart, Store } from "lucide-react";
+import UserBadge from "./components/UserBadge";
 
 export default function Home() {
   const router = useRouter();
@@ -40,6 +41,7 @@ export default function Home() {
   return (
     <AuthGuard>
       <div className="h-screen bg-white flex flex-col items-center justify-center">
+        <UserBadge className="text-red-900 font-semibold" />
         <div className="flex flex-col mx-aut items-center gap-2">
           <Image
             src="/weehenaLogo.png"
