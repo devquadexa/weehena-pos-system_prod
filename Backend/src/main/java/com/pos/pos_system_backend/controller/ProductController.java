@@ -35,6 +35,12 @@ public class ProductController {
         return service.getByBarcode(barcode);
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<List<Product>> searchByName(@RequestParam("name") String name) {
+        List<Product> results = service.searchByName(name);
+        return ResponseEntity.ok(results);
+    }
+
     @DeleteMapping("/{id}")
     public void deleteProduct(@PathVariable Long id) {
         service.deleteProduct(id);
