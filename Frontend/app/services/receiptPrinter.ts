@@ -113,6 +113,9 @@ function rawCommand(data: string): PrintData {
     format: "command",
     flavor: "plain",
     data,
+    options: {
+      language: "ESCPOS",
+    },
   };
 }
 
