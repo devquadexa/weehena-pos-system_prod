@@ -29,7 +29,7 @@ export default async function ScanLayout({ children, params }: Props) {
             />
           </Link>
           <p className="my-auto"> Weehena Farm Shop - {id}</p>
-          <UserBadge className=""/> 
+          <UserBadge className="mx-auto"/> 
           <Link
             href="/"
             className="flex items-center gap-2 ml-auto hover:bg-red-700 font-normal text-base text-white px-4 py-2 rounded"
