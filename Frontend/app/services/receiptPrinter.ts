@@ -161,6 +161,12 @@ export async function printReceipt(
     const CUT = "\x1D\x56\x00";
     const GS = "\x1D";
 
+    // ESC p m t1 t2 — kicks the cash drawer wired into the printer's pin-2
+    // (RJ11) port. m=0x00 selects pin 2 (per DBL terminal wiring), t1/t2
+    // are the on/off pulse widths (~25ms units). 0x19/0xFA is a safe
+    // default pulse for most drawers.
+    const OPEN_DRAWER = "\x1B\x70\x00\x19\xFA"; // ← NEW
+
     const date = new Date().toLocaleString();
 
     let receipt = "";
@@ -258,6 +264,10 @@ export async function printReceipt(
     receipt += GS + "!" + "\x00";
     receipt += "Thank You! Come Again\n\n";
     receipt += "www.weehena.lk | 0322254209\n\n\n\n\n\n\n\n";
+
+    // Open cash drawer BEFORE the cut — some printers stop accepting
+    // commands (or clip the pulse) once the cut command has been sent.
+    receipt += OPEN_DRAWER; // ← NEW
 
     // Cut
     receipt += CUT;
