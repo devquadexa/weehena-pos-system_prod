@@ -1,12 +1,15 @@
 "use client";
 
-import { useState, useContext, useRef } from "react";
+import { useState, useContext, useRef, useCallback } from "react";
 import { CartContext } from "@/app/context/CartContext";
 import BarcodeInput from "@/app/components/BarcodeInput";
 import CartTable from "@/app/components/CartTable";
 import TotalDisplay from "@/app/components/TotalDisplay";
 import Button from "@/app/components/Button";
-import { fetchProduct } from "@/app/services/productService";
+import {
+  fetchProduct,
+  fetchProductsByName,
+} from "@/app/services/productService";
 import { Product } from "@/app/types";
 import QuantityModal from "@/app/components/QuantityModal";
 import Receipt from "@/app/components/Receipt";
@@ -20,9 +23,16 @@ import { printReceipt } from "@/app/services/receiptPrinter";
 import PaymentModal from "@/app/components/PaymentModal";
 import toast from "react-hot-toast";
 import { DollarSign, Percent, ShoppingCart, X } from "lucide-react";
+import ProductSearchInput from "@/app/components/ProductSearchInput";
 
 export default function ScanPage() {
   const [barcode, setBarcode] = useState<string>("");
+
+  // Name search state
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [searchResults, setSearchResults] = useState<Product[]>([]);
+  const [searching, setSearching] = useState(false);
+
   const { cart, setCart } = useContext(CartContext)!;
 
   // Quantity Modal State
@@ -61,7 +71,20 @@ export default function ScanPage() {
   const params = useParams();
   const outletId = params.id as string;
 
+  // Shared logic: given a product, open the right modal (qty or weight)
+  const processScannedProduct = (product: Product) => {
+    setSelectedProduct(product);
+
+    if (product.weighted) {
+      setWeightModalOpen(true); // open weight modal for weighted items
+    } else {
+      setModalOpen(true); // open quantity modal for non-weighted items
+    }
+  };
+
   const handleAdd = async () => {
+    if (!barcode.trim()) return;
+
     let product: Product;
     try {
       product = await fetchProduct(barcode);
@@ -70,16 +93,40 @@ export default function ScanPage() {
       return;
     }
 
-    // Open modal for ANY scan
-    setSelectedProduct(product);
+    processScannedProduct(product);
+    setBarcode("");
+  };
 
-    if (product.weighted) {
-      setWeightModalOpen(true); // open weight modal for weighted items
-    } else {
-      setModalOpen(true); // open quantity modal for non-weighted items
+  // Search products by name (called as user types, e.g. with a debounce in the input component)
+  const handleSearchByName = useCallback(async (name: string) => {
+    setSearchTerm(name);
+
+    if (!name.trim()) {
+      setSearchResults([]);
+      return;
     }
 
-    setBarcode("");
+    try {
+      setSearching(true);
+      const results = await fetchProductsByName(name);
+      setSearchResults(results);
+    } catch {
+      // toast.error("Search failed");
+      setSearchResults([]);
+    } finally {
+      setSearching(false);
+    }
+  }, []);
+
+  // When user picks a product from the search results dropdown
+  const handleSelectSearchResult = (product: Product) => {
+    processScannedProduct(product);
+    setSearchTerm("");
+    setSearchResults([]);
+
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 0);
   };
 
   // Quantity Hnadler
@@ -190,7 +237,7 @@ export default function ScanPage() {
           balance,
         },
         "XP-80C", //shop printer
-        // "XP-80C (copy 1)", //test printer
+        // "XP-80C (copy 3)", //test printer
       );
     } catch (error: unknown) {
       console.error(error);
@@ -224,6 +271,14 @@ export default function ScanPage() {
         setBarcode={setBarcode}
         handleAdd={handleAdd}
         inputRef={inputRef}
+      />
+
+      <ProductSearchInput
+        searchTerm={searchTerm}
+        setSearchTerm={handleSearchByName}
+        results={searchResults}
+        loading={searching}
+        onSelect={handleSelectSearchResult}
       />
 
       <CartTable cart={cart} onDelete={handleDelete} />
