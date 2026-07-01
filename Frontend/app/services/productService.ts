@@ -91,3 +91,16 @@ export const updateProductPrices = async (body: UpdatePriceRequest) => {
 
   return res.json();
 };
+
+//Get product by name
+export const fetchProductsByName = async (name: string): Promise<Product[]> => {
+  const response = await fetch(
+    `${API_URL}/search?name=${name}`,
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to search products");
+  }
+
+  return response.json();
+};
