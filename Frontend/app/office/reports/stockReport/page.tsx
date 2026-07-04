@@ -52,11 +52,7 @@ export default function StockReportPage() {
   const printReport = () => {
     document.body.classList.add("printing-report");
 
-    const now = new Date();
-
-    const formattedDate = now.toISOString().split("T")[0];
-
-    document.title = `Day-End Stock Report of ${outlet} (${formattedDate})`;
+    document.title = `Day-End Stock Report of ${outlet} (${date})`;
 
     window.print();
     document.body.classList.remove("printing-report");
@@ -171,7 +167,11 @@ export default function StockReportPage() {
             </h1>
             <h4 className="text-gray-800 text-base sm:text-lg">{date}</h4>
             <p className="text-sm text-gray-800">
-              Generated at: {new Date().toLocaleTimeString()}
+              Generated at:{" "}
+              {new Date().toLocaleString(undefined, {
+                dateStyle: "medium",
+                timeStyle: "short",
+              })}
             </p>
           </div>
 

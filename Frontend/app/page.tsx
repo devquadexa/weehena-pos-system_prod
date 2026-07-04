@@ -41,8 +41,8 @@ export default function Home() {
   return (
     <AuthGuard>
       <div className="h-screen bg-white flex flex-col items-center justify-center">
-        <UserBadge className="text-red-900 font-semibold" />
-        <div className="flex flex-col mx-aut items-center gap-2">
+        <UserBadge className="text-red-900 mb-10 justify-center font-semibold" />
+        <div className="flex flex-col mx-auto items-center gap-2">
           <Image
             src="/weehenaLogo.png"
             alt="Weehena Farm Shop Logo"

@@ -6,6 +6,7 @@ import com.pos.pos_system_backend.entity.Product;
 import com.pos.pos_system_backend.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -48,6 +49,13 @@ public class ProductService {
     public Product getByBarcode(String barcode) {
         return repo.findByBarcode(barcode)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
+    }
+
+    public List<Product> searchByName(String name) {
+        if (name == null || name.trim().isEmpty()) {
+            return Collections.emptyList();
+        }
+        return repo.findByNameContainingIgnoreCase(name.trim());
     }
 
     public void deleteProduct(Long id) {

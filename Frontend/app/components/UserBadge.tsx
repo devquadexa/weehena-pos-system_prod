@@ -1,4 +1,3 @@
-// app/components/UserBadge.tsx
 "use client";
 
 import { useEffect, useEffectEvent, useState } from "react";
@@ -26,9 +25,10 @@ export default function UserBadge({ className = "" }: Props) {
 
   return (
     <span
-      className={`flex items-center gap-1 my-auto mx-auto  text-base font-normal ${className}`}
+      className={`flex items-center gap-1.5 text-sm sm:text-base font-normal w-full max-w-xs sm:max-w-sm truncate ${className}`}
     >
-      <CircleUser className="size-6" /> {username}
+      <CircleUser className="size-6 sm:size-6 shrink-0" />
+      <span className="truncate">{username}</span>
     </span>
   );
 }
