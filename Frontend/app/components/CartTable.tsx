@@ -48,13 +48,13 @@ export default function CartTable({ cart, onDelete }: Props) {
         <tbody>
           {cart.map((item, idx) => (
             <tr key={idx}>
-              <td className="border text-sm font-semibold text-blue-800 border-gray-400 p-2">
+              <td className="border text-sm font-semibold text-gray-800 border-gray-400 p-2">
                 {item.barcode}
               </td>
               <td className="border text-sm font-semibold text-gray-800 border-gray-400 p-2">
                 {item.name}
               </td>
-              <td className="border text-sm font-semibold text-red-800  border-gray-400 p-2 text-center">
+              <td className="border text-sm font-semibold text-blue-700  border-gray-400 p-2 text-center">
                 {item.weighted
                   ? `${item.value.toFixed(2)} kg`
                   : `${item.value} PCs`}
@@ -64,7 +64,7 @@ export default function CartTable({ cart, onDelete }: Props) {
                   ? item.retailPrice.toFixed(2)
                   : item.retailPrice.toFixed(2)}
               </td>
-              <td className="border text-sm font-semibold text-green-800 border-gray-400 p-2 text-right">
+              <td className="border text-sm font-semibold text-blue-700 border-gray-400 p-2 text-right">
                 {item.weighted
                   ? (item.retailPrice * item.value).toFixed(2)
                   : (item.retailPrice * item.value).toFixed(2)}
