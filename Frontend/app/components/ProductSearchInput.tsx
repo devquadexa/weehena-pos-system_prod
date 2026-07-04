@@ -1,7 +1,6 @@
-// components/ProductSearchInput.tsx
-
 import { useRef, useEffect } from "react";
 import { Product } from "../types/Product";
+import { Search } from "lucide-react";
 
 interface ProductSearchInputProps {
   searchTerm: string;
@@ -32,33 +31,22 @@ export default function ProductSearchInput({
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  }, [setSearchTerm]);
 
   return (
-    <div ref={containerRef} className="relative  w-full my-5">
+    <div ref={containerRef} className="relative  w-full mt-4">
       {/* Input */}
-      <div className="flex items-center border-2  px-3 py-2 h-10 bg-white border-gray-300 rounded  shadow-sm focus-within:ring-2 focus-within:ring-red-900">
+      <div className="flex gap-2 items-center border-2  px-3 py-2 h-10 bg-white border-gray-300 rounded  shadow-sm focus-within:ring-2 focus-within:ring-red-900">
         {/* Search icon */}
-        {/* <svg
-          className="w-4 h-4 text-gray-400 mr-2 shrink-0"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"
-          />
-        </svg> */}
+        <Search className="size-5 text-red-950 font-semibold" />
 
         <input
+          id="searchProduct"
           type="text"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           placeholder="Search product by name..."
-          className="w-full text-black text-md outline-none bg-transparent"
+          className="w-full text-black text-base outline-none bg-transparent"
         />
 
         {/* Spinner */}
@@ -88,7 +76,7 @@ export default function ProductSearchInput({
         {searchTerm && !loading && (
           <button
             onClick={() => setSearchTerm("")}
-            className="ml-2 text-gray-400 hover:text-gray-600 shrink-0"
+            className="ml-2 font-bold text-gray-400 hover:text-gray-600 shrink-0"
           >
             ✕
           </button>
@@ -97,9 +85,9 @@ export default function ProductSearchInput({
 
       {/* Dropdown */}
       {searchTerm && (
-        <ul className="absolute z-50 mt-1 w-full bg-white border rounded-md shadow-lg max-h-60 overflow-y-auto">
+        <ul className="absolute z-50 mt-1 w-full bg-white border-2 border-red-800 rounded-md shadow-lg max-h-60 overflow-y-auto">
           {results.length === 0 && !loading ? (
-            <li className="px-4 py-3 text-sm text-gray-400 text-center">
+            <li className="px-4 py-3 text-sm font-semibold text-red-800 text-center">
               No products found
             </li>
           ) : (
@@ -107,13 +95,11 @@ export default function ProductSearchInput({
               <li
                 key={product.barcode}
                 onClick={() => onSelect(product)}
-                className="flex items-center justify-between px-4 py-2 text-sm cursor-pointer hover:bg-blue-50 transition-colors"
+                className="flex items-center justify-between px-4 py-2 text-sm cursor-pointer hover:bg-red-50 transition-colors"
               >
                 <div>
-                  <p className="font-medium text-gray-900">
-                    {product.name}
-                  </p>
-                  <p className="text-xs text-gray-500">{product.barcode}</p>
+                  <p className="font-medium text-gray-900">{product.name}</p>
+                  <p className="text-xs font-medium text-red-700">{product.barcode}</p>
                 </div>
                 <span className="text-red-800 font-semibold">
                   {product.retailPrice.toFixed(2)}
