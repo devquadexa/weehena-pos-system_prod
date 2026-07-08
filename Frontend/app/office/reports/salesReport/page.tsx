@@ -15,6 +15,8 @@ import { reportData, SoldItemReport } from "@/app/types/Report";
 import { CancelledSaleItem } from "@/app/types/Sale";
 import toast from "react-hot-toast";
 import { BadgeDollarSign } from "lucide-react";
+import html2canvas from "html2canvas-pro";
+import jsPDF from "jspdf";
 
 export default function ReportPage() {
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
@@ -145,6 +147,95 @@ export default function ReportPage() {
     document.body.classList.remove("printing-report");
   };
 
+  //Download report
+  const saveReportAsPDF = async () => {
+    const report = document.getElementById("report-print");
+
+    if (!report) {
+      toast.error("Report not found");
+      return;
+    }
+
+    try {
+      toast.loading("Generating PDF...", { id: "pdf" });
+
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+      });
+
+      const pageWidth = pdf.internal.pageSize.getWidth(); // 210mm
+      const pageHeight = pdf.internal.pageSize.getHeight(); // 297mm
+
+      const marginX = 8;
+      const marginY = 10;
+
+      const usableWidth = pageWidth - marginX * 2;
+      const usableHeight = pageHeight - marginY * 2;
+
+      // Render the report at a CSS width that maps 1:1 to the PDF's
+      // usable width at standard 96 DPI — this is what makes the
+      // font size match window.print() instead of looking shrunk.
+      const DPI = 96;
+      const MM_PER_PX = 25.4 / DPI;
+      const REPORT_WIDTH = Math.round(usableWidth / MM_PER_PX);
+
+      const canvas = await html2canvas(report, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: "#ffffff",
+        windowWidth: REPORT_WIDTH,
+        onclone: (clonedDoc, clonedEl) => {
+          clonedDoc.body.classList.add("printing-report");
+          clonedEl.style.width = `${REPORT_WIDTH}px`;
+          clonedEl.style.maxWidth = `${REPORT_WIDTH}px`;
+
+          // Force desktop table layout regardless of clone viewport width,
+          // since html2canvas doesn't respect the `lg:` breakpoint reliably
+          // once REPORT_WIDTH is tuned for correct text sizing.
+          clonedEl
+            .querySelectorAll('[data-responsive-view="mobile"]')
+            .forEach((el) => {
+              (el as HTMLElement).style.display = "none";
+            });
+          clonedEl
+            .querySelectorAll('[data-responsive-view="desktop"]')
+            .forEach((el) => {
+              (el as HTMLElement).style.display = "block";
+            });
+        },
+      });
+
+      const imgData = canvas.toDataURL("image/png");
+
+      // imgWidth now equals usableWidth "by construction" via REPORT_WIDTH,
+      // preserving the same px->mm ratio as REPORT_WIDTH's own 96dpi mapping.
+      const imgWidth = usableWidth;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      let heightLeft = imgHeight;
+      let position = marginY;
+
+      pdf.addImage(imgData, "PNG", marginX, position, imgWidth, imgHeight);
+      heightLeft -= usableHeight;
+
+      while (heightLeft > 0) {
+        position = marginY - (imgHeight - heightLeft);
+        pdf.addPage();
+        pdf.addImage(imgData, "PNG", marginX, position, imgWidth, imgHeight);
+        heightLeft -= usableHeight;
+      }
+
+      pdf.save(`Daily Sales Report ${outlet} (${date}).pdf`);
+
+      toast.success("Sales Report generated successfully!", { id: "pdf" });
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to generate PDF", { id: "pdf" });
+    }
+  };
+
   return (
     <div className="text-black min-w-0">
       <div className="flex gap-2 items-center mb-4">
@@ -251,7 +342,7 @@ export default function ReportPage() {
               key={i}
               className="w-full max-w-md px-4 rounded text-gray-900 font-medium mt-2"
             >
-              <div className="grid grid-cols-2 gap-y-3 gap-x-6 text-xs">
+              <div className="grid grid-cols-2 gap-y-2 gap-x-6 text-xs">
                 <span className="text-gray-700 font-semibold">Date :</span>
                 <span className="text-gray-900 font-medium text-right">
                   {r.date}
@@ -300,15 +391,27 @@ export default function ReportPage() {
         <p className="mt-4 text-red-700 font-medium">No data available</p>
       )}
 
-      {/* Print */}
-      {reports.length > 0 && salesItems.length > 0 && (
-        <Button
-          onClick={printReport}
-          className="mt-4 w-full sm:w-auto print:hidden bg-green-800 hover:bg-green-700 text-white px-4 py-2"
-        >
-          Print Report
-        </Button>
-      )}
+      <div className="flex flex-col-2 gap-2 mt-4 lg:w-fit">
+        {/* Print */}
+        {reports.length > 0 && salesItems.length > 0 && (
+          <Button
+            onClick={printReport}
+            className="w-full sm:w-auto print:hidden bg-blue-800 hover:bg-blue-700 text-white px-4 py-2"
+          >
+            Print Report
+          </Button>
+        )}
+
+        {/* Download */}
+        {reports.length > 0 && salesItems.length > 0 && (
+          <Button
+            onClick={saveReportAsPDF}
+            className=" w-full sm:w-auto print:hidden bg-green-800 hover:bg-green-700 text-white px-4 py-2"
+          >
+            Download Report
+          </Button>
+        )}
+      </div>
     </div>
   );
 }
