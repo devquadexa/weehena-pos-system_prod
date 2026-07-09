@@ -47,7 +47,7 @@ export default function Receipt({
         <div className="text-center">
           <h1 className="font-bold text-sm">Weehena Farm Shop</h1>
           <p>Katunayake, Sri Lanka</p>
-          <p>Tel: 077-1234567</p>
+          <p>Tel: 071-5467675</p>
         </div>
 
         <div className="border-t border-dashed my-2" />
