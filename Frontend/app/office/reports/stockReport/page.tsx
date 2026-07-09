@@ -63,7 +63,6 @@ export default function StockReportPage() {
   //Download report
   const saveReportAsPDF = async () => {
     const report = document.getElementById("report-print");
-
     if (!report) {
       toast.error("Report not found");
       return;
@@ -72,30 +71,32 @@ export default function StockReportPage() {
     try {
       toast.loading("Generating PDF...", { id: "pdf" });
 
+      const DPI = 130;
+      const SCALE = 2;
       const pdf = new jsPDF({
         orientation: "portrait",
         unit: "mm",
         format: "a4",
       });
 
-      const pageWidth = pdf.internal.pageSize.getWidth(); // 210mm
-      const pageHeight = pdf.internal.pageSize.getHeight(); // 297mm
-
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
       const marginX = 8;
       const marginY = 10;
-
       const usableWidth = pageWidth - marginX * 2;
-      const usableHeight = pageHeight - marginY * 2;
 
-      // Render the report at a CSS width that maps 1:1 to the PDF's
-      // usable width at standard 96 DPI — this is what makes the
-      // font size match window.print() instead of looking shrunk.
-      const DPI = 96;
-      const MM_PER_PX = 25.4 / DPI;
-      const REPORT_WIDTH = Math.round(usableWidth / MM_PER_PX);
+      const REPORT_WIDTH = Math.round(usableWidth / (25.4 / DPI));
+
+      // Collected during onclone, in *clone px* (unscaled).
+      let rowBottoms: number[] = [];
+      const tables: {
+        headerTop: number;
+        headerBottom: number;
+        bodyBottom: number;
+      }[] = [];
 
       const canvas = await html2canvas(report, {
-        scale: 2,
+        scale: SCALE,
         useCORS: true,
         backgroundColor: "#ffffff",
         windowWidth: REPORT_WIDTH,
@@ -104,45 +105,119 @@ export default function StockReportPage() {
           clonedEl.style.width = `${REPORT_WIDTH}px`;
           clonedEl.style.maxWidth = `${REPORT_WIDTH}px`;
 
-          // Force desktop table layout regardless of clone viewport width,
-          // since html2canvas doesn't respect the `lg:` breakpoint reliably
-          // once REPORT_WIDTH is tuned for correct text sizing.
           clonedEl
             .querySelectorAll('[data-responsive-view="mobile"]')
-            .forEach((el) => {
-              (el as HTMLElement).style.display = "none";
-            });
+            .forEach((el) => ((el as HTMLElement).style.display = "none"));
           clonedEl
             .querySelectorAll('[data-responsive-view="desktop"]')
-            .forEach((el) => {
-              (el as HTMLElement).style.display = "block";
+            .forEach((el) => ((el as HTMLElement).style.display = "block"));
+
+          const top = clonedEl.getBoundingClientRect().top;
+
+          clonedEl.querySelectorAll("table").forEach((table) => {
+            const thead = table.querySelector("thead");
+            const rows = table.querySelectorAll("tbody tr");
+            if (!thead || rows.length === 0) return;
+
+            const headerRect = thead.getBoundingClientRect();
+            const lastRowRect = rows[rows.length - 1].getBoundingClientRect();
+
+            tables.push({
+              headerTop: headerRect.top - top,
+              headerBottom: headerRect.bottom - top,
+              bodyBottom: lastRowRect.bottom - top,
             });
+
+            rows.forEach((tr) => {
+              rowBottoms.push(
+                (tr as HTMLElement).getBoundingClientRect().bottom - top,
+              );
+            });
+          });
         },
       });
 
-      const imgData = canvas.toDataURL("image/png");
+      // Scale everything to actual canvas pixels.
+      const px = (v: number) => v * SCALE;
+      rowBottoms = rowBottoms.map(px).sort((a, b) => a - b);
+      const tableRegions = tables.map((t) => ({
+        headerTop: px(t.headerTop),
+        headerBottom: px(t.headerBottom),
+        bodyBottom: px(t.bodyBottom),
+      }));
 
-      // imgWidth now equals usableWidth "by construction" via REPORT_WIDTH,
-      // preserving the same px->mm ratio as REPORT_WIDTH's own 96dpi mapping.
-      const imgWidth = usableWidth;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      const imgW = canvas.width;
+      const imgH = canvas.height;
+      const pxPerMm = imgW / usableWidth;
 
-      let heightLeft = imgHeight;
-      let position = marginY;
+      // Crop a horizontal strip [fromPx, toPx) out of the master canvas
+      // and return it as a PNG data URL.
+      const cropStrip = (fromPx: number, toPx: number) => {
+        const h = toPx - fromPx;
+        const c = document.createElement("canvas");
+        c.width = imgW;
+        c.height = h;
+        c.getContext("2d")!.drawImage(
+          canvas,
+          0,
+          fromPx,
+          imgW,
+          h,
+          0,
+          0,
+          imgW,
+          h,
+        );
+        return { dataUrl: c.toDataURL("image/png"), heightMm: h / pxPerMm };
+      };
 
-      pdf.addImage(imgData, "PNG", marginX, position, imgWidth, imgHeight);
-      heightLeft -= usableHeight;
+      // Is y currently inside some table's body (i.e. we're mid-table,
+      // past its header, before its last row)? Returns that table's
+      // header region, or null if y isn't inside any table body.
+      const findActiveTableHeader = (y: number) =>
+        tableRegions.find((t) => y > t.headerBottom && y < t.bodyBottom) ??
+        null;
 
-      while (heightLeft > 0) {
-        position = marginY - (imgHeight - heightLeft);
-        pdf.addPage();
-        pdf.addImage(imgData, "PNG", marginX, position, imgWidth, imgHeight);
-        heightLeft -= usableHeight;
+      let cursorPx = 0;
+      let pageNum = 0;
+
+      while (cursorPx < imgH - 1) {
+        if (pageNum > 0) pdf.addPage();
+
+        let y = marginY;
+
+        // Repeat the header if a table is being continued onto this page.
+        const activeHeader =
+          pageNum > 0 ? findActiveTableHeader(cursorPx) : null;
+        if (activeHeader) {
+          const { dataUrl, heightMm } = cropStrip(
+            activeHeader.headerTop,
+            activeHeader.headerBottom,
+          );
+          pdf.addImage(dataUrl, "PNG", marginX, y, usableWidth, heightMm);
+          y += heightMm;
+        }
+
+        // How much body space is left on this page after the header (if any)?
+        const remainingPx =
+          (pageHeight - marginY - (y - marginY) - marginY) * pxPerMm;
+        const idealEnd = Math.min(cursorPx + remainingPx, imgH);
+
+        // Snap the cut to the last row boundary that fits, so no row is split.
+        const fittingRow = [...rowBottoms]
+          .reverse()
+          .find((r) => r > cursorPx && r <= idealEnd);
+        const cutoff = fittingRow ?? idealEnd;
+
+        const { dataUrl, heightMm } = cropStrip(cursorPx, cutoff);
+        pdf.addImage(dataUrl, "PNG", marginX, y, usableWidth, heightMm);
+
+        cursorPx = cutoff;
+        pageNum++;
       }
 
-      pdf.save(`Day-End Stock Report of ${outlet} (${date}).pdf`);
-
-      toast.success("Stock Report generated successfully!", { id: "pdf" });
+      pdf.save(`Daily Sales Report ${outlet} (${date}).pdf`);
+      toast.success("Sales Report generated successfully!", { id: "pdf" });
     } catch (error) {
       console.error(error);
       toast.error("Failed to generate PDF", { id: "pdf" });
