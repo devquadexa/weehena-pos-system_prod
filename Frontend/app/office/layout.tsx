@@ -6,8 +6,17 @@ import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 import AdminGuard from "../components/AdminGuard";
 import { logout } from "../services/userService";
-import { Toaster } from "react-hot-toast";
-import { Box, ClipboardMinus, House, Layers, LogOut, UsersRound,History, List, BadgeDollarSign } from "lucide-react";
+import {
+  Box,
+  ClipboardMinus,
+  House,
+  Layers,
+  LogOut,
+  UsersRound,
+  History,
+  List,
+  BadgeDollarSign,
+} from "lucide-react";
 
 interface Props {
   children: ReactNode;
@@ -20,8 +29,16 @@ const navItems = [
     name: "Stock",
     path: "/stock",
     children: [
-      { icon: <List className="size-4" />, name: "Stock List", path: "/stock/stockList" },
-      { icon: <History className="size-4" />, name: "Stock Update History", path: "/stock/history" },
+      {
+        icon: <List className="size-4" />,
+        name: "Stock List",
+        path: "/stock/stockList",
+      },
+      {
+        icon: <History className="size-4" />,
+        name: "Stock Update History",
+        path: "/stock/history",
+      },
     ],
   },
   {
@@ -29,8 +46,16 @@ const navItems = [
     name: "Reports",
     path: "/reports",
     children: [
-      { icon: <BadgeDollarSign className="size-4" />, name: "Daily Sales Report", path: "/reports/salesReport" },
-      { icon: <Layers className="size-4" />, name: "Day-End Stock Report", path: "/reports/stockReport" },
+      {
+        icon: <BadgeDollarSign className="size-4" />,
+        name: "Daily Sales Report",
+        path: "/reports/salesReport",
+      },
+      {
+        icon: <Layers className="size-4" />,
+        name: "Day-End Stock Report",
+        path: "/reports/stockReport",
+      },
     ],
   },
   { icon: <UsersRound className="size-5" />, name: "Users", path: "/users" },
@@ -285,12 +310,6 @@ export default function OfficeLayout({ children }: Props) {
             }`}
           >
             {children}
-            <Toaster
-              position="top-center"
-              toastOptions={{
-                duration: 3000,
-              }}
-            />
           </div>
         </main>
       </div>
