@@ -177,7 +177,7 @@ export default function ReportPage() {
       // Render the report at a CSS width that maps 1:1 to the PDF's
       // usable width at standard 96 DPI — this is what makes the
       // font size match window.print() instead of looking shrunk.
-      const DPI = 96;
+      const DPI = 130;
       const MM_PER_PX = 25.4 / DPI;
       const REPORT_WIDTH = Math.round(usableWidth / MM_PER_PX);
 
