@@ -1,5 +1,6 @@
 package com.pos.pos_system_backend.config;
 
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -35,7 +36,16 @@ public class JwtFilter implements Filter {
 
         if (auth != null && auth.startsWith("Bearer ")) {
             String token = auth.substring(7);
-            jwtUtil.validateToken(token);
+//            jwtUtil.validateToken(token);
+
+            Claims claims = jwtUtil.validateToken(token);
+
+            String username = claims.getSubject();
+            String role = claims.get("role", String.class);
+
+            // attach to request so controllers/services can read them
+            request.setAttribute("username", username);
+            request.setAttribute("role", role);
         }
 
         chain.doFilter(request, response);

@@ -16,9 +16,9 @@ public class WebConfig {
                 assert registry != null;
                 registry.addMapping("/**")
                         .allowedOrigins(
-                            "http://localhost:3000",
-                            "https://weehenapos360.cloud",
-                            "https://www.weehenapos360.cloud"
+                            "http://localhost:3000"
+//                            "https://weehenapos360.cloud",
+//                            "https://www.weehenapos360.cloud"
                         )
                         .allowedMethods("*")
                         .allowCredentials(true);
