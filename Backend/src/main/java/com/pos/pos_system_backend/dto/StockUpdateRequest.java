@@ -5,5 +5,4 @@ import lombok.Data;
 @Data
 public class StockUpdateRequest {
     private double value;
-    private String user;
 }

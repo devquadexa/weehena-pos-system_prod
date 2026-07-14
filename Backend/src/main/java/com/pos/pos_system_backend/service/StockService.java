@@ -34,8 +34,7 @@ public class StockService {
         this.productRepo = productRepo;
     }
 
-    //Long barcode, String outletId, int qty, double weight, int thresholdQty, double thresholdWeight
-    public Stock addStock(StockRequest req) {
+    public Stock addStock(StockRequest req, String username) {
 
 
         Product product = productRepo.findByBarcode(req.getBarcode())
@@ -74,7 +73,7 @@ public class StockService {
 
         history.setOldStock(0);
         history.setUpdatedStock(0);
-        history.setChangedBy(req.getUser());
+        history.setChangedBy(username);
         history.setChangedAt(OffsetDateTime.now(APP_TIME_ZONE));
         stockHistoryRepository.save(history);
 
@@ -132,7 +131,7 @@ public class StockService {
     }
 
     //Stock Update int qty, double weight
-    public Stock updateStock(Long id, double value, String user) {
+    public Stock updateStock(Long id, double value, String username) {
         Optional<Stock> stockOpt = repo.findById(id);
         if (stockOpt.isEmpty()) {
             throw new RuntimeException("Stock not found with id " + id);
@@ -150,7 +149,7 @@ public class StockService {
         history.setProductName(stock.getProductName());
         history.setBarcode(stock.getBarcode());
         history.setOutletId(stock.getOutletId());
-        history.setChangedBy(user);
+        history.setChangedBy(username);
         history.setChangedAt(OffsetDateTime.now(APP_TIME_ZONE));
 
         if (product.isWeighted()) {

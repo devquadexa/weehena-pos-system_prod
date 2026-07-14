@@ -12,5 +12,4 @@ public class StockRequest {
     private int lowStockThresholdQty;
     private double lowStockThresholdWeight;
     private boolean weighted;
-    private String user;
 }
