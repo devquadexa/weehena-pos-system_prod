@@ -1,18 +1,18 @@
-import { CartItem } from "../types";
+// import { CartItem } from "../types";
+
+import { CartItem } from "../types/Product";
 
 export const calculateTotal = (
   cart: CartItem[],
   discount: number,
   discountType: "percentage" | "fixed",
+  bulkThreshold: number = 10, // qty at/above which bulkPrice applies (non-weighted items only)
 ) => {
-  const subtotal = cart.reduce(
-    (sum, item) =>
-      sum +
-      (item.weighted
-        ? item.retailPrice * item.value // weight * price per kg
-        : item.retailPrice * item.value), //qty * price per pack
-    0,
-  );
+  const subtotal = cart.reduce((sum, item) => {
+    const isBulk = !item.weighted && item.value >= bulkThreshold; // bulk pricing only applies to non-weighted items
+    const unitPrice = isBulk ? item.bulkPrice : item.retailPrice;
+    return sum + unitPrice * item.value;
+  }, 0);
 
   let total = subtotal;
   let discountAmount = 0;

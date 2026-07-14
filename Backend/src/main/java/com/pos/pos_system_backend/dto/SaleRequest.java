@@ -1,6 +1,9 @@
 package com.pos.pos_system_backend.dto;
 
 import com.pos.pos_system_backend.entity.SaleItem;
+import com.pos.pos_system_backend.enums.DiscountType;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.Data;
 import java.util.List;
 
@@ -8,7 +11,11 @@ import java.util.List;
 public class SaleRequest {
     private String invoiceNo;
     private String outletId;
-    private double discountAmount;
+
+    @Enumerated(EnumType.STRING)
+    private DiscountType discountType;
+
+    private double discountValue;
 
     private List<SaleItem> items;
 

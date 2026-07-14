@@ -1,5 +1,5 @@
-import { Product } from "../types";
 import {
+  Product,
   ProductItems,
   ProductRequest,
   UpdatePriceRequest,

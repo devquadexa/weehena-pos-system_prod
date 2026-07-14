@@ -1,9 +1,11 @@
 package com.pos.pos_system_backend.controller;
 
+import com.pos.pos_system_backend.config.JwtUtil;
 import com.pos.pos_system_backend.dto.StockRequest;
 import com.pos.pos_system_backend.dto.StockUpdateRequest;
 import com.pos.pos_system_backend.entity.Stock;
 import com.pos.pos_system_backend.service.StockService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,14 +16,21 @@ import java.util.List;
 public class StockController {
 
     private final StockService service;
+    private final JwtUtil jwtUtil;
 
-    public StockController(StockService service) {
+    public StockController(StockService service, JwtUtil jwtUtil) {
         this.service = service;
+        this.jwtUtil = jwtUtil;
     }
 
     @PostMapping()
-    public Stock addStock(@RequestBody StockRequest req) {
-        return service.addStock(req);
+    public Stock addStock(@RequestBody StockRequest req, HttpServletRequest request) {
+
+        String auth = request.getHeader("Authorization");
+        String token = auth.substring(7);
+        String username = jwtUtil.getUsernameFromToken(token);
+
+        return service.addStock(req, username);
     }
 
     @GetMapping
@@ -37,12 +46,17 @@ public class StockController {
     @PutMapping("/{id}")
     public Stock updateStock(
             @PathVariable Long id,
-            @RequestBody StockUpdateRequest req
+            @RequestBody StockUpdateRequest req,
+            HttpServletRequest request
     ) {
+
+        String auth = request.getHeader("Authorization");
+        String token = auth.substring(7);
+        String username = jwtUtil.getUsernameFromToken(token);
         return service.updateStock(
                 id,
                 req.getValue(),
-                req.getUser()
+                username
         );
     }
 

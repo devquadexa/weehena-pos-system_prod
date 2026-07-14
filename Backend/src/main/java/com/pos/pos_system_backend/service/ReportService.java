@@ -35,9 +35,7 @@ public class ReportService {
     public List<DailyReportResponse> getDailyReport(String date, String outletId) {
 
         LocalDate localDate = LocalDate.parse(date);
-//
-//        LocalDateTime start = localDate.atStartOfDay();
-//        LocalDateTime end = localDate.plusDays(1).atStartOfDay();
+
         OffsetDateTime start = localDate.atStartOfDay(APP_TIME_ZONE).toOffsetDateTime();
         OffsetDateTime end = localDate.plusDays(1).atStartOfDay(APP_TIME_ZONE).toOffsetDateTime();
 
@@ -72,8 +70,6 @@ public class ReportService {
 
         LocalDate localDate = LocalDate.parse(date);
 
-//        LocalDateTime start = localDate.atStartOfDay();
-//        LocalDateTime end = localDate.plusDays(1).atStartOfDay();
         OffsetDateTime start = localDate.atStartOfDay(APP_TIME_ZONE).toOffsetDateTime();
         OffsetDateTime end = localDate.plusDays(1).atStartOfDay(APP_TIME_ZONE).toOffsetDateTime();
 
@@ -92,7 +88,6 @@ public class ReportService {
         }).toList();
     }
 
-
     // stock report
     public List<StockReportDto> getDayEndStockReport(
             String outletId,
@@ -101,40 +96,32 @@ public class ReportService {
 
         LocalDate localDate = LocalDate.parse(date);
 
-//        LocalDateTime start = localDate.atStartOfDay();
-//        LocalDateTime end = localDate.plusDays(1).atStartOfDay();
         OffsetDateTime start = localDate.atStartOfDay(APP_TIME_ZONE).toOffsetDateTime();
         OffsetDateTime end = localDate.plusDays(1).atStartOfDay(APP_TIME_ZONE).toOffsetDateTime();
+        OffsetDateTime now = OffsetDateTime.now(APP_TIME_ZONE);
 
         List<Product> products = productRepo.findAll();
 
+        // Movements ON the report date (for opening -> closing display)
         Map<String, Double> stockInMap = new HashMap<>();
         Map<String, Double> stockOutMap = new HashMap<>();
 
-        // STOCK IN
-        for (Object[] row : stockRepo.getStockInByDate(
-                outletId,
-                start,
-                end
-        )) {
-
-            stockInMap.put(
-                    row[0].toString(),
-                    ((Number) row[1]).doubleValue()
-            );
+        for (Object[] row : stockRepo.getStockInByDate(outletId, start, end)) {
+            stockInMap.put(row[0].toString(), ((Number) row[1]).doubleValue());
+        }
+        for (Object[] row : saleRepo.getStockOutByDate(outletId, start, end)) {
+            stockOutMap.put(row[0].toString(), ((Number) row[1]).doubleValue());
         }
 
-        // STOCK OUT
-        for (Object[] row : saleRepo.getStockOutByDate(
-                outletId,
-                start,
-                end
-        )) {
+        // Movements AFTER the report date, up to now (to unwind current stock back to that day's closing)
+        Map<String, Double> stockInSinceMap = new HashMap<>();
+        Map<String, Double> stockOutSinceMap = new HashMap<>();
 
-            stockOutMap.put(
-                    row[0].toString(),
-                    ((Number) row[1]).doubleValue()
-            );
+        for (Object[] row : stockRepo.getStockInByDate(outletId, end, now)) {
+            stockInSinceMap.put(row[0].toString(), ((Number) row[1]).doubleValue());
+        }
+        for (Object[] row : saleRepo.getStockOutByDate(outletId, end, now)) {
+            stockOutSinceMap.put(row[0].toString(), ((Number) row[1]).doubleValue());
         }
 
         List<StockReportDto> report = new ArrayList<>();
@@ -143,45 +130,32 @@ public class ReportService {
 
             String barcode = product.getBarcode();
 
-            double stockIn =
-                    stockInMap.getOrDefault(barcode, 0.0);
+            double stockIn = stockInMap.getOrDefault(barcode, 0.0);
+            double stockOut = stockOutMap.getOrDefault(barcode, 0.0);
 
-            double stockOut =
-                    stockOutMap.getOrDefault(barcode, 0.0);
+            double stockInSince = stockInSinceMap.getOrDefault(barcode, 0.0);
+            double stockOutSince = stockOutSinceMap.getOrDefault(barcode, 0.0);
 
-            Stock stock =
-                    stockRepo.findByBarcodeAndOutletId(
-                            barcode,
-                            outletId
-                    ).orElse(null);
+            Stock stock = stockRepo.findByBarcodeAndOutletId(barcode, outletId).orElse(null);
 
-            double closingStock;
-
+            double currentStock;
             if (stock != null) {
-                if (product.isWeighted()) {
-                    closingStock = stock.getWeight();
-                } else {
-                    closingStock = stock.getQuantity();
-                }
+                currentStock = product.isWeighted() ? stock.getWeight() : stock.getQuantity();
             } else {
-                closingStock = 0;
+                currentStock = 0;
             }
-            double openingStock =
-                    closingStock - stockIn + stockOut;
 
-            StockReportDto dto =
-                    new StockReportDto();
+            // Unwind current live stock back to what it was at end of report date
+            double closingStock = currentStock - stockInSince + stockOutSince;
 
+            double openingStock = closingStock - stockIn + stockOut;
+
+            StockReportDto dto = new StockReportDto();
             dto.setBarcode(barcode);
-
             dto.setProductName(product.getName());
-
             dto.setOpeningStock(openingStock);
-
             dto.setStockIn(stockIn);
-
             dto.setStockOut(stockOut);
-
             dto.setClosingStock(closingStock);
 
             report.add(dto);
@@ -199,10 +173,6 @@ public class ReportService {
     ) {
 
         LocalDate localDate = LocalDate.parse(date);
-
-//        LocalDateTime start = localDate.atStartOfDay();
-//
-//        LocalDateTime end = localDate.plusDays(1).atStartOfDay();
 
         OffsetDateTime start = localDate.atStartOfDay(APP_TIME_ZONE).toOffsetDateTime();
         OffsetDateTime end = localDate.plusDays(1).atStartOfDay(APP_TIME_ZONE).toOffsetDateTime();
@@ -257,9 +227,6 @@ public class ReportService {
     ) {
 
         LocalDate localDate = LocalDate.parse(date);
-
-//        LocalDateTime start = localDate.atStartOfDay();
-//        LocalDateTime end = localDate.plusDays(1).atStartOfDay();
 
         OffsetDateTime start = localDate.atStartOfDay(APP_TIME_ZONE).toOffsetDateTime();
         OffsetDateTime end = localDate.plusDays(1).atStartOfDay(APP_TIME_ZONE).toOffsetDateTime();

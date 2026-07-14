@@ -119,17 +119,6 @@ export default function ProductForm({
   ) => {
     const { id, value } = e.target;
 
-    setFormData((prev) => ({
-      ...prev,
-      [id]: value,
-    }));
-
-    //Clear Errors While Typing
-    setErrors((prev) => ({
-      ...prev,
-      [id]: "",
-    }));
-
     if (id === "barcode") {
       setProduct(null);
       setProductError("");
@@ -145,6 +134,16 @@ export default function ProductForm({
         }, 400);
       }
     }
+    setFormData((prev) => ({
+      ...prev,
+      [id]: value,
+    }));
+
+    //Clear Errors While Typing
+    setErrors((prev) => ({
+      ...prev,
+      [id]: "",
+    }));
   };
 
   const handleAddStock = async (data: FormData) => {
@@ -228,7 +227,7 @@ export default function ProductForm({
       onClose();
     } catch (err) {
       console.error("Failed to add stock:", (err as Error).message);
-      toast.error("Failed to add stock");
+      toast.error(`Failed to add stock: ${(err as Error).message}`);
     }
   };
   useEffect(() => {
@@ -327,7 +326,7 @@ export default function ProductForm({
               placeholder="Quantity"
               disabled={disableQty}
               value={formData.quantity}
-              // min={0}
+              min={0}
               onChange={handleChange}
               className={`w-full ${disableQty ? "bg-gray-200" : "bg-red-50"} p-2 text-gray-700 text-md border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-red-800`}
             />
@@ -363,7 +362,7 @@ export default function ProductForm({
               name="lowStockThresholdQty"
               placeholder="Low Stock Threshold (Qty)"
               disabled={disableQty}
-              min={10}
+              min={5}
               value={formData.lowStockThresholdQty}
               onChange={handleChange}
               className={`w-full ${disableQty ? "bg-gray-200" : "bg-red-50"} p-2 text-gray-700 text-md border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-red-800`}
@@ -384,7 +383,7 @@ export default function ProductForm({
               name="lowStockThresholdWeight"
               placeholder="Low Stock Threshold (Weight)"
               step={0.01}
-              min={10}
+              min={5}
               value={formData.lowStockThresholdWeight}
               disabled={disableWeight}
               onChange={handleChange}

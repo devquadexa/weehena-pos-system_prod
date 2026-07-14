@@ -202,22 +202,26 @@ export async function printReceipt(
 
     // Items
     data.cart.forEach((item) => {
+      const bulkThreshold = 10;
       const qty = item.weighted
         ? `${item.value.toFixed(2)}Kg`
         : `${item.value}`;
 
-      const price = item.weighted
-        ? item.retailPrice.toFixed(2)
-        : item.retailPrice.toFixed(2);
+      // Bulk pricing only applies to non-weighted (pack) items
+      const isBulk = !item.weighted && item.value >= bulkThreshold;
+      const unitPrice = isBulk ? item.bulkPrice : item.retailPrice;
 
-      const lineTotal = item.weighted
-        ? item.retailPrice * item.value
-        : item.retailPrice * item.value;
+      const price = unitPrice.toFixed(2);
+
+      const lineTotal = unitPrice * item.value;
 
       const ITEM_WIDTH = 22;
 
       // Split long item names
-      const itemLines = wrapText(item.name, ITEM_WIDTH);
+      const itemLines = wrapText(
+        isBulk ? `${item.name} (bulk)` : item.name,
+        ITEM_WIDTH,
+      );
 
       itemLines.forEach((line, index) => {
         const itemCol = line.padEnd(ITEM_WIDTH);

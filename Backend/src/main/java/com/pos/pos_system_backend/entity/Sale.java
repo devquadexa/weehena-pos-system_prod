@@ -26,7 +26,6 @@ public class Sale {
     @Enumerated(EnumType.STRING)
     private SaleStatus status = SaleStatus.ACTIVE;
 
-    //    private LocalDateTime date;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Colombo")
     private OffsetDateTime date;
 

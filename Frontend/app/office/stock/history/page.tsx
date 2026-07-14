@@ -78,7 +78,7 @@ export default function HistoryPage() {
       `https://weehenapos360.cloud/api/stock/history/period?outletId=${outletId}&startDate=${startDate}&endDate=${endDate}`,
     );
     // const res = await fetch(
-    //   `http://localhost:8080/api/stock/history/period?outletId=${outletId}&startDate=${startDate}&endDate=${endDate}`,
+    //    `http://localhost:8080/api/stock/history/period?outletId=${outletId}&startDate=${startDate}&endDate=${endDate}`,
     // );
 
     const data = await res.json();
@@ -121,11 +121,11 @@ export default function HistoryPage() {
       render: (h) => stockBadge(h.newStock, "bg-green-300"),
     },
     {
-      header: "User",
+      header: "Changed By",
       render: (h) => h.changedBy,
     },
     {
-      header: "Date",
+      header: "Changed At",
       render: (h) => formatStockHistoryTimestamp(h.changedAt),
     },
   ];
