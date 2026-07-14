@@ -2,6 +2,7 @@ package com.pos.pos_system_backend.service;
 
 import com.pos.pos_system_backend.entity.*;
 import com.pos.pos_system_backend.dto.SaleRequest;
+import com.pos.pos_system_backend.enums.PriceType;
 import com.pos.pos_system_backend.enums.SaleStatus;
 import com.pos.pos_system_backend.repository.ProductRepository;
 import com.pos.pos_system_backend.repository.SaleRepository;
@@ -24,6 +25,7 @@ public class SaleService {
     private final ProductRepository productRepo;
 
     private static final ZoneId APP_TIME_ZONE = ZoneId.of("Asia/Colombo");
+    private static final double BULK_THRESHOLD = 10;
 
     public SaleService(SaleRepository repo, StockService stockService, StockRepository stockRepo, ProductRepository productRepo) {
         this.repo = repo;
@@ -40,7 +42,6 @@ public class SaleService {
         Sale sale = new Sale();
         sale.setInvoiceNo(req.getInvoiceNo());
         sale.setOutletId(req.getOutletId());
-        sale.setDiscountAmount(req.getDiscountAmount());
         sale.setDate(OffsetDateTime.now(APP_TIME_ZONE));
         sale.setStatus(SaleStatus.ACTIVE);
 
@@ -50,22 +51,19 @@ public class SaleService {
             Product product = productRepo.findByBarcode(item.getBarcode())
                     .orElseThrow(() -> new RuntimeException("Product not found"));
 
-            double itemTotal;
-
+            double unitPrice;
+            PriceType priceType;
             if (product.isWeighted()) {
-                itemTotal = item.getValue() * product.getRetailPrice();
+                // Bulk pricing does not apply to weighted products
+                unitPrice = product.getRetailPrice();
+                priceType = PriceType.RETAIL;
             } else {
-                double unitPrice = switch (item.getPriceType()) {
-                    case BULK -> product.getBulkPrice();
-                    case RETAIL -> product.getRetailPrice();
-//                    case PACK -> product.getPackPrice();
-                    default -> product.getRetailPrice();
-
-                };
-                System.out.println(unitPrice);
-                itemTotal = unitPrice * item.getValue();
+                boolean isBulk = item.getValue() >= BULK_THRESHOLD;
+                unitPrice = isBulk ? product.getBulkPrice() : product.getRetailPrice();
+                priceType = isBulk ? PriceType.BULK : PriceType.RETAIL;
             }
 
+            double itemTotal = unitPrice * item.getValue();
 
             stockService.reduceStock(
                     item.getBarcode(),
@@ -76,15 +74,30 @@ public class SaleService {
             subtotal += itemTotal;
 
             item.setSale(sale);
+            item.setUnitPrice(unitPrice);
+            item.setPriceType(priceType);
         }
 
-        sale.setTotal(subtotal - req.getDiscountAmount());
+        double discountAmount = 0;
+        if (req.getDiscountType() != null) {
+            discountAmount = switch (req.getDiscountType()) {
+                case PERCENTAGE -> subtotal * req.getDiscountValue() / 100;
+                case FIXED -> req.getDiscountValue();
+                default -> 0;
+            };
+        }
 
+        discountAmount = Math.min(discountAmount, subtotal); // never exceed subtotal
+        discountAmount = Math.max(discountAmount, 0);        // never negative
+
+        double total = Math.max(0, subtotal - discountAmount);
+
+        sale.setDiscountAmount(discountAmount);
+        sale.setTotal(total);
         sale.setItems(req.getItems());
 
+
         repo.save(sale);
-
-
     }
 
     public List<Sale> getSalesByDateAndOutletId(LocalDate date, String outletId) {

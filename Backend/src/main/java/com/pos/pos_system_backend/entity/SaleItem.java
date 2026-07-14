@@ -15,6 +15,8 @@ public class SaleItem {
 
     private String barcode;
     private double value;
+    private double unitPrice;
+
 
     @Enumerated(EnumType.STRING)
     private PriceType priceType;
