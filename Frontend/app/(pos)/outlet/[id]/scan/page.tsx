@@ -10,7 +10,6 @@ import {
   fetchProduct,
   fetchProductsByName,
 } from "@/app/services/productService";
-import { Product } from "@/app/types";
 import QuantityModal from "@/app/components/QuantityModal";
 import Receipt from "@/app/components/Receipt";
 import DiscountModal from "@/app/components/DiscountModal";
@@ -24,6 +23,7 @@ import PaymentModal from "@/app/components/PaymentModal";
 import toast from "react-hot-toast";
 import { DollarSign, Percent, ShoppingCart, X } from "lucide-react";
 import ProductSearchInput from "@/app/components/ProductSearchInput";
+import { Product } from "@/app/types/Product";
 
 export default function ScanPage() {
   const [barcode, setBarcode] = useState<string>("");
@@ -41,10 +41,11 @@ export default function ScanPage() {
 
   //Discount Modal State
   const [discountModalOpen, setDiscountModalOpen] = useState(false);
-  const [discount, setDiscount] = useState(0);
+  // const [discount, setDiscount] = useState(0);
   const [discountType, setDiscountType] = useState<"percentage" | "fixed">(
     "percentage",
   );
+  const [discountValue, setDiscountValue] = useState(0);
 
   //PaymentModal
   const [cashReceived, setCashReceived] = useState(0);
@@ -59,7 +60,7 @@ export default function ScanPage() {
   // Calculate totals whenever cart or discount changes
   const { subtotal, total, discountAmount } = calculateTotal(
     cart,
-    discount,
+    discountValue,
     discountType,
   );
 
@@ -186,7 +187,7 @@ export default function ScanPage() {
   };
 
   const handleApplyDiscount = (value: number, type: "percentage" | "fixed") => {
-    setDiscount(value);
+    setDiscountValue(value);
     setDiscountType(type);
   };
 
@@ -194,12 +195,11 @@ export default function ScanPage() {
     return {
       invoiceNo: generateInvoiceNumber(),
       outletId: outletId,
-      date: new Date().toLocaleDateString(),
-      discountAmount: discountAmount,
+      discountType: discountType.toUpperCase(),
+      discountValue: discountValue, 
       items: cart.map((item) => ({
         barcode: item.barcode,
         value: item.value,
-        priceType: "RETAIL",
       })),
     };
   };
@@ -237,7 +237,7 @@ export default function ScanPage() {
           balance,
         },
         "XP-80C", //shop printer
-        // "XP-80C (copy 3)", //test printer
+        // "XP-80C (copy 1)", //test printer
       );
     } catch (error: unknown) {
       console.error(error);
@@ -287,7 +287,7 @@ export default function ScanPage() {
         discountAmount={discountAmount}
         subtotal={subtotal}
         total={total}
-        discount={discount}
+        discount={discountValue}
         discountType={discountType}
       />
 
@@ -318,7 +318,7 @@ export default function ScanPage() {
           onClick={() => {
             setCart([]);
             setInvoiceNo("");
-            setDiscount(0);
+            setDiscountValue(0);
           }}
           className="bg-red-800 hover:bg-red-700"
         >
@@ -375,7 +375,7 @@ export default function ScanPage() {
           cart={cart}
           invoiceNo={invoiceNo}
           subtotal={subtotal}
-          discount={discount}
+          discount={discountValue}
           discountType={discountType}
           discountAmount={discountAmount}
           total={total}

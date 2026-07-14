@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useEffectEvent, useState } from "react";
-import { CartItem } from "../types";
+import { CartItem } from "../types/Product";
 
 interface Props {
   cart: CartItem[];
@@ -13,6 +13,7 @@ interface Props {
   invoiceNo: string;
   cashReceived: number;
   balance: number;
+  bulkThreshold?: number;
 }
 
 export default function Receipt({
@@ -23,6 +24,7 @@ export default function Receipt({
   invoiceNo,
   cashReceived,
   balance,
+  bulkThreshold = 10,
 }: Props) {
   const [isClient, setIsClient] = useState(false);
 
@@ -68,26 +70,30 @@ export default function Receipt({
             <span className="w-16 text-right">Price</span>
             <span className="w-16 text-right">Total</span>
           </div>
-          {cart.map((item, i) => (
-            <div
-              key={i}
-              className="flex gap-2 text-right text-[10px] justify-between mt-2 mb-2"
-            >
-              <span className="w-12 text-[10px] text-left">
-                {item.weighted ? `${item.value}Kg` : `${item.value} `}
-              </span>
-              <span className="w-48 text-left">{item.name}</span>
-              <span className="w-16">
-                {" "}
-                {item.weighted ? item.retailPrice : item.retailPrice}
-              </span>
-              <span className="w-16">
-                {item.weighted
-                  ? (item.retailPrice * item.value).toFixed(2)
-                  : (item.retailPrice * item.value).toFixed(2)}
-              </span>
-            </div>
-          ))}
+          {cart.map((item, i) => {
+            // Bulk pricing only applies to non-weighted (pack) items
+            const isBulk = !item.weighted && item.value >= bulkThreshold;
+            const unitPrice = isBulk ? item.bulkPrice : item.retailPrice;
+
+            return (
+              <div
+                key={i}
+                className="flex gap-2 text-right text-[10px] justify-between mt-2 mb-2"
+              >
+                <span className="w-12 text-[10px] text-left">
+                  {item.weighted ? `${item.value}Kg` : `${item.value} `}
+                </span>
+                <span className="w-48 text-left">
+                  {item.name}
+                  {isBulk && <span className="text-[9px]"> (bulk)</span>}
+                </span>
+                <span className="w-16">{unitPrice.toFixed(2)}</span>
+                <span className="w-16">
+                  {(unitPrice * item.value).toFixed(2)}
+                </span>
+              </div>
+            );
+          })}
         </div>
 
         <div className="border-t border-dashed my-2" />
