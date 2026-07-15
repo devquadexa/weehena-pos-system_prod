@@ -18,19 +18,40 @@ import { BadgeDollarSign } from "lucide-react";
 import html2canvas from "html2canvas-pro";
 import jsPDF from "jspdf";
 
+export interface CategoryReport {
+  items: SoldItemReport[];
+  totalValue: number;
+  totalQty: number;
+}
+
+export interface NonWeightedReport {
+  retail: CategoryReport;
+  bulk: CategoryReport;
+  totalValue: number;
+  totalQty: number;
+}
+
+export interface SoldItemsReportResponse {
+  weighted: CategoryReport;
+  nonWeighted: NonWeightedReport;
+  grandTotal: number;
+}
+
 export default function ReportPage() {
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
   const [outlet, setOutlet] = useState("");
   const [outlets, setOutlets] = useState<string[]>([]);
   const [reports, setReports] = useState<reportData[]>([]);
-  const [salesItems, setSalesItems] = useState<SoldItemReport[]>([]);
   const [cancelledSales, setCancelledSales] = useState<CancelledSaleItem[]>([]);
   const [loading, setLoading] = useState(false);
+  const [salesItems, setSalesItems] = useState<SoldItemsReportResponse | null>(
+    null,
+  );
 
   const handleFetchDailyReport = async () => {
     try {
       setReports([]);
-      setSalesItems([]);
+      setSalesItems(null);
       setLoading(true);
       setCancelledSales([]);
 
@@ -75,11 +96,7 @@ export default function ReportPage() {
     loadOutlets().catch(console.error);
   }, []);
 
-  const totalValue = salesItems.reduce(
-    (sum, item) => sum + (item.saleValue || 0),
-    0,
-  );
-
+  // Sales Table
   const salesColumns: ColumnDef<SoldItemReport>[] = [
     {
       header: "Barcode",
@@ -107,15 +124,12 @@ export default function ReportPage() {
     },
   ];
 
-  const cacelledSalesColumns: ColumnDef<CancelledSaleItem>[] = [
+  // Cancelled Sales Table
+  const cancelledSalesColumns: ColumnDef<CancelledSaleItem>[] = [
     {
       header: "Invoice No",
       render: (item) => item.invoiceNo,
     },
-    // {
-    //   header: "Barcode",
-    //   render: (item) => item.barcode,
-    // },
     {
       header: "Item Name",
       render: (item) => item.itemName,
@@ -138,11 +152,10 @@ export default function ReportPage() {
     },
   ];
 
+  // Print report
   const printReport = () => {
     document.body.classList.add("printing-report");
-
     document.title = `Daily Sales Report of ${outlet} (${date})`;
-
     window.print();
     document.body.classList.remove("printing-report");
   };
@@ -150,15 +163,12 @@ export default function ReportPage() {
   //Download report
   const saveReportAsPDF = async () => {
     const report = document.getElementById("report-print");
-
     if (!report) {
       toast.error("Report not found");
       return;
     }
-
     try {
       toast.loading("Generating PDF...", { id: "pdf" });
-
       const pdf = new jsPDF({
         orientation: "portrait",
         unit: "mm",
@@ -237,7 +247,7 @@ export default function ReportPage() {
   };
 
   return (
-    <div className="text-black min-w-0">
+    <div className="text-black min-w-0 ">
       <div className="flex gap-2 items-center mb-4">
         <BadgeDollarSign className="size-8 text-red-900" />
         <h1 className="text-lg sm:text-xl text-red-950 font-bold  shrink-0">
@@ -279,7 +289,7 @@ export default function ReportPage() {
       {loading && <p>Loading...</p>}
 
       {/* Table */}
-      {!loading && reports.length > 0 && salesItems.length > 0 && (
+      {!loading && reports.length > 0 && salesItems && (
         <div id="report-print" className="mx-auto rounded min-w-0">
           <div className="text-gray-800 my-5 font-semibold">
             <h1 className="text-xl sm:text-2xl wrap-break-word">
@@ -295,43 +305,114 @@ export default function ReportPage() {
             </p>
           </div>
 
-          <div className="text-gray-800 mt-6  font-semibold">
-            <h1 className="text-base">Sales Items</h1>
-          </div>
+          <h1 className="text-lg font-semibold text-gray-800 mt-6">
+            Sales Items
+          </h1>
+          {salesItems?.weighted?.items?.length > 0 && (
+            <div className="relative">
+              <h1 className="text-sm font-semibold text-gray-800 mt-4">
+                Chicken Products
+              </h1>
+              <ResponsiveDataView
+                data={salesItems.weighted.items}
+                columns={salesColumns.map((col) => ({
+                  ...col,
+                  headerClassName:
+                    "bg-gray-200 border border-gray-800 text-gray-950",
+                  cellClassName: "border border-gray-800",
+                }))}
+                getRowKey={(_, index) => index}
+                tableClassName="w-full border border-gray-300 text-xs mt-2"
+                headerRowClassName="text-xs"
+                striped={false}
+                emptyMessage="No sales items"
+              />
+              <div className="absolute right-0 font-semibold text-gray-800 mt-2">
+                <p>
+                  Total Sales (Rs.) -{" "}
+                  {salesItems.weighted.totalValue.toFixed(2)}{" "}
+                </p>
+              </div>
+            </div>
+          )}
 
-          <ResponsiveDataView
-            data={salesItems}
-            columns={salesColumns.map((col) => ({
-              ...col,
-              headerClassName:
-                "bg-gray-200 border border-gray-800 text-gray-950",
-              cellClassName: "border border-gray-800",
-            }))}
-            getRowKey={(_, index) => index}
-            tableClassName="w-full border border-gray-300 text-xs mt-2"
-            headerRowClassName="text-xs"
-            striped={false}
-            emptyMessage="No sales items"
-          />
+          {salesItems?.nonWeighted?.retail?.items?.length > 0 && (
+            <div className="relative">
+              <h1 className="text-sm font-semibold text-gray-800 mt-4">
+                Sausage Products
+              </h1>
+              <ResponsiveDataView
+                data={salesItems.nonWeighted.retail.items}
+                columns={salesColumns.map((col) => ({
+                  ...col,
+                  headerClassName:
+                    "bg-gray-200 border border-gray-800 text-gray-950",
+                  cellClassName: "border border-gray-800",
+                }))}
+                getRowKey={(_, index) => index}
+                tableClassName="w-full border border-gray-300 text-xs mt-2"
+                headerRowClassName="text-xs"
+                striped={false}
+                emptyMessage="No sales items"
+              />
+              <div className="absolute right-0 font-semibold text-gray-800 mt-2">
+                <p>
+                  Total Sales (Rs.) -{" "}
+                  {salesItems.nonWeighted.retail.totalValue.toFixed(2)}
+                </p>
+              </div>
+            </div>
+          )}
 
-          <div className="text-gray-800 mt-6  font-semibold">
-            <h1 className="text-base">Cancelled Sales</h1>
-          </div>
+          {salesItems?.nonWeighted?.bulk?.items?.length > 0 && (
+            <div className="relative">
+              <h1 className="text-sm font-semibold text-gray-800 mt-4">
+                Sausage products (Bulk)
+              </h1>
+              <ResponsiveDataView
+                data={salesItems.nonWeighted.bulk.items}
+                columns={salesColumns.map((col) => ({
+                  ...col,
+                  headerClassName:
+                    "bg-gray-200 border border-gray-800 text-gray-950",
+                  cellClassName: "border border-gray-800",
+                }))}
+                getRowKey={(_, index) => index}
+                tableClassName="w-full border border-gray-300 text-xs mt-2"
+                headerRowClassName="text-xs"
+                striped={false}
+                emptyMessage="No sales items"
+              />
+              <div className="absolute right-0 font-semibold text-gray-800 mt-2">
+                <p>
+                  Total Sales (Rs.) -{" "}
+                  {salesItems.nonWeighted.bulk.totalValue.toFixed(2)}
+                </p>
+              </div>
+            </div>
+          )}
 
-          <ResponsiveDataView
-            data={cancelledSales}
-            columns={cacelledSalesColumns.map((col) => ({
-              ...col,
-              headerClassName:
-                "bg-gray-200 border border-gray-800 text-gray-950",
-              cellClassName: "border border-gray-800",
-            }))}
-            getRowKey={(_, index) => index}
-            tableClassName="w-full border border-gray-300 text-xs mt-2"
-            headerRowClassName="text-xs"
-            striped={false}
-            emptyMessage="No cancelled sales"
-          />
+          {cancelledSales.length > 0 && (
+            <>
+              <div className="text-gray-800 mt-6  font-semibold">
+                <h1 className="text-base">Cancelled Sales</h1>
+              </div>
+              <ResponsiveDataView
+                data={cancelledSales}
+                columns={cancelledSalesColumns.map((col) => ({
+                  ...col,
+                  headerClassName:
+                    "bg-gray-200 border border-gray-800 text-gray-950",
+                  cellClassName: "border border-gray-800",
+                }))}
+                getRowKey={(_, index) => index}
+                tableClassName="w-full border border-gray-300 text-xs mt-2"
+                headerRowClassName="text-xs"
+                striped={false}
+                emptyMessage="No cancelled sales"
+              />
+            </>
+          )}
 
           <div className="text-gray-800 mt-6  font-semibold">
             <h1 className="text-base">Sales Summary</h1>
@@ -364,7 +445,7 @@ export default function ReportPage() {
                   Total Sale Value (LKR) :
                 </span>
                 <span className="text-gray-900 font-medium text-right">
-                  {totalValue.toFixed(2)}
+                  {salesItems?.grandTotal.toFixed(2)}
                 </span>
 
                 <span className="text-gray-700 font-semibold">
@@ -387,13 +468,13 @@ export default function ReportPage() {
       )}
 
       {/* No Data */}
-      {!loading && (reports.length === 0 || salesItems.length === 0) && (
+      {!loading && (reports.length === 0 || !salesItems) && (
         <p className="mt-4 text-red-700 font-medium">No data available</p>
       )}
 
-      <div className="flex flex-col-2 gap-2 mt-4 lg:w-fit">
+      <div className="flex flex-col-2 gap-2 mt-6 lg:w-fit">
         {/* Print */}
-        {reports.length > 0 && salesItems.length > 0 && (
+        {reports.length > 0 && salesItems && (
           <Button
             onClick={printReport}
             className="w-full sm:w-auto print:hidden bg-blue-800 hover:bg-blue-700 text-white px-4 py-2"
@@ -403,7 +484,7 @@ export default function ReportPage() {
         )}
 
         {/* Download */}
-        {reports.length > 0 && salesItems.length > 0 && (
+        {reports.length > 0 && salesItems && (
           <Button
             onClick={saveReportAsPDF}
             className=" w-full sm:w-auto print:hidden bg-green-800 hover:bg-green-700 text-white px-4 py-2"

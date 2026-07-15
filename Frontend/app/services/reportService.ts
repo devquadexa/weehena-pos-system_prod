@@ -1,4 +1,5 @@
-import { DayEndStockReport, reportData, SoldItemReport } from "../types/Report";
+import { SoldItemsReportResponse } from "../office/reports/salesReport/page";
+import { DayEndStockReport, reportData} from "../types/Report";
 import { CancelledSaleItem } from "../types/Sale";
 
 const API_URL = "https://weehenapos360.cloud/api/reports";
@@ -30,7 +31,7 @@ export const getDailyReport = async (
 export const getSoldItems = async (
   date: string,
   outletId: string,
-): Promise<SoldItemReport[]> => {
+): Promise<SoldItemsReportResponse> => {
   const url = `${API_URL}/items?date=${date}&outletId=${outletId}`;
 
   const token = localStorage.getItem("token");

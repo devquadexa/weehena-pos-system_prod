@@ -5,6 +5,7 @@ import com.pos.pos_system_backend.service.ReportService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/reports")
@@ -27,7 +28,7 @@ public class ReportController {
 
 
     @GetMapping("/items")
-    public List<SoldItemReport> getSoldItems(
+    public SoldItemsReportResponse getSoldItems(
             @RequestParam String outletId,
             @RequestParam String date
     ) {

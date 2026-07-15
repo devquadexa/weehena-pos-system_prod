@@ -11,10 +11,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class ReportService {
@@ -66,7 +63,7 @@ public class ReportService {
     }
 
 
-    public List<SoldItemReport> getSoldItems(String outletId, String date) {
+    public SoldItemsReportResponse getSoldItems(String outletId, String date) {
 
         LocalDate localDate = LocalDate.parse(date);
 
@@ -75,17 +72,55 @@ public class ReportService {
 
         List<Object[]> results = saleRepo.getSoldItemsReport(outletId, start, end);
 
-        return results.stream().map(r -> {
-            SoldItemReport dto = new SoldItemReport();
-            dto.setInvoiceNo((String) r[0]);
-            dto.setSaleStatus(String.valueOf(r[1]));
-            dto.setBarcode(String.valueOf(r[2]));
-            dto.setItemName((String) r[3]);
-            dto.setSaleQty(((Number) r[4]).doubleValue());
-            dto.setSalePrice(((Number) r[5]).doubleValue());
-            dto.setSaleValue(((Number) r[6]).doubleValue());
-            return dto;
-        }).toList();
+        Map<String, SoldItemReport> weightedGrouped = new LinkedHashMap<>();
+        Map<String, SoldItemReport> nonWeightedGrouped = new LinkedHashMap<>();
+        Map<String, SoldItemReport> bulkGrouped = new LinkedHashMap<>();
+
+        for (Object[] r : results) {
+            String invoiceNo = (String) r[0];
+            String saleStatus = String.valueOf(r[1]);
+            String barcode = String.valueOf(r[2]);
+            String itemName = (String) r[3];
+            double saleQty = ((Number) r[4]).doubleValue();
+            double salePrice = ((Number) r[5]).doubleValue();
+            double saleValue = ((Number) r[6]).doubleValue();
+            boolean isWeighted = (Boolean) r[7];
+            String priceType = String.valueOf(r[8]); // "RETAIL" or "BULK"
+
+            Map<String, SoldItemReport> targetMap;
+            if (isWeighted) {
+                targetMap = weightedGrouped;              // weighted items -> always here
+            } else if ("BULK".equals(priceType)) {
+                targetMap = bulkGrouped;                   // non-weighted, bulk price -> separate, never merged
+            } else {
+                targetMap = nonWeightedGrouped;             // non-weighted, retail price
+            }
+
+
+
+            SoldItemReport dto = targetMap.get(barcode);
+            if (dto == null) {
+                dto = new SoldItemReport();
+                dto.setInvoiceNo(invoiceNo);
+                dto.setSaleStatus(saleStatus);
+                dto.setBarcode(barcode);
+                dto.setItemName(itemName);
+                dto.setSaleQty(saleQty);
+                dto.setSalePrice(salePrice);
+                dto.setSaleValue(saleValue);
+                targetMap.put(barcode, dto);
+            } else {
+                dto.setSaleQty(dto.getSaleQty() + saleQty);
+                dto.setSaleValue(dto.getSaleValue() + saleValue);
+                dto.setInvoiceNo(dto.getInvoiceNo() + ", " + invoiceNo);
+            }
+        }
+
+        return new SoldItemsReportResponse(
+                new ArrayList<>(weightedGrouped.values()),
+                new ArrayList<>(nonWeightedGrouped.values()),
+                new ArrayList<>(bulkGrouped.values())
+        );
     }
 
     // stock report
