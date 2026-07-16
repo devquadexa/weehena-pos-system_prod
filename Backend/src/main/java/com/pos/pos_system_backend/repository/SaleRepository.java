@@ -38,14 +38,16 @@ public interface SaleRepository extends JpaRepository<Sale, Long> {
                         WHEN si.priceType = 'RETAIL' THEN p.retailPrice
                         ELSE p.bulkPrice
                     END
-                )
+                ),
+                p.weighted,
+                si.priceType
             FROM SaleItem si
             JOIN si.sale s
             JOIN Product p ON p.barcode = si.barcode
             WHERE s.outletId = :outletId
             AND s.status = 'ACTIVE'
             AND s.date >= :start AND s.date < :end
-            GROUP BY s.invoiceNo,s.status, p.barcode, p.name, si.priceType, p.retailPrice, p.bulkPrice
+            GROUP BY s.invoiceNo,s.status, p.barcode, p.name, si.priceType, p.retailPrice, p.bulkPrice,p.weighted
             """)
     List<Object[]> getSoldItemsReport(
             @Param("outletId") String outletId,
