@@ -305,11 +305,11 @@ export default function ReportPage() {
             </p>
           </div>
 
-          <h1 className="text-lg font-semibold text-gray-800 mt-6">
-            Sales Items
-          </h1>
           {salesItems?.weighted?.items?.length > 0 && (
             <div className="relative">
+              <h1 className="text-lg font-semibold text-gray-800 mt-6">
+                Sales Items
+              </h1>
               <h1 className="text-sm font-semibold text-gray-800 mt-4">
                 Chicken Products
               </h1>
