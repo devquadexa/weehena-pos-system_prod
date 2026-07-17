@@ -108,17 +108,17 @@ export default function HistoryPage() {
     {
       header: "Previous Stock",
       align: "center",
-      render: (h) => stockBadge(h.oldStock, "bg-blue-300"),
+      render: (h) => stockBadge(h.oldStock.toFixed(3), "bg-blue-300"),
     },
     {
       header: "Updated Stock",
       align: "center",
-      render: (h) => stockBadge(h.updatedStock, "bg-amber-100"),
+      render: (h) => stockBadge(h.updatedStock.toFixed(3), "bg-amber-100"),
     },
     {
       header: "Current Stock",
       align: "center",
-      render: (h) => stockBadge(h.newStock, "bg-green-300"),
+      render: (h) => stockBadge(h.newStock.toFixed(3), "bg-green-300"),
     },
     {
       header: "Changed By",
