@@ -16,14 +16,13 @@ import html2canvas from "html2canvas-pro";
 import jsPDF from "jspdf";
 
 export default function StockReportPage() {
+
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
   const [outlet, setOutlet] = useState("");
   const [outlets, setOutlets] = useState<string[]>([]);
   const [reports, setReports] = useState<DayEndStockReport[]>([]);
   const [loading, setLoading] = useState(false);
-
   const [sales, setSales] = useState<ProductSaleData[]>([]);
-
   const [showModal, setShowModal] = useState(false);
 
   const handleFetchStockReport = async () => {
@@ -53,9 +52,7 @@ export default function StockReportPage() {
 
   const printReport = () => {
     document.body.classList.add("printing-report");
-
     document.title = `Day-End Stock Report of ${outlet} (${date})`;
-
     window.print();
     document.body.classList.remove("printing-report");
   };
@@ -104,19 +101,17 @@ export default function StockReportPage() {
           clonedDoc.body.classList.add("printing-report");
           clonedEl.style.width = `${REPORT_WIDTH}px`;
           clonedEl.style.maxWidth = `${REPORT_WIDTH}px`;
-
           clonedEl
             .querySelectorAll('[data-responsive-view="mobile"]')
             .forEach((el) => ((el as HTMLElement).style.display = "none"));
           clonedEl
             .querySelectorAll('[data-responsive-view="desktop"]')
             .forEach((el) => ((el as HTMLElement).style.display = "block"));
-
           const top = clonedEl.getBoundingClientRect().top;
-
           clonedEl.querySelectorAll("table").forEach((table) => {
             const thead = table.querySelector("thead");
             const rows = table.querySelectorAll("tbody tr");
+
             if (!thead || rows.length === 0) return;
 
             const headerRect = thead.getBoundingClientRect();
@@ -216,8 +211,8 @@ export default function StockReportPage() {
         pageNum++;
       }
 
-      pdf.save(`Daily Sales Report ${outlet} (${date}).pdf`);
-      toast.success("Sales Report generated successfully!", { id: "pdf" });
+      pdf.save(`Day-End Stock Report ${outlet} (${date}).pdf`);
+      toast.success("Day-End Stock Report generated successfully!", { id: "pdf" });
     } catch (error) {
       console.error(error);
       toast.error("Failed to generate PDF", { id: "pdf" });
@@ -235,9 +230,7 @@ export default function StockReportPage() {
     // );
 
     const data = await res.json();
-
     setSales(data);
-
     setShowModal(true);
   };
 
@@ -254,14 +247,14 @@ export default function StockReportPage() {
     {
       header: "Opening Stock",
       align: "right",
-      render: (item) => item.openingStock.toFixed(2),
+      render: (item) => item.openingStock.toFixed(3),
     },
     {
       header: "Stock In",
       align: "right",
       render: (item) => (
         <div className="bg-amber-100 text-amber-900 rounded px-2 py-1">
-          {item.stockIn.toFixed(2)}
+          {item.stockIn.toFixed(3)}
         </div>
       ),
     },
@@ -273,14 +266,14 @@ export default function StockReportPage() {
           onClick={() => openProductSales(item.barcode)}
           className="bg-green-100 hover:bg-green-200 text-green-900 rounded px-2 py-1 cursor-pointer"
         >
-          {item.stockOut.toFixed(2)}
+          {item.stockOut.toFixed(3)}
         </div>
       ),
     },
     {
       header: "Closing Stock",
       align: "right",
-      render: (item) => item.closingStock.toFixed(2),
+      render: (item) => item.closingStock.toFixed(3),
     },
   ];
 
