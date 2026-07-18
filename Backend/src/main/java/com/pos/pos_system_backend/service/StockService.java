@@ -71,8 +71,15 @@ public class StockService {
             history.setNewStock(req.getQuantity());
         }
 
+//        history.setOldStock(0);
+//        history.setUpdatedStock(0);
+
+        double initialAmount = product.isWeighted() ? req.getWeight() : req.getQuantity();
+
         history.setOldStock(0);
-        history.setUpdatedStock(0);
+        history.setUpdatedStock(initialAmount);
+        history.setNewStock(initialAmount);
+
         history.setChangedBy(username);
         history.setChangedAt(OffsetDateTime.now(APP_TIME_ZONE));
         stockHistoryRepository.save(history);
@@ -206,8 +213,8 @@ public class StockService {
 
         return stockHistoryRepository.getStockHistoryForPeriod(
                 outletId,
-            start,
-            end
+                start,
+                end
         );
     }
 
