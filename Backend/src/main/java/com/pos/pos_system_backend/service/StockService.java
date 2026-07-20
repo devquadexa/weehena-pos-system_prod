@@ -71,9 +71,6 @@ public class StockService {
             history.setNewStock(req.getQuantity());
         }
 
-//        history.setOldStock(0);
-//        history.setUpdatedStock(0);
-
         double initialAmount = product.isWeighted() ? req.getWeight() : req.getQuantity();
 
         history.setOldStock(0);
