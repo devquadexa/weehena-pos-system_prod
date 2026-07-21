@@ -120,7 +120,7 @@ export default function ReportPage() {
     {
       header: "Sale Qty",
       align: "center",
-      render: (item) => item.saleQty.toFixed(2),
+      render: (item) => item.saleQty.toFixed(3),
     },
     {
       header: "Sale Price",
