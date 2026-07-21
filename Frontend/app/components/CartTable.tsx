@@ -66,7 +66,7 @@ export default function CartTable({
                 </td>
                 <td className="border text-sm font-semibold text-blue-700  border-gray-400 p-2 text-center">
                   {item.weighted
-                    ? `${item.value.toFixed(2)} kg`
+                    ? `${item.value.toFixed(3)} kg`
                     : `${item.value} PCs`}
                 </td>
                 <td className="border text-sm font-semibold text-gray-800 border-gray-400 p-2 text-right">

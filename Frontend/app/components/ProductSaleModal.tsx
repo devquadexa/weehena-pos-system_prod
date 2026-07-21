@@ -65,15 +65,15 @@ export default function ProductSalesModal({ isOpen, onClose, sales }: Props) {
                 </p>
 
                 <p>
-                  <span className="font-semibold">Qty:</span> {sale.saleQty}
+                  <span className="font-semibold">Qty:</span> {sale.saleQty.toFixed(3)}
                 </p>
 
                 <p>
                   <span className="font-semibold">Price:</span> LKR{" "}
-                  {sale.salePrice}
+                  {sale.salePrice.toFixed(2)}
                 </p>
 
-                <p className="text-lg font-bold">Total: LKR {sale.saleValue}</p>
+                <p className="text-lg font-bold">Total: LKR {sale.saleValue.toFixed(2)}</p>
               </div>
             </div>
           ))}
