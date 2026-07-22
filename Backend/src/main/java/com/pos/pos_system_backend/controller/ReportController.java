@@ -5,7 +5,6 @@ import com.pos.pos_system_backend.service.ReportService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/reports")
@@ -36,7 +35,7 @@ public class ReportController {
     }
 
     @GetMapping("/day-end-stock")
-    public List<StockReportDto> getDayEndStockReport(
+    public DayEndStockReportDto getDayEndStockReport(
             @RequestParam String outletId,
             @RequestParam String date
     ) {
