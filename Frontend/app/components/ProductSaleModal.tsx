@@ -33,11 +33,11 @@ export default function ProductSalesModal({ isOpen, onClose, sales }: Props) {
           {sales.map((sale, i) => (
             <div
               key={i}
-              className="border rounded-xl p-4 shadow-sm bg-gray-50 hover:shadow-md transition"
+              className="border-2 border-slate-700 rounded-xl p-4 shadow-sm hover:shadow-md transition"
             >
               {/* Top */}
-              <div className="flex justify-between items-center mb-3">
-                <h3 className="font-bold text-lg text-black">
+              <div className="flex flex-col justify-between items-start mb-3">
+                <h3 className="font-bold mb-2 text-lg bg-blue-100 border py-1 px-2 rounded text-blue-900">
                   {sale.invoiceNo}
                 </h3>
 
@@ -45,8 +45,8 @@ export default function ProductSalesModal({ isOpen, onClose, sales }: Props) {
                   className={`px-2 py-1 rounded text-sm font-semibold
                   ${
                     sale.saleStatus === "CANCELLED"
-                      ? "bg-red-100 text-red-600"
-                      : "bg-green-100 text-green-600"
+                      ? "bg-red-100 border text-red-600"
+                      : "bg-green-100 border text-green-600"
                   }`}
                 >
                   {sale.saleStatus}
@@ -55,8 +55,8 @@ export default function ProductSalesModal({ isOpen, onClose, sales }: Props) {
 
               {/* Content */}
               <div className="space-y-2 text-black">
-                <p>
-                  <span className="font-semibold">Product Name:</span> {sale.productName}
+                <p className="font-semibold text-lg text-red-800">
+                   {sale.productName}
                 </p>
 
                 <p>
@@ -69,7 +69,7 @@ export default function ProductSalesModal({ isOpen, onClose, sales }: Props) {
                 </p>
 
                 <p>
-                  <span className="font-semibold">Price:</span> LKR{" "}
+                  <span className="font-semibold">Price (Rs.) :</span> {" "}
                   {sale.salePrice.toFixed(2)}
                 </p>
 

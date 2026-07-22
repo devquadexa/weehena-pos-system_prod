@@ -53,7 +53,7 @@ export const getSoldItems = async (
 export const getDayEndStockReport = async (
   date: string,
   outletId: string,
-): Promise<DayEndStockReport[]> => {
+): Promise<DayEndStockReport> => {
   const url = `${API_URL}/day-end-stock?date=${date}&outletId=${outletId}`;
 
   const token = localStorage.getItem("token");

@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ReportService {
@@ -97,7 +98,6 @@ public class ReportService {
             }
 
 
-
             SoldItemReport dto = targetMap.get(barcode);
             if (dto == null) {
                 dto = new SoldItemReport();
@@ -125,7 +125,7 @@ public class ReportService {
     }
 
     // stock report
-    public List<StockReportDto> getDayEndStockReport(
+    public DayEndStockReportDto getDayEndStockReport(
             String outletId,
             String date
     ) {
@@ -193,11 +193,23 @@ public class ReportService {
             dto.setStockIn(stockIn);
             dto.setStockOut(stockOut);
             dto.setClosingStock(closingStock);
+            dto.setWeighted(product.isWeighted());
 
             report.add(dto);
         }
 
-        return report;
+        List<StockReportDto> weightedItems = report.stream()
+                .filter(StockReportDto::isWeighted)
+                .sorted(Comparator.comparing(StockReportDto::getProductName))
+                .collect(Collectors.toList());
+
+        List<StockReportDto> nonWeightedItems = report.stream()
+                .filter(dto -> !dto.isWeighted())
+                .sorted(Comparator.comparing(StockReportDto::getProductName))
+                .collect(Collectors.toList());
+
+        return new DayEndStockReportDto(weightedItems, nonWeightedItems);
+
     }
 
 
@@ -223,32 +235,17 @@ public class ReportService {
 
         return results.stream().map(r -> {
 
-            ProductSaleDetailDto dto =
-                    new ProductSaleDetailDto();
+            ProductSaleDetailDto dto = new ProductSaleDetailDto();
 
             dto.setInvoiceNo((String) r[0]);
-
             dto.setBarcode((String) r[1]);
-
             dto.setProductName((String) r[2]);
-
             dto.setOutletId((String) r[3]);
-
             dto.setSaleStatus(String.valueOf(r[4]));
-
             dto.setSaleDate(OffsetDateTime.parse(String.valueOf(r[5])));
-
-            dto.setSaleQty(
-                    ((Number) r[6]).doubleValue()
-            );
-
-            dto.setSalePrice(
-                    ((Number) r[7]).doubleValue()
-            );
-
-            dto.setSaleValue(
-                    ((Number) r[8]).doubleValue()
-            );
+            dto.setSaleQty(((Number) r[6]).doubleValue());
+            dto.setSalePrice(((Number) r[7]).doubleValue());
+            dto.setSaleValue(((Number) r[8]).doubleValue());
 
             return dto;
 
@@ -267,39 +264,20 @@ public class ReportService {
         OffsetDateTime start = localDate.atStartOfDay(APP_TIME_ZONE).toOffsetDateTime();
         OffsetDateTime end = localDate.plusDays(1).atStartOfDay(APP_TIME_ZONE).toOffsetDateTime();
 
-        List<Object[]> results =
-                saleRepo.getCancelledSaleItems(outletId, start, end);
+        List<Object[]> results = saleRepo.getCancelledSaleItems(outletId, start, end);
 
         return results.stream().map(r -> {
 
-            CancelledSaleResponse dto =
-                    new CancelledSaleResponse();
+            CancelledSaleResponse dto = new CancelledSaleResponse();
 
             dto.setInvoiceNo((String) r[0]);
-
-            dto.setDate(
-                    ((OffsetDateTime) r[1])
-                            .toLocalDate()
-                            .toString()
-            );
-
+            dto.setDate(((OffsetDateTime) r[1]).toLocalDate().toString());
             dto.setBarcode(String.valueOf(r[2]));
             dto.setItemName((String) r[3]);
-
-
-            dto.setSaleQty(
-                    ((Number) r[4]).doubleValue()
-            );
-
+            dto.setSaleQty(((Number) r[4]).doubleValue());
             dto.setWeighted((Boolean) r[5]);
-
-            dto.setSalePrice(
-                    ((Number) r[6]).doubleValue()
-            );
-
-            dto.setSaleValue(
-                    ((Number) r[7]).doubleValue()
-            );
+            dto.setSalePrice(((Number) r[6]).doubleValue());
+            dto.setSaleValue(((Number) r[7]).doubleValue());
 
 
             return dto;
