@@ -138,6 +138,7 @@ public interface SaleRepository extends JpaRepository<Sale, Long> {
                 p.barcode,
                 p.name,
                 si.value,
+                p.weighted,
                 CASE
                     WHEN si.priceType = 'RETAIL'
                     THEN p.retailPrice

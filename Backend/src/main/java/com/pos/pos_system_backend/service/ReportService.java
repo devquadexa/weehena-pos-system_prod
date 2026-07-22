@@ -108,6 +108,7 @@ public class ReportService {
                 dto.setSaleQty(saleQty);
                 dto.setSalePrice(salePrice);
                 dto.setSaleValue(saleValue);
+                dto.setWeighted(isWeighted);
                 targetMap.put(barcode, dto);
             } else {
                 dto.setSaleQty(dto.getSaleQty() + saleQty);
@@ -285,17 +286,21 @@ public class ReportService {
             dto.setBarcode(String.valueOf(r[2]));
             dto.setItemName((String) r[3]);
 
+
             dto.setSaleQty(
                     ((Number) r[4]).doubleValue()
             );
 
+            dto.setWeighted((Boolean) r[5]);
+
             dto.setSalePrice(
-                    ((Number) r[5]).doubleValue()
+                    ((Number) r[6]).doubleValue()
             );
 
             dto.setSaleValue(
-                    ((Number) r[6]).doubleValue()
+                    ((Number) r[7]).doubleValue()
             );
+
 
             return dto;
 
