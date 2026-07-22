@@ -12,5 +12,6 @@ public class SoldItemReport {
     private double saleValue;
     private String invoiceNo;
     private String saleStatus;
+    private boolean isWeighted;
 
 }

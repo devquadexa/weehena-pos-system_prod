@@ -1,5 +1,5 @@
-import { SoldItemsReportResponse } from "../office/reports/salesReport/page";
-import { DayEndStockReport, reportData} from "../types/Report";
+
+import { DayEndStockReport, reportData, SoldItemsReportResponse} from "../types/Report";
 import { CancelledSaleItem } from "../types/Sale";
 
 const API_URL = "https://weehenapos360.cloud/api/reports";

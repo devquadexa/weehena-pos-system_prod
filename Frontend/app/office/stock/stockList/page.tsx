@@ -148,7 +148,7 @@ export default function StockPage() {
       ),
     },
     {
-      header: "Weight",
+      header: "Weight (Kg)",
       align: "center",
       render: (item) => (
         <div
@@ -161,7 +161,7 @@ export default function StockPage() {
               : "text-gray-800 cursor-not-allowed"
           }`}
         >
-          {item.weight ? item.weight.toFixed(2) : "N/A"}
+          {item.weight ? item.weight.toFixed(3) : "N/A"}
         </div>
       ),
     },
@@ -177,11 +177,11 @@ export default function StockPage() {
         item.lowStockThresholdQty ? item.lowStockThresholdQty : "N/A",
     },
     {
-      header: "Low Stock Threshold Weight",
+      header: "Low Stock Threshold Weight (Kg)",
       align: "center",
       render: (item) =>
         item.lowStockThresholdWeight
-          ? item.lowStockThresholdWeight.toFixed(2)
+          ? item.lowStockThresholdWeight.toFixed(3)
           : "N/A",
     },
     {

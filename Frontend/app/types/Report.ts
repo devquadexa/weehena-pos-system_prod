@@ -1,18 +1,19 @@
 export interface reportData {
   date: string;
   outletId: string;
-  discountAmount: number,
+  discountAmount: number;
   totalSales: number;
   totalTransactions: number;
 }
 
 export interface SoldItemReport {
-  barcode: string;
+  invoiceNo: string;
   itemName: string;
+  barcode: string;
   saleQty: number;
   salePrice: number;
   saleValue: number;
-  invoiceNo: string;
+  weighted: boolean;
   status: string;
 }
 
@@ -23,4 +24,23 @@ export interface DayEndStockReport {
   stockIn: number;
   stockOut: number;
   closingStock: number;
+}
+
+export interface CategoryReport {
+  items: SoldItemReport[];
+  totalValue: number;
+  totalQty: number;
+}
+
+export interface NonWeightedReport {
+  retail: CategoryReport;
+  bulk: CategoryReport;
+  totalValue: number;
+  totalQty: number;
+}
+
+export interface SoldItemsReportResponse {
+  weighted: CategoryReport;
+  nonWeighted: NonWeightedReport;
+  grandTotal: number;
 }

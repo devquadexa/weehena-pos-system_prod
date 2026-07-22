@@ -65,7 +65,7 @@ export default function Receipt({
         {/* Items */}
         <div className="">
           <div className="flex justify-between gap-2 font-semibold">
-            <span className="w-12 text-left">Qty</span>
+            <span className="w-20 text-left">Qty</span>
             <span className="w-48 ">Item</span>
             <span className="w-16 text-right">Price</span>
             <span className="w-16 text-right">Total</span>
@@ -80,8 +80,8 @@ export default function Receipt({
                 key={i}
                 className="flex gap-2 text-right text-[10px] justify-between mt-2 mb-2"
               >
-                <span className="w-12 text-[10px] text-left">
-                  {item.weighted ? `${item.value}Kg` : `${item.value} `}
+                <span className="w-20 text-[10px] text-left">
+                  {item.weighted ? `${item.value.toFixed(3)}Kg` : `${item.value} `}
                 </span>
                 <span className="w-48 text-left">
                   {item.name}

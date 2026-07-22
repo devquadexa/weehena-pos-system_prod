@@ -11,4 +11,5 @@ public class CancelledSaleResponse {
     private double saleQty;
     private double salePrice;
     private double saleValue;
+    private boolean weighted;
 }

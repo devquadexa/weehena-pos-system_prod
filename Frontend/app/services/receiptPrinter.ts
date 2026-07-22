@@ -204,7 +204,7 @@ export async function printReceipt(
     data.cart.forEach((item) => {
       const bulkThreshold = 10;
       const qty = item.weighted
-        ? `${item.value.toFixed(2)}Kg`
+        ? `${item.value.toFixed(3)}Kg`
         : `${item.value}`;
 
       // Bulk pricing only applies to non-weighted (pack) items
