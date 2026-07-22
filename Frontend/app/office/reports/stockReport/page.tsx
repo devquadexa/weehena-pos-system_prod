@@ -298,7 +298,10 @@ export default function StockReportPage() {
           id="date"
           type="date"
           value={date}
-          onChange={(e) => setDate(e.target.value)}
+          onChange={(e) => {
+            setDate(e.target.value);
+            setReports(null);
+          }}
           className="w-full sm:w-auto border-2 border-red-900 text-red-900 font-medium rounded p-2"
         />
 
