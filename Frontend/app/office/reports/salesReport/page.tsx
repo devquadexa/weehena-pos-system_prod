@@ -11,13 +11,16 @@ import ResponsiveDataView, {
   ColumnDef,
 } from "@/app/components/ResponsiveDataView";
 import { getStock } from "@/app/services/stockService";
-import { reportData, SoldItemReport, SoldItemsReportResponse } from "@/app/types/Report";
+import {
+  reportData,
+  SoldItemReport,
+  SoldItemsReportResponse,
+} from "@/app/types/Report";
 import { CancelledSaleItem } from "@/app/types/Sale";
 import toast from "react-hot-toast";
 import { BadgeDollarSign } from "lucide-react";
 import html2canvas from "html2canvas-pro";
 import jsPDF from "jspdf";
-
 
 export default function ReportPage() {
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
@@ -92,7 +95,8 @@ export default function ReportPage() {
     {
       header: "Sale Qty",
       align: "center",
-      render: (item) => item.saleQty?.toFixed(3),
+      render: (item) =>
+        item.weighted ? item.saleQty?.toFixed(3) : item.saleQty,
     },
     {
       header: "Sale Price",
@@ -120,7 +124,8 @@ export default function ReportPage() {
     {
       header: "Sale Qty",
       align: "center",
-      render: (item) => item.saleQty.toFixed(3),
+      render: (item) =>
+        item.weighted ? item.saleQty.toFixed(3) : item.saleQty,
     },
     {
       header: "Sale Price",

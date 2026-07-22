@@ -7,12 +7,13 @@ export interface reportData {
 }
 
 export interface SoldItemReport {
-  barcode: string;
+  invoiceNo: string;
   itemName: string;
+  barcode: string;
   saleQty: number;
   salePrice: number;
   saleValue: number;
-  invoiceNo: string;
+  weighted: boolean;
   status: string;
 }
 

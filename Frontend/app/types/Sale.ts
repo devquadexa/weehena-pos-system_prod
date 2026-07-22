@@ -9,8 +9,8 @@ export interface SaleData {
 }
 
 export interface ProductSaleData {
-  productName: string;
   invoiceNo: string;
+  productName: string;
   saleStatus: string;
   saleDate: string;
   saleQty: number;
@@ -20,10 +20,11 @@ export interface ProductSaleData {
 
 export interface CancelledSaleItem {
   invoiceNo: string;
-  date: string;
-  barcode: string;
   itemName: string;
+  barcode: string;
   saleQty: number;
   salePrice: number;
   saleValue: number;
+  weighted: boolean;
+  date: string;
 }
