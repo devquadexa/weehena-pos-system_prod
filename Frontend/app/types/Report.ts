@@ -17,13 +17,18 @@ export interface SoldItemReport {
   status: string;
 }
 
-export interface DayEndStockReport {
+export interface StockReport {
   barcode: string;
   productName: string;
   openingStock: number;
   stockIn: number;
   stockOut: number;
   closingStock: number;
+  weighted: boolean;
+}
+export interface DayEndStockReport {
+  weightedItems: StockReport[];
+  nonWeightedItems: StockReport[];
 }
 
 export interface CategoryReport {

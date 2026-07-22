@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { getDayEndStockReport } from "@/app/services/reportService";
 import Button from "@/app/components/Button";
 import { getStock } from "@/app/services/stockService";
-import { DayEndStockReport } from "@/app/types/Report";
+import { DayEndStockReport, StockReport } from "@/app/types/Report";
 import { ProductSaleData } from "@/app/types/Sale";
 import ProductSaleModal from "@/app/components/ProductSaleModal";
 import ResponsiveDataView, {
@@ -16,22 +16,21 @@ import html2canvas from "html2canvas-pro";
 import jsPDF from "jspdf";
 
 export default function StockReportPage() {
-
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
   const [outlet, setOutlet] = useState("");
   const [outlets, setOutlets] = useState<string[]>([]);
-  const [reports, setReports] = useState<DayEndStockReport[]>([]);
+  const [reports, setReports] = useState<DayEndStockReport | null>(null);
   const [loading, setLoading] = useState(false);
   const [sales, setSales] = useState<ProductSaleData[]>([]);
   const [showModal, setShowModal] = useState(false);
 
   const handleFetchStockReport = async () => {
     try {
-      setReports([]);
+      setReports(null);
       setLoading(true);
       const stockReportData = await getDayEndStockReport(date, outlet);
-      setReports(stockReportData);
       console.log("Report data:", stockReportData);
+      setReports(stockReportData);
     } catch (err) {
       console.error("Failed to load report:", err);
       toast.error("Failed to load report");
@@ -212,7 +211,9 @@ export default function StockReportPage() {
       }
 
       pdf.save(`Day-End Stock Report ${outlet} (${date}).pdf`);
-      toast.success("Day-End Stock Report generated successfully!", { id: "pdf" });
+      toast.success("Day-End Stock Report generated successfully!", {
+        id: "pdf",
+      });
     } catch (error) {
       console.error(error);
       toast.error("Failed to generate PDF", { id: "pdf" });
@@ -234,7 +235,7 @@ export default function StockReportPage() {
     setShowModal(true);
   };
 
-  const stockReportColumns: ColumnDef<DayEndStockReport>[] = [
+  const stockReportColumns: ColumnDef<StockReport>[] = [
     {
       header: "Barcode",
       render: (item) => item.barcode,
@@ -247,14 +248,15 @@ export default function StockReportPage() {
     {
       header: "Opening Stock",
       align: "right",
-      render: (item) => item.openingStock.toFixed(3),
+      render: (item) =>
+        item.weighted ? item.openingStock.toFixed(3) : item.openingStock,
     },
     {
       header: "Stock In",
       align: "right",
       render: (item) => (
         <div className="bg-amber-100 text-amber-900 rounded px-2 py-1">
-          {item.stockIn.toFixed(3)}
+          {item.weighted ? item.stockIn.toFixed(3) : item.stockIn}
         </div>
       ),
     },
@@ -266,16 +268,22 @@ export default function StockReportPage() {
           onClick={() => openProductSales(item.barcode)}
           className="bg-green-100 hover:bg-green-200 text-green-900 rounded px-2 py-1 cursor-pointer"
         >
-          {item.stockOut.toFixed(3)}
+          {item.weighted ? item.stockOut.toFixed(3) : item.stockOut}
         </div>
       ),
     },
     {
       header: "Closing Stock",
       align: "right",
-      render: (item) => item.closingStock.toFixed(3),
+      render: (item) =>
+        item.weighted ? item.closingStock.toFixed(3) : item.closingStock,
     },
   ];
+
+  const hasData =
+    !!reports &&
+    ((reports.weightedItems?.length ?? 0) > 0 ||
+      (reports.nonWeightedItems?.length ?? 0) > 0);
 
   return (
     <div className="text-black min-w-0">
@@ -317,7 +325,7 @@ export default function StockReportPage() {
       {/* Loading */}
       {loading && <p>Loading...</p>}
       {/* Table */}
-      {!loading && reports.length > 0 && (
+      {!loading && reports && hasData && (
         <div id="report-print" className="mx-auto rounded min-w-0">
           <div className="text-gray-800 my-5 font-semibold">
             <h1 className="text-xl sm:text-2xl wrap-break-word">
@@ -337,8 +345,30 @@ export default function StockReportPage() {
             <h1 className="text-base">Stock Items</h1>
           </div>
 
+          <h1 className="text-sm font-semibold text-gray-800 mt-4">
+            Sausage Stock
+          </h1>
           <ResponsiveDataView
-            data={reports}
+            data={reports?.nonWeightedItems ?? []}
+            columns={stockReportColumns.map((col) => ({
+              ...col,
+              headerClassName:
+                "bg-gray-200 border border-gray-800 text-gray-900",
+              cellClassName: "border border-gray-800",
+            }))}
+            getRowKey={(_, index) => index}
+            tableClassName="w-full text-xs mt-2 border border-gray-300"
+            headerRowClassName="text-xs"
+            striped={false}
+            emptyMessage="No stock report items"
+          />
+
+          <h1 className="text-sm font-semibold text-gray-800 mt-4">
+            Chicken Stock
+          </h1>
+
+          <ResponsiveDataView
+            data={reports?.weightedItems ?? []}
             columns={stockReportColumns.map((col) => ({
               ...col,
               headerClassName:
@@ -364,13 +394,13 @@ export default function StockReportPage() {
       />
 
       {/* No Data */}
-      {!loading && reports.length === 0 && (
+      {!loading && reports && !hasData && (
         <p className="mt-4 text-red-700 font-medium">No data available</p>
       )}
 
       <div className="flex flex-col-2 gap-2 mt-4 lg:w-fit">
         {/* Print */}
-        {reports.length > 0 && (
+        {hasData && (
           <Button
             onClick={printReport}
             className="w-full sm:w-auto print:hidden bg-blue-800 hover:bg-blue-700 text-white px-4 py-2"
@@ -380,7 +410,7 @@ export default function StockReportPage() {
         )}
 
         {/* Download */}
-        {reports.length > 0 && (
+        {hasData && (
           <Button
             onClick={saveReportAsPDF}
             className=" w-full sm:w-auto print:hidden bg-green-800 hover:bg-green-700 text-white px-4 py-2"
