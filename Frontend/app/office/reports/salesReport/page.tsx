@@ -63,6 +63,9 @@ export default function ReportPage() {
       } catch (e) {
         console.error("Cancelled sales failed", e);
       }
+
+      toast.success(`Sales report of ${date} generated successfully`);
+
     } catch (err) {
       console.error("Failed to load report:", err);
       toast.error("Failed to load report");
@@ -316,7 +319,7 @@ export default function ReportPage() {
               />
               <div className="absolute right-0 font-semibold text-gray-800 mt-2">
                 <p>
-                  Total Sales (Rs.) -{" "}
+                  Total Sales (Rs.) = {" "}
                   {salesItems.weighted.totalValue.toFixed(2)}{" "}
                 </p>
               </div>
@@ -344,7 +347,7 @@ export default function ReportPage() {
               />
               <div className="absolute right-0 font-semibold text-gray-800 mt-2">
                 <p>
-                  Total Sales (Rs.) -{" "}
+                  Total Sales (Rs.) = {" "}
                   {salesItems.nonWeighted.retail.totalValue.toFixed(2)}
                 </p>
               </div>
@@ -372,7 +375,7 @@ export default function ReportPage() {
               />
               <div className="absolute right-0 font-semibold text-gray-800 mt-2">
                 <p>
-                  Total Sales (Rs.) -{" "}
+                  Total Sales (Rs.) = {" "}
                   {salesItems.nonWeighted.bulk.totalValue.toFixed(2)}
                 </p>
               </div>
