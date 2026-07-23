@@ -23,6 +23,10 @@ public class ReportService {
     private final ProductRepository productRepo;
     private final StockRepository stockRepo;
 
+    private static double round(double value) {
+        return Math.round(value * 1000.0) / 1000.0;
+    }
+
     public ReportService(SaleRepository saleRepo, ProductRepository productRepo, StockRepository stockRepo) {
         this.saleRepo = saleRepo;
         this.productRepo = productRepo;
@@ -52,6 +56,10 @@ public class ReportService {
         double totalDiscount = saleRepo.getTotalDiscount(outletId, start, end);
         double totalSales = saleRepo.getTotalSales(outletId, start, end);
         long totalTransactions = saleRepo.getTotalTransactions(outletId, start, end);
+
+        if (totalTransactions == 0) {
+            return null;
+        }
 
         DailyReportResponse res = new DailyReportResponse();
         res.setDate(date);
@@ -189,10 +197,10 @@ public class ReportService {
             StockReportDto dto = new StockReportDto();
             dto.setBarcode(barcode);
             dto.setProductName(product.getName());
-            dto.setOpeningStock(openingStock);
-            dto.setStockIn(stockIn);
-            dto.setStockOut(stockOut);
-            dto.setClosingStock(closingStock);
+            dto.setOpeningStock(round(openingStock));
+            dto.setStockIn(round(stockIn));
+            dto.setStockOut(round(stockOut));
+            dto.setClosingStock(round(closingStock));
             dto.setWeighted(product.isWeighted());
 
             report.add(dto);
