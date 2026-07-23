@@ -239,30 +239,37 @@ export default function StockReportPage() {
     {
       header: "Barcode",
       render: (item) => item.barcode,
+      width: "12%",
     },
     {
       header: "Product Name",
       render: (item) => item.productName,
       cardRole: "title",
+      width: "40%",
     },
     {
       header: "Opening Stock",
       align: "right",
+      headerAlign: "center",
       render: (item) =>
         item.weighted ? item.openingStock.toFixed(3) : item.openingStock,
+      width: "12%",
     },
     {
       header: "Stock In",
       align: "right",
+      headerAlign: "center",
       render: (item) => (
         <div className="bg-amber-100 text-amber-900 rounded px-2 py-1">
           {item.weighted ? item.stockIn.toFixed(3) : item.stockIn}
         </div>
       ),
+      width: "12%",
     },
     {
       header: "Stock Out",
       align: "right",
+      headerAlign: "center",
       render: (item) => (
         <div
           onClick={() => openProductSales(item.barcode)}
@@ -271,12 +278,15 @@ export default function StockReportPage() {
           {item.weighted ? item.stockOut.toFixed(3) : item.stockOut}
         </div>
       ),
+      width: "12%",
     },
     {
       header: "Closing Stock",
       align: "right",
+      headerAlign: "center",
       render: (item) =>
         item.weighted ? item.closingStock.toFixed(3) : item.closingStock,
+      width: "12%",
     },
   ];
 
@@ -298,7 +308,10 @@ export default function StockReportPage() {
           id="date"
           type="date"
           value={date}
-          onChange={(e) => setDate(e.target.value)}
+          onChange={(e) => {
+            setDate(e.target.value);
+            setReports(null);
+          }}
           className="w-full sm:w-auto border-2 border-red-900 text-red-900 font-medium rounded p-2"
         />
 
@@ -394,7 +407,7 @@ export default function StockReportPage() {
       />
 
       {/* No Data */}
-      {!loading && reports && !hasData && (
+      {!loading && !reports && !hasData && (
         <p className="mt-4 text-red-700 font-medium">No data available</p>
       )}
 
@@ -413,7 +426,7 @@ export default function StockReportPage() {
         {hasData && (
           <Button
             onClick={saveReportAsPDF}
-            className=" w-full sm:w-auto print:hidden bg-green-800 hover:bg-green-700 text-white px-4 py-2"
+            className="w-full sm:w-auto print:hidden bg-green-800 hover:bg-green-700 text-white px-4 py-2"
           >
             Download Report
           </Button>

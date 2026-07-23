@@ -86,27 +86,32 @@ export default function ReportPage() {
     {
       header: "Barcode",
       render: (item) => item.barcode,
+      width: "15%",
     },
     {
       header: "Item Name",
       render: (item) => item.itemName,
       cardRole: "title",
+      width: "49%",
     },
     {
       header: "Sale Qty",
       align: "center",
       render: (item) =>
         item.weighted ? item.saleQty?.toFixed(3) : item.saleQty,
+      width: "12%",
     },
     {
       header: "Sale Price",
       align: "right",
       render: (item) => item.salePrice?.toFixed(2),
+      width: "12%",
     },
     {
       header: "Sale Value",
       align: "right",
       render: (item) => item.saleValue?.toFixed(2),
+      width: "12%",
     },
   ];
 
@@ -115,27 +120,32 @@ export default function ReportPage() {
     {
       header: "Invoice No",
       render: (item) => item.invoiceNo,
+      width: "15%",
     },
     {
       header: "Item Name",
       render: (item) => item.itemName,
       cardRole: "title",
+      width: "49%",
     },
     {
       header: "Sale Qty",
       align: "center",
       render: (item) =>
         item.weighted ? item.saleQty.toFixed(3) : item.saleQty,
+      width: "12%",
     },
     {
       header: "Sale Price",
       align: "right",
       render: (item) => item.salePrice.toFixed(2),
+      width: "12%",
     },
     {
       header: "Sale Value",
       align: "right",
       render: (item) => item.saleValue.toFixed(2),
+      width: "12%",
     },
   ];
 
@@ -247,7 +257,10 @@ export default function ReportPage() {
           id="date"
           type="date"
           value={date}
-          onChange={(e) => setDate(e.target.value)}
+          onChange={(e) => {
+            setDate(e.target.value);
+            setReports([]);
+          }}
           className="w-full sm:w-auto border-2 border-red-900 text-red-900 font-medium rounded p-2"
         />
 
@@ -316,7 +329,7 @@ export default function ReportPage() {
               />
               <div className="absolute right-0 font-semibold text-gray-800 mt-2">
                 <p>
-                  Total Sales (Rs.) -{" "}
+                  Total Sales (Rs.) ={" "}
                   {salesItems.weighted.totalValue.toFixed(2)}{" "}
                 </p>
               </div>
@@ -344,7 +357,7 @@ export default function ReportPage() {
               />
               <div className="absolute right-0 font-semibold text-gray-800 mt-2">
                 <p>
-                  Total Sales (Rs.) -{" "}
+                  Total Sales (Rs.) ={" "}
                   {salesItems.nonWeighted.retail.totalValue.toFixed(2)}
                 </p>
               </div>
@@ -372,7 +385,7 @@ export default function ReportPage() {
               />
               <div className="absolute right-0 font-semibold text-gray-800 mt-2">
                 <p>
-                  Total Sales (Rs.) -{" "}
+                  Total Sales (Rs.) ={" "}
                   {salesItems.nonWeighted.bulk.totalValue.toFixed(2)}
                 </p>
               </div>
@@ -432,14 +445,14 @@ export default function ReportPage() {
                   Total Sale Value (LKR) :
                 </span>
                 <span className="text-gray-900 font-medium text-right">
-                  {salesItems?.grandTotal.toFixed(2)}
+                  {salesItems.grandTotal?.toFixed(2)}
                 </span>
 
                 <span className="text-gray-700 font-semibold">
                   Discount (LKR) :
                 </span>
                 <span className="text-gray-900 font-medium text-right">
-                  {r.discountAmount?.toFixed(2)}
+                  {r.discountAmount.toFixed(2)}
                 </span>
 
                 <span className="text-gray-700 font-semibold">

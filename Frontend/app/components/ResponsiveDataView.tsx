@@ -6,10 +6,12 @@ export type ColumnDef<T> = {
   header: string;
   render: (row: T) => ReactNode;
   align?: "left" | "center" | "right";
+  headerAlign?: "left" | "center" | "right";
   headerClassName?: string;
   cellClassName?: string;
   /** Title at top of mobile card */
   cardRole?: "title" | "actions" | "field";
+  width?: string;
 };
 
 interface ResponsiveDataViewProps<T> {
@@ -37,7 +39,7 @@ export default function ResponsiveDataView<T>({
   data,
   columns,
   getRowKey,
-  tableClassName = "w-full border border-gray-300 text-xs",
+  tableClassName = "border border-gray-300 text-xs table-fixed",
   headerRowClassName = "bg-red-50",
   getRowClassName,
   emptyMessage = "No records found",
@@ -122,13 +124,21 @@ export default function ResponsiveDataView<T>({
         className={`hidden lg:block print:block ${scrollable ? scrollClass : "overflow-x-auto"}`}
       >
         <table className={`${tableClassName} print:w-full`}>
+          <colgroup>
+            {columns.map((col) => (
+              <col
+                key={col.header}
+                style={col.width ? { width: col.width } : undefined}
+              />
+            ))}
+          </colgroup>
           {!hideHeader && (
             <thead className={scrollable ? "sticky top-0 z-10" : undefined}>
               <tr className={headerRowClassName}>
                 {columns.map((col) => (
                   <th
                     key={col.header}
-                    className={`p-2 ${alignClass[col.align ?? "left"]} ${col.headerClassName ?? "text-red-900 bg-red-50"}`}
+                    className={`p-2 ${alignClass[col.headerAlign ?? col.align ?? "left"]} w-20 ${col.headerClassName ?? "text-red-900 bg-red-50"}`}
                   >
                     {col.header}
                   </th>
