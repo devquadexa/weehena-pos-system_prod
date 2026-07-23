@@ -2,6 +2,7 @@ package com.pos.pos_system_backend.controller;
 
 import com.pos.pos_system_backend.dto.*;
 import com.pos.pos_system_backend.service.ReportService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,11 +19,13 @@ public class ReportController {
     }
 
     @GetMapping("/daily")
-    public List<DailyReportResponse> getDailyReport(
+    public ResponseEntity <List<DailyReportResponse>> getDailyReport(
             @RequestParam String date,
             @RequestParam(required = false) String outletId
     ) {
-        return service.getDailyReport(date, outletId);
+//        return service.getDailyReport(date, outletId);
+        List<DailyReportResponse> report = service.getDailyReport(date, outletId);
+        return ResponseEntity.ok(report); // always 200, body is [] or [ {...} ]
     }
 
 

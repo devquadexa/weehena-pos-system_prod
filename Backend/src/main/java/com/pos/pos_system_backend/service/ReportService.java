@@ -41,14 +41,9 @@ public class ReportService {
         OffsetDateTime start = localDate.atStartOfDay(APP_TIME_ZONE).toOffsetDateTime();
         OffsetDateTime end = localDate.plusDays(1).atStartOfDay(APP_TIME_ZONE).toOffsetDateTime();
 
-        if (outletId != null) {
-            return List.of(buildReport(outletId, start, end, date));
-        }
+        DailyReportResponse report = buildReport(outletId, start, end, date);
 
-        // ALL OUTLETS (FIXED)
-        List<String> outlets = saleRepo.findDistinctOutletIdsBetween(start, end);
-
-        return outlets.stream().map(o -> buildReport(o, start, end, date)).toList();
+        return report == null ? List.of() : List.of(report);
     }
 
     public DailyReportResponse buildReport(String outletId, OffsetDateTime start, OffsetDateTime end, String date) {
