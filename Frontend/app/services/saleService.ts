@@ -25,8 +25,8 @@ export const processSale = async (saleData: SaleData) => {
   return res.text();
 };
 
-export const cancelLastSale = async () => {
-  const res = await fetch(`${API_URL}/cancel-last-sale`, {
+export const cancelLastSale = async (outletId: string,) => {
+  const res = await fetch(`${API_URL}/cancel-last-sale?outletId=${outletId}`, {
     method: "PUT",
   });
 

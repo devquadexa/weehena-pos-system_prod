@@ -246,7 +246,7 @@ export default function ScanPage() {
     const confirmed = confirm("Are you sure you want to cancel the last sale?");
     if (!confirmed) return;
     try {
-      const sale = await cancelLastSale();
+      const sale = await cancelLastSale(outletId);
       toast.success(`Sale ${sale.invoiceNo} cancelled successfully`, {
         duration: 4000,
       });
