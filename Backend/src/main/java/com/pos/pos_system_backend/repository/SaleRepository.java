@@ -19,22 +19,17 @@ public interface SaleRepository extends JpaRepository<Sale, Long> {
     @Query("SELECT COUNT(s) FROM Sale s WHERE s.outletId = :outletId AND s.status = 'ACTIVE' AND s.date BETWEEN :start AND :end")
     long getTotalTransactions(@Param("outletId") String outletId, @Param("start") OffsetDateTime start, @Param("end") OffsetDateTime end);
 
-
-    @Query("SELECT DISTINCT s.outletId FROM Sale s WHERE s.date >= :start AND s.date < :end")
-    List<String> findDistinctOutletIdsBetween(@Param("start") OffsetDateTime start,
-                                              @Param("end") OffsetDateTime end);
-
     @Query("""
             SELECT s.invoiceNo, s.status,
                 p.barcode,
                 p.name,
                 SUM(si.value),
-                CASE 
+                CASE
                     WHEN si.priceType = 'RETAIL' THEN p.retailPrice
                     ELSE p.bulkPrice
                 END,
-                SUM(si.value * 
-                    CASE 
+                SUM(si.value *
+                    CASE
                         WHEN si.priceType = 'RETAIL' THEN p.retailPrice
                         ELSE p.bulkPrice
                     END
@@ -62,7 +57,7 @@ public interface SaleRepository extends JpaRepository<Sale, Long> {
             @Param("outletId") String outletId
     );
 
-    Optional<Sale> findTopByOrderByDateDesc();
+    Optional<Sale> findTopByOutletIdOrderByDateDesc(String outletId);
 
 
     @Query("""
