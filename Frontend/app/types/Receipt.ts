@@ -8,4 +8,6 @@ export interface ReceiptData {
   invoiceNo: string;
   cashReceived: number;
   balance: number;
+  outletId: string;
+  date:string;
 }

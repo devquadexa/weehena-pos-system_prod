@@ -170,8 +170,6 @@ export async function printReceipt(
     // default pulse for most drawers.
     const OPEN_DRAWER = "\x1B\x70\x00\x19\xFA"; // ← NEW
 
-    const date = new Date().toLocaleString();
-
     let receipt = "";
 
     // Header (gap after logo is controlled by logoToHeaderGap, not extra \n here)
@@ -184,7 +182,7 @@ export async function printReceipt(
     receipt += GS + "!" + "\x00";
     receipt += BOLD_OFF;
 
-    receipt += "Katunayake\n";
+    receipt += `${data.outletId}\n`;
     receipt += "Tel: 071-5467675\n\n";
 
     // Invoice
@@ -192,7 +190,7 @@ export async function printReceipt(
     receipt += LEFT;
 
     receipt += `Invoice : ${data.invoiceNo}\n`;
-    receipt += `Date    : ${date}\n`;
+    receipt += `Date    : ${data.date}\n`;
     receipt += `Cashier : ${user?.username}\n`;
 
     receipt += "------------------------------------------------\n";
