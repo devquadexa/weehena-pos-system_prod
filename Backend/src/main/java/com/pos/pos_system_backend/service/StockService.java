@@ -34,6 +34,10 @@ public class StockService {
         this.productRepo = productRepo;
     }
 
+    private static double round(double value) {
+        return Math.round(value * 1000.0) / 1000.0;
+    }
+
     public Stock addStock(StockRequest req, String username) {
 
 
@@ -159,12 +163,12 @@ public class StockService {
         if (product.isWeighted()) {
             //update stock weight
             double oldWeight = stock.getWeight();
-            double newWeight = oldWeight + value;
+            double newWeight = oldWeight + round(value);
             stock.setWeight(newWeight);
 
             //update stock history
             history.setOldStock(oldWeight);
-            history.setUpdatedStock(value);
+            history.setUpdatedStock(round(value));
             history.setNewStock(newWeight);
 
         } else {
