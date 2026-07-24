@@ -31,6 +31,7 @@ export default function StockReportPage() {
       const stockReportData = await getDayEndStockReport(date, outlet);
       console.log("Report data:", stockReportData);
       setReports(stockReportData);
+       toast.success("Day-End Stock Report generated successfully!")
     } catch (err) {
       console.error("Failed to load report:", err);
       toast.error("Failed to load report");
@@ -211,7 +212,7 @@ export default function StockReportPage() {
       }
 
       pdf.save(`Day-End Stock Report ${outlet} (${date}).pdf`);
-      toast.success("Day-End Stock Report generated successfully!", {
+      toast.success("Day-End Stock Report downloaded successfully!", {
         id: "pdf",
       });
     } catch (error) {

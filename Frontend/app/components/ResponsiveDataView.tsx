@@ -39,7 +39,7 @@ export default function ResponsiveDataView<T>({
   data,
   columns,
   getRowKey,
-  tableClassName = "border border-gray-300 text-xs table-fixed",
+  tableClassName = "w-full border border-gray-300 text-xs",
   headerRowClassName = "bg-red-50",
   getRowClassName,
   emptyMessage = "No records found",

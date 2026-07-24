@@ -54,8 +54,8 @@ export default function ProductSalesModal({ isOpen, onClose, sales }: Props) {
               </div>
 
               {/* Content */}
-              <div className="space-y-2 text-black">
-                <p className="font-semibold text-lg text-red-800">
+              <div className="space-y-2 text-gray-800 rounded">
+                <p className="font-semibold text-lg text-slate-800">
                    {sale.productName}
                 </p>
 

@@ -23,11 +23,11 @@ const formatStockHistoryTimestamp = (value: string) => {
   if (!datePart || !timePart) return value;
 
   const [year, month, day] = datePart.split("-");
-  const [hour, minute, second = "00"] = timePart.split(":");
+  // const [hour, minute, second = "00"] = timePart.split(":");
 
-  if (!year || !month || !day || !hour || !minute) return value;
+  if (!year || !month || !day ) return value;
 
-  return `${day}/${month}/${year} ${hour}:${minute}:${second}`;
+  return `${day}/${month}/${year}`;
 };
 
 export default function HistoryPage() {
@@ -77,6 +77,7 @@ export default function HistoryPage() {
     const res = await fetch(
       `https://weehenapos360.cloud/api/stock/history/period?outletId=${outletId}&startDate=${startDate}&endDate=${endDate}`,
     );
+   
     // const res = await fetch(
     //    `http://localhost:8080/api/stock/history/period?outletId=${outletId}&startDate=${startDate}&endDate=${endDate}`,
     // );
@@ -95,38 +96,46 @@ export default function HistoryPage() {
     {
       header: "Barcode",
       render: (h) => h.barcode,
+      width:"10%"
     },
     {
       header: "Product",
       render: (h) => h.productName,
       cardRole: "title",
+      width:"30%"
     },
     {
       header: "Outlet ID",
       render: (h) => h.outletId,
+      width:"10%"
     },
     {
       header: "Previous Stock",
       align: "center",
-      render: (h) => stockBadge(h.oldStock.toFixed(3), "bg-blue-300"),
+      render: (h) => stockBadge(h.oldStock, "bg-blue-300"),
+      width:"8%"
     },
     {
       header: "Updated Stock",
       align: "center",
-      render: (h) => stockBadge(h.updatedStock.toFixed(3), "bg-amber-100"),
+      render: (h) => stockBadge(h.updatedStock, "bg-amber-100"),
+      width:"8%"
     },
     {
       header: "Current Stock",
       align: "center",
-      render: (h) => stockBadge(h.newStock.toFixed(3), "bg-green-300"),
+      render: (h) => stockBadge(h.newStock, "bg-green-300"),
+      width:"8%"
     },
     {
       header: "Changed By",
       render: (h) => h.changedBy,
+      width:"10%"
     },
     {
       header: "Changed At",
       render: (h) => formatStockHistoryTimestamp(h.changedAt),
+      width:"10%"
     },
   ];
 

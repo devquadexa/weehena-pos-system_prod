@@ -72,10 +72,11 @@ export default function ScanPage() {
   const params = useParams();
   const outletId = params.id as string;
 
+  const date = new Date().toLocaleString();
+
   // Shared logic: given a product, open the right modal (qty or weight)
   const processScannedProduct = (product: Product) => {
     setSelectedProduct(product);
-
     if (product.weighted) {
       setWeightModalOpen(true); // open weight modal for weighted items
     } else {
@@ -85,7 +86,6 @@ export default function ScanPage() {
 
   const handleAdd = async () => {
     if (!barcode.trim()) return;
-
     let product: Product;
     try {
       product = await fetchProduct(barcode);
@@ -101,7 +101,6 @@ export default function ScanPage() {
   // Search products by name (called as user types, e.g. with a debounce in the input component)
   const handleSearchByName = useCallback(async (name: string) => {
     setSearchTerm(name);
-
     if (!name.trim()) {
       setSearchResults([]);
       return;
@@ -112,7 +111,6 @@ export default function ScanPage() {
       const results = await fetchProductsByName(name);
       setSearchResults(results);
     } catch {
-      // toast.error("Search failed");
       setSearchResults([]);
     } finally {
       setSearching(false);
@@ -133,12 +131,11 @@ export default function ScanPage() {
   // Quantity Hnadler
   const handleConfirmQty = (qty: number) => {
     if (!selectedProduct) return;
-
     const existing = cart.find(
       (item) => item.barcode === selectedProduct.barcode,
     );
-
     if (existing) {
+
       // Add to existing quantity
       setCart(
         cart.map((item) =>
@@ -160,7 +157,6 @@ export default function ScanPage() {
   // weight handler
   const handleConfirmWeight = (weight: number) => {
     if (!selectedProduct) return;
-
     const existing = cart.find(
       (item) => item.barcode === selectedProduct.barcode,
     );
@@ -196,7 +192,7 @@ export default function ScanPage() {
       invoiceNo: generateInvoiceNumber(),
       outletId: outletId,
       discountType: discountType.toUpperCase(),
-      discountValue: discountValue, 
+      discountValue: discountValue,
       items: cart.map((item) => ({
         barcode: item.barcode,
         value: item.value,
@@ -216,11 +212,8 @@ export default function ScanPage() {
 
     try {
       setLoading(true);
-
       const saleData = buildSaleRequest();
-
       await processSale(saleData);
-
       const newInvoice = saleData.invoiceNo;
       setInvoiceNo(newInvoice);
       toast.success(`Payment Done\nInvoice: ${newInvoice}`, {
@@ -235,6 +228,8 @@ export default function ScanPage() {
           invoiceNo: saleData.invoiceNo,
           cashReceived,
           balance,
+          outletId,
+          date,
         },
         "XP-80C", //shop printer
         // "XP-80C (copy 1)", //test printer
@@ -249,9 +244,7 @@ export default function ScanPage() {
 
   const handleCancelLastSale = async () => {
     const confirmed = confirm("Are you sure you want to cancel the last sale?");
-
     if (!confirmed) return;
-
     try {
       const sale = await cancelLastSale();
       toast.success(`Sale ${sale.invoiceNo} cancelled successfully`, {
@@ -381,6 +374,8 @@ export default function ScanPage() {
           total={total}
           cashReceived={cashReceived}
           balance={balance}
+          outlet={outletId}
+          date={date}
         />
         <button
           onClick={handleCancelLastSale}

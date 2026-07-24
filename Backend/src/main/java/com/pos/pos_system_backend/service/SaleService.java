@@ -34,6 +34,10 @@ public class SaleService {
         this.productRepo = productRepo;
     }
 
+    private static double round(double value) {
+        return Math.round(value * 1000.0) / 1000.0;
+    }
+
     @Transactional
     public void processSale(SaleRequest req) {
 
@@ -63,12 +67,12 @@ public class SaleService {
                 priceType = isBulk ? PriceType.BULK : PriceType.RETAIL;
             }
 
-            double itemTotal = unitPrice * item.getValue();
+            double itemTotal = unitPrice * round(item.getValue());
 
             stockService.reduceStock(
                     item.getBarcode(),
                     req.getOutletId(),
-                    item.getValue()
+                    round(item.getValue())
             );
 
             subtotal += itemTotal;

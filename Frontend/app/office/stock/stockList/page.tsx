@@ -123,11 +123,19 @@ export default function StockPage() {
     {
       header: "Barcode",
       render: (item) => item.barcode,
+      width: "12%",
     },
     {
       header: "Product",
       render: (item) => item.productName,
       cardRole: "title",
+      width: "30%",
+    },
+     {
+      header: "Outlet",
+      align: "center",
+      render: (item) => item.outletId,
+      width: "10%",
     },
     {
       header: "Quantity",
@@ -146,6 +154,7 @@ export default function StockPage() {
           {item.quantity ? item.quantity : "N/A"}
         </div>
       ),
+      width: "10%",
     },
     {
       header: "Weight (Kg)",
@@ -164,17 +173,14 @@ export default function StockPage() {
           {item.weight ? item.weight.toFixed(3) : "N/A"}
         </div>
       ),
-    },
-    {
-      header: "Outlet",
-      align: "center",
-      render: (item) => item.outletId,
+      width: "10%",
     },
     {
       header: "Low Stock Threshold Qty",
       align: "center",
       render: (item) =>
         item.lowStockThresholdQty ? item.lowStockThresholdQty : "N/A",
+      width: "10%",
     },
     {
       header: "Low Stock Threshold Weight (Kg)",
@@ -183,6 +189,7 @@ export default function StockPage() {
         item.lowStockThresholdWeight
           ? item.lowStockThresholdWeight.toFixed(3)
           : "N/A",
+      width: "10%",
     },
     {
       header: "Action",
@@ -196,6 +203,7 @@ export default function StockPage() {
           <Trash2 className="size-4 items-center mx-auto" />
         </button>
       ),
+      width:"8%"
     },
   ];
 

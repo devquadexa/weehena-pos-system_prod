@@ -14,6 +14,8 @@ interface Props {
   cashReceived: number;
   balance: number;
   bulkThreshold?: number;
+  outlet: string;
+  date: string;
 }
 
 export default function Receipt({
@@ -25,6 +27,8 @@ export default function Receipt({
   cashReceived,
   balance,
   bulkThreshold = 10,
+  outlet,
+  date
 }: Props) {
   const [isClient, setIsClient] = useState(false);
 
@@ -37,8 +41,6 @@ export default function Receipt({
     updateIsClient(true);
   }, []);
 
-  const date = new Date().toLocaleString();
-
   return (
     isClient && (
       <div
@@ -48,7 +50,7 @@ export default function Receipt({
         {/* Header */}
         <div className="text-center">
           <h1 className="font-bold text-sm">Weehena Farm Shop</h1>
-          <p>Katunayake, Sri Lanka</p>
+          <p>{outlet}, Sri Lanka</p>
           <p>Tel: 071-5467675</p>
         </div>
 
