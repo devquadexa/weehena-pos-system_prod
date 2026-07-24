@@ -18,17 +18,11 @@ import toast from "react-hot-toast";
 
 export default function ProductPage() {
   const [products, setProducts] = useState<ProductItems[]>([]);
-
   const [formOpen, setFormOpen] = useState(false);
-
   const [search, setSearch] = useState("");
-
   const inputRef = useRef<HTMLInputElement>(null);
-
   const [priceModalOpen, setPriceModalOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState<ProductItems | null>(
-    null,
-  );
+  const [selectedProduct, setSelectedProduct] = useState<ProductItems | null>(null);
 
   // Load products from backend
   const loadProducts = async () => {
@@ -55,7 +49,6 @@ export default function ProductPage() {
   const handleDelete = async (product: ProductItems) => {
     const confirmDelete = confirm(`Are you sure to delete this product ${product.name}?`);
     if (!confirmDelete) return;
-
     try {
       await deleteProduct(product.id);
       await loadProducts();
@@ -76,6 +69,8 @@ export default function ProductPage() {
     {
       header: "Barcode",
       render: (p) => p.barcode,
+      width:"12%",
+      headerAlign: "left"
     },
     {
       header: "Product Name",
@@ -86,10 +81,12 @@ export default function ProductPage() {
         </div>
       ),
       cardRole: "title",
+      width:"40%",
     },
     {
       header: "Bulk Price",
       align: "right",
+      headerAlign: "center",
       render: (p) => (
         <button
           onClick={() => handlePriceClick(p)}
@@ -98,10 +95,12 @@ export default function ProductPage() {
           {p.bulkPrice.toFixed(2)}
         </button>
       ),
+      width:"10%",
     },
     {
       header: "Retail Price",
       align: "right",
+      headerAlign: "center",
       render: (p) => (
         <button
           onClick={() => handlePriceClick(p)}
@@ -110,10 +109,12 @@ export default function ProductPage() {
           {p.retailPrice.toFixed(2)}
         </button>
       ),
+      width:"10%",
     },
     {
       header: "Pack Price",
       align: "right",
+      headerAlign: "center",
       render: (p) => (
         <button
           onClick={() => handlePriceClick(p)}
@@ -122,10 +123,12 @@ export default function ProductPage() {
           {p.packPrice ? p.packPrice.toFixed(2) : "N/A"}
         </button>
       ),
+      width:"10%",
     },
     {
       header: "Price per Kg",
       align: "right",
+      headerAlign: "center",
       render: (p) => (
         <button
           onClick={() => handlePriceClick(p)}
@@ -134,6 +137,7 @@ export default function ProductPage() {
           {p.pricePerKg ? p.pricePerKg.toFixed(2) : "N/A"}
         </button>
       ),
+      width:"10%",
     },
     {
       header: "Action",
@@ -147,6 +151,7 @@ export default function ProductPage() {
           <Trash2 className="size-4 items-center mx-auto" />
         </button>
       ),
+      width:"8%",
     },
   ];
 
