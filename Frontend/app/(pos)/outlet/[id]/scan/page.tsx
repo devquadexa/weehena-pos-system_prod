@@ -68,6 +68,8 @@ export default function ScanPage() {
 
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const isProcessingRef = useRef(false);
+
   const [loading, setLoading] = useState(false);
   const params = useParams();
   const outletId = params.id as string;
@@ -135,7 +137,6 @@ export default function ScanPage() {
       (item) => item.barcode === selectedProduct.barcode,
     );
     if (existing) {
-
       // Add to existing quantity
       setCart(
         cart.map((item) =>
@@ -203,12 +204,12 @@ export default function ScanPage() {
   const handlePaymentConfirm = (cash: number) => {
     setCashReceived(cash);
     setBalance(cash - total);
-
     handlePay(cash, cash - total);
   };
 
   const handlePay = async (cashReceived: number, balance: number) => {
-    if (cart.length === 0) return;
+    if (cart.length === 0 || isProcessingRef.current) return;
+    isProcessingRef.current = true;
 
     try {
       setLoading(true);
@@ -216,6 +217,8 @@ export default function ScanPage() {
       await processSale(saleData);
       const newInvoice = saleData.invoiceNo;
       setInvoiceNo(newInvoice);
+      setCart([]);
+      setDiscountValue(0);
       toast.success(`Payment Done\nInvoice: ${newInvoice}`, {
         duration: 4000,
       });
@@ -232,12 +235,14 @@ export default function ScanPage() {
           date,
         },
         "XP-80C", //shop printer
-        // "XP-80C (copy 1)", //test printer
+        // "XP-80C (copy 4)", //test printer
       );
+      setPaymentModalOpen(false);
     } catch (error: unknown) {
       console.error(error);
       toast.error("Payment Failed ❌ " + (error as Error).message);
     } finally {
+      isProcessingRef.current = false;
       setLoading(false);
     }
   };
@@ -361,6 +366,7 @@ export default function ScanPage() {
         <PaymentModal
           isOpen={paymentModalOpen}
           total={total}
+          loading={loading}
           onClose={() => setPaymentModalOpen(false)}
           onConfirm={handlePaymentConfirm}
         />
