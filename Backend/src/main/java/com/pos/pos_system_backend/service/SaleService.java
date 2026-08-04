@@ -113,15 +113,15 @@ public class SaleService {
     }
 
     @Transactional
-    public Sale cancelLastSale() {
+    public Sale cancelLastSale(String outletId) {
 
-        // Find latest sale
-        Sale latestSale = repo.findTopByOrderByDateDesc()
+        //Find latest sale
+        Sale latestSale = repo.findTopByOutletIdOrderByDateDesc(outletId)
                 .orElseThrow(() -> new RuntimeException("No sales found"));
 
         // Prevent double cancel
         if (latestSale.getStatus() == SaleStatus.CANCELLED) {
-            throw new RuntimeException("Last sale already cancelled");
+            throw new RuntimeException("Last sale already cancelled (" + latestSale.getInvoiceNo() + ")");
         }
 
         // Restore stock

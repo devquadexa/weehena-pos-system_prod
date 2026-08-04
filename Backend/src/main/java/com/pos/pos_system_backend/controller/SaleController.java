@@ -38,8 +38,10 @@ public class SaleController {
     }
 
     @PutMapping("/cancel-last-sale")
-    public Sale cancelLastSale() {
-        return service.cancelLastSale();
+    public Sale cancelLastSale(
+            @RequestParam String outletId
+    ) {
+        return service.cancelLastSale(outletId);
     }
 
 

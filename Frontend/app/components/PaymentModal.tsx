@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useEffectEvent, useState } from "react";
-import Button from "./Button";
 
 interface Props {
   isOpen: boolean;
   total: number;
+  loading: boolean;
   onClose: () => void;
   onConfirm: (cashReceived: number) => void;
 }
@@ -13,6 +13,7 @@ interface Props {
 export default function PaymentModal({
   isOpen,
   total,
+  loading,
   onClose,
   onConfirm,
 }: Props) {
@@ -35,10 +36,17 @@ export default function PaymentModal({
   const balance = cash - total;
   const enoughCash = cash >= total;
 
+  const canSubmit = enoughCash && !loading;
+
+  const handleSubmit = () => {
+    if (!canSubmit) return; // guard: no-op if already submitting
+    onConfirm(cash);
+  };
+
   return (
     <div
       className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
-      onClick={onClose}
+      onClick={loading ? undefined : onClose} // NEW: block backdrop-close mid-submit
     >
       <div
         className="bg-white rounded-lg p-6 w-full max-w-md"
@@ -61,14 +69,14 @@ export default function PaymentModal({
             <input
               type="number"
               value={cashReceived}
+              disabled={loading}
               onChange={(e) => setCashReceived(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
-                  onConfirm(cash);
-                  onClose();
+                  handleSubmit(); // NEW: routed through the guard
                 }
               }}
-              className="w-full text-black border-2 border-red-800  bg-red-50 p-2 rounded"
+              className="w-full text-black border-2 border-red-800  bg-red-50 p-2 rounded disabled:bg-gray-200"
             />
           </div>
 
@@ -86,22 +94,20 @@ export default function PaymentModal({
         </div>
 
         <div className="flex gap-3 mt-6">
-          <Button
+          <button
             onClick={onClose}
-            className="bg-red-600 hover:bg-red-500 text-white"
+            disabled={loading} // NEW: no cancel mid-submit
+            className="bg-red-600 px-5 py-2 rounded hover:bg-red-500 text-white disabled:opacity-50"
           >
             Cancel
-          </Button>
+          </button>
 
           <button
-            disabled={!enoughCash}
-            onClick={async () => {
-              onConfirm(cash);
-              onClose();
-            }}
+            disabled={!canSubmit} // NEW: was !enoughCash
+            onClick={handleSubmit} // NEW: routed through the guard
             className="bg-blue-600 hover:bg-blue-500 text-white disabled:bg-gray-400 rounded px-2 py-1"
           >
-            Complete Payment
+            {loading ? "Processing..." : "Complete Payment"}
           </button>
         </div>
       </div>
