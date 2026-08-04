@@ -217,7 +217,6 @@ export default function ScanPage() {
       await processSale(saleData);
       const newInvoice = saleData.invoiceNo;
       setInvoiceNo(newInvoice);
-      setCart([]);
       setDiscountValue(0);
       toast.success(`Payment Done\nInvoice: ${newInvoice}`, {
         duration: 4000,
