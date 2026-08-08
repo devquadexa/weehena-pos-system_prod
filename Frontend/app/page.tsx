@@ -7,7 +7,13 @@ import { getStock } from "./services/stockService";
 import { useRouter } from "next/navigation";
 import AuthGuard from "./components/AuthGuard";
 import { getUserFromToken, logout } from "./services/userService";
-import { LayoutDashboard, LogOut, ShoppingCart, Store } from "lucide-react";
+import {
+  ClipboardMinus,
+  LayoutDashboard,
+  LogOut,
+  ShoppingCart,
+  Store,
+} from "lucide-react";
 import UserBadge from "./components/UserBadge";
 
 export default function Home() {
@@ -33,7 +39,6 @@ export default function Home() {
       const stock = await getStock();
       const unique = Array.from(new Set(stock.map((item) => item.outletId)));
       setOutlets(unique);
-      setOutletId(unique[0] ?? "");
     }
     loadOutlets().catch(console.error);
   }, []);
@@ -75,6 +80,9 @@ export default function Home() {
                 onChange={(e) => setOutletId(e.target.value)}
                 className="shadow drop-shadow-md shadow-gray-500 p-2 text-sm font-medium text-center text-white bg-red-700 rounded-xl w-56 h-10 focus:outline-none focus:ring-2 focus:ring-red-800 transition"
               >
+                <option value="" disabled className="bg-red-50 text-gray-800">
+                  Select Outlet
+                </option>
                 {outlets.map((id) => (
                   <option
                     key={id}
@@ -87,13 +95,13 @@ export default function Home() {
               </select>
               <Link
                 href={outletId ? `/outlet/${outletId}/scan` : "#"}
-                className={`flex items-center w-56 text-center shadow drop-shadow-xl shadow-gray-500 bg-red-700 text-sm font-medium text-white px-6 py-3 rounded-xl ${
+                className={`flex gap-2 items-center w-56 text-center shadow drop-shadow-xl shadow-gray-500 bg-red-700 text-sm font-medium text-white px-6 py-3 rounded-xl ${
                   outletId
                     ? "hover:bg-red-600"
                     : "cursor-not-allowed opacity-50"
                 }`}
               >
-                <ShoppingCart className="size-8" />
+                <ShoppingCart className="size-8 " />
                 {outletId ? `Go to Shop (${outletId})` : "No outlet available"}
               </Link>
             </>
@@ -102,10 +110,21 @@ export default function Home() {
             <>
               <Link
                 href="/office/products"
-                className="flex items-center w-56 text-center shadow drop-shadow-lg shadow-gray-600 bg-red-700 text-sm hover:bg-red-600 font-medium text-white px-6 py-3 rounded-xl"
+                className="flex items-center w-56 text-center  shadow drop-shadow-lg shadow-gray-600 bg-red-700 text-sm hover:bg-red-600 font-medium text-white px-6 py-3 rounded-xl"
               >
                 <LayoutDashboard className="size-8" />
                 Go to Office Dashboard
+              </Link>
+            </>
+          )}
+          {user?.role === "CASHIER" && (
+            <>
+              <Link
+                href="/office/reports/salesReport"
+                className="flex items-center w-56 text-center shadow drop-shadow-lg shadow-gray-600 bg-red-700 text-sm hover:bg-red-600 font-medium text-white px-6 py-3 rounded-xl"
+              >
+                <ClipboardMinus strokeWidth={2} className="size-7 mr-3" />
+                Reports
               </Link>
             </>
           )}

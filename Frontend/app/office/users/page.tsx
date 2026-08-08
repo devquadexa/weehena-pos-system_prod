@@ -5,6 +5,7 @@ import Register from "@/app/components/Register";
 import ResponsiveDataView, {
   ColumnDef,
 } from "@/app/components/ResponsiveDataView";
+import RoleGuard from "@/app/components/RoleGuard";
 import { deleteUser, getUsers } from "@/app/services/userService";
 import { UserData } from "@/app/types/User";
 import { Trash2, User } from "lucide-react";
@@ -85,52 +86,54 @@ export default function UsersPage() {
   );
 
   return (
-    <div className="flex flex-col h-full min-h-0 min-w-0 text-xs">
-      <div className="flex gap-2 items-center mb-4">
-        <User className="size-8 text-red-900" />
-        <h1 className="text-lg sm:text-xl text-red-950 font-bold  shrink-0">
-          User Management
-        </h1>
-      </div>
+    <RoleGuard allowedRoles={["MANAGER"]}>
+      <div className="flex flex-col h-full min-h-0 min-w-0 text-xs">
+        <div className="flex gap-2 items-center mb-4">
+          <User className="size-8 text-red-900" />
+          <h1 className="text-lg sm:text-xl text-red-950 font-bold  shrink-0">
+            User Management
+          </h1>
+        </div>
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mt-4 shrink-0">
-        <input
-          id="search"
-          placeholder="Search by username or role"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="p-2 border w-full sm:max-w-md border-gray-300 text-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-red-800"
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mt-4 shrink-0">
+          <input
+            id="search"
+            placeholder="Search by username or role"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="p-2 border w-full sm:max-w-md border-gray-300 text-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-red-800"
+          />
+          <Button
+            onClick={() => setFormOpen(true)}
+            className="w-full sm:w-auto shrink-0 bg-green-900 hover:bg-green-700 text-white px-4 rounded"
+          >
+            Add User
+          </Button>
+        </div>
+
+        <Register
+          isOpen={formOpen}
+          onClose={() => {
+            setFormOpen(false);
+            setTimeout(() => {
+              inputRef.current?.focus();
+            }, 0);
+          }}
+          heading="Register User"
+          onAddSuccess={loadUsers}
         />
-        <Button
-          onClick={() => setFormOpen(true)}
-          className="w-full sm:w-auto shrink-0 bg-green-900 hover:bg-green-700 text-white px-4 rounded"
-        >
-          Add User
-        </Button>
-      </div>
 
-      <Register
-        isOpen={formOpen}
-        onClose={() => {
-          setFormOpen(false);
-          setTimeout(() => {
-            inputRef.current?.focus();
-          }, 0);
-        }}
-        heading="Register User"
-        onAddSuccess={loadUsers}
-      />
-
-      <div className="flex-1 min-h-0 mt-5">
-        <ResponsiveDataView
-          data={filteredUsers}
-          columns={userColumns}
-          getRowKey={(u) => u.id}
-          emptyMessage="No Users"
-          tableClassName="w-full border-2"
-          scrollable
-        />
+        <div className="flex-1 min-h-0 mt-5">
+          <ResponsiveDataView
+            data={filteredUsers}
+            columns={userColumns}
+            getRowKey={(u) => u.id}
+            emptyMessage="No Users"
+            tableClassName="w-full border-2"
+            scrollable
+          />
+        </div>
       </div>
-    </div>
+    </RoleGuard>
   );
 }

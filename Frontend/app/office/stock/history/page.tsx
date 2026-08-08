@@ -4,6 +4,7 @@ import Button from "@/app/components/Button";
 import ResponsiveDataView, {
   ColumnDef,
 } from "@/app/components/ResponsiveDataView";
+import RoleGuard from "@/app/components/RoleGuard";
 import { StockHistoryItem } from "@/app/types/Stock";
 import { History } from "lucide-react";
 import { useEffect, useEffectEvent, useState } from "react";
@@ -25,7 +26,7 @@ const formatStockHistoryTimestamp = (value: string) => {
   const [year, month, day] = datePart.split("-");
   // const [hour, minute, second = "00"] = timePart.split(":");
 
-  if (!year || !month || !day ) return value;
+  if (!year || !month || !day) return value;
 
   return `${day}/${month}/${year}`;
 };
@@ -79,7 +80,7 @@ export default function HistoryPage() {
     );
    
     // const res = await fetch(
-    //    `http://localhost:8080/api/stock/history/period?outletId=${outletId}&startDate=${startDate}&endDate=${endDate}`,
+    //   `http://localhost:8080/api/stock/history/period?outletId=${outletId}&startDate=${startDate}&endDate=${endDate}`,
     // );
 
     const data = await res.json();
@@ -96,143 +97,145 @@ export default function HistoryPage() {
     {
       header: "Barcode",
       render: (h) => h.barcode,
-      width:"10%"
+      width: "10%",
     },
     {
       header: "Product",
       render: (h) => h.productName,
       cardRole: "title",
-      width:"30%"
+      width: "30%",
     },
     {
       header: "Outlet ID",
       render: (h) => h.outletId,
-      width:"10%"
+      width: "10%",
     },
     {
       header: "Previous Stock",
       align: "center",
       render: (h) => stockBadge(h.oldStock, "bg-blue-300"),
-      width:"8%"
+      width: "8%",
     },
     {
       header: "Updated Stock",
       align: "center",
       render: (h) => stockBadge(h.updatedStock, "bg-amber-100"),
-      width:"8%"
+      width: "8%",
     },
     {
       header: "Current Stock",
       align: "center",
       render: (h) => stockBadge(h.newStock, "bg-green-300"),
-      width:"8%"
+      width: "8%",
     },
     {
       header: "Changed By",
       render: (h) => h.changedBy,
-      width:"10%"
+      width: "10%",
     },
     {
       header: "Changed At",
       render: (h) => formatStockHistoryTimestamp(h.changedAt),
-      width:"10%"
+      width: "10%",
     },
   ];
 
   return (
-    <div className="flex flex-col h-full min-h-0 min-w-0">
-      <div className="flex gap-2 items-center mb-4">
-        <History className="size-8 text-red-900" />
-        <h1 className="text-lg sm:text-xl text-red-950 font-bold  shrink-0">
-          Stock Update History
-        </h1>
-      </div>
-      <input
-        id="search"
-        type="text"
-        placeholder="Search by barcode or product name"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        className="mb-4 font-medium p-2 border h-8 border-gray-300 rounded w-full sm:max-w-xs focus:outline-none focus:ring-2 focus:ring-red-800 text-xs text-gray-700 shrink-0"
-      />
-
-      <div className="flex flex-col lg:flex-row lg:flex-wrap gap-4 mb-6 sm:mb-10">
-        {/* Start Date */}
-        <div className="flex flex-col gap-1">
-          <label
-            htmlFor="startDate"
-            className="text-sm font-semibold text-gray-700"
-          >
-            Start Date
-          </label>
-          <input
-            id="startDate"
-            type="date"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-            className="border-2 border-red-900 text-red-900 font-medium rounded-md px-3 py-2"
-          />
+    <RoleGuard allowedRoles={["ADMIN", "MANAGER"]}>
+      <div className="flex flex-col h-full min-h-0 min-w-0">
+        <div className="flex gap-2 items-center mb-4">
+          <History className="size-8 text-red-900" />
+          <h1 className="text-lg sm:text-xl text-red-950 font-bold  shrink-0">
+            Stock Update History
+          </h1>
         </div>
-
-        {/* End Date */}
-        <div className="flex flex-col gap-1">
-          <label
-            htmlFor="endDate"
-            className="text-sm font-semibold text-gray-700"
-          >
-            End Date
-          </label>
-          <input
-            id="endDate"
-            type="date"
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-            className="border-2 border-red-900 text-red-900 font-medium rounded-md px-3 py-2"
-          />
-        </div>
-
-        {/* Outlet */}
-        <div className="flex flex-col gap-1">
-          <label
-            htmlFor="outletId"
-            className="text-sm font-semibold text-gray-700"
-          >
-            Outlet
-          </label>
-          <select
-            id="outletId"
-            value={outletId}
-            onChange={(e) => setOutletId(e.target.value)}
-            className="border-2 border-red-900 text-red-900 font-medium rounded-md px-3 py-2 min-w-45"
-          >
-            {outlets.map((id) => (
-              <option key={id} value={id} className="bg-white text-gray-800">
-                {id}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Button */}
-        <div className="flex items-end">
-          <Button
-            onClick={handleSearchHistory}
-            className="w-full sm:w-auto font-medium bg-red-700 hover:bg-red-600 text-white px-6 py-2 h-10.5"
-          >
-            Get Stock History
-          </Button>
-        </div>
-      </div>
-      <div className="flex-1 min-h-0">
-        <ResponsiveDataView
-          data={filteredStockHistory}
-          columns={historyColumns}
-          getRowKey={(h) => h.id}
-          tableClassName="w-full border border-gray-200 text-xs"
-          emptyMessage="No history records match your search"
-          scrollable
+        <input
+          id="search"
+          type="text"
+          placeholder="Search by barcode or product name"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="mb-4 font-medium p-2 border h-8 border-gray-300 rounded w-full sm:max-w-xs focus:outline-none focus:ring-2 focus:ring-red-800 text-xs text-gray-700 shrink-0"
         />
+
+        <div className="flex flex-col lg:flex-row lg:flex-wrap gap-4 mb-6 sm:mb-10">
+          {/* Start Date */}
+          <div className="flex flex-col gap-1">
+            <label
+              htmlFor="startDate"
+              className="text-sm font-semibold text-gray-700"
+            >
+              Start Date
+            </label>
+            <input
+              id="startDate"
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="border-2 border-red-900 text-red-900 font-medium rounded-md px-3 py-2"
+            />
+          </div>
+
+          {/* End Date */}
+          <div className="flex flex-col gap-1">
+            <label
+              htmlFor="endDate"
+              className="text-sm font-semibold text-gray-700"
+            >
+              End Date
+            </label>
+            <input
+              id="endDate"
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="border-2 border-red-900 text-red-900 font-medium rounded-md px-3 py-2"
+            />
+          </div>
+
+          {/* Outlet */}
+          <div className="flex flex-col gap-1">
+            <label
+              htmlFor="outletId"
+              className="text-sm font-semibold text-gray-700"
+            >
+              Outlet
+            </label>
+            <select
+              id="outletId"
+              value={outletId}
+              onChange={(e) => setOutletId(e.target.value)}
+              className="border-2 border-red-900 text-red-900 font-medium rounded-md px-3 py-2 min-w-45"
+            >
+              {outlets.map((id) => (
+                <option key={id} value={id} className="bg-white text-gray-800">
+                  {id}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Button */}
+          <div className="flex items-end">
+            <Button
+              onClick={handleSearchHistory}
+              className="w-full sm:w-auto font-medium bg-red-700 hover:bg-red-600 text-white px-6 py-2 h-10.5"
+            >
+              Get Stock History
+            </Button>
+          </div>
+        </div>
+        <div className="flex-1 min-h-0">
+          <ResponsiveDataView
+            data={filteredStockHistory}
+            columns={historyColumns}
+            getRowKey={(h) => h.id}
+            tableClassName="w-full border border-gray-200 text-xs"
+            emptyMessage="No history records match your search"
+            scrollable
+          />
+        </div>
       </div>
-    </div>
+    </RoleGuard>
   );
 }

@@ -6,6 +6,7 @@ import ProductForm from "@/app/components/ProductForm";
 import ResponsiveDataView, {
   ColumnDef,
 } from "@/app/components/ResponsiveDataView";
+import RoleGuard from "@/app/components/RoleGuard";
 import {
   deleteProduct,
   getProducts,
@@ -186,6 +187,7 @@ export default function ProductPage() {
   };
 
   return (
+    <RoleGuard allowedRoles={["ADMIN", "MANAGER"]}>
     <div className="flex flex-col h-full min-h-0 min-w-0">
       <div className="flex gap-2 items-center mb-4">
         <Box className="size-8 text-red-900" />
@@ -252,5 +254,5 @@ export default function ProductPage() {
         />
       </div>
     </div>
-  );
+  </RoleGuard>);
 }
