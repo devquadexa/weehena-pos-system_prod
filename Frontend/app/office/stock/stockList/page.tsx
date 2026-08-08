@@ -17,6 +17,7 @@ import ResponsiveDataView, {
 } from "@/app/components/ResponsiveDataView";
 import toast from "react-hot-toast";
 import { CircleAlert, Layers, Trash2 } from "lucide-react";
+import RoleGuard from "@/app/components/RoleGuard";
 
 export default function StockPage() {
   const [stockList, setStockList] = useState<StockItem[]>([]);
@@ -258,6 +259,7 @@ export default function StockPage() {
   }, [stockList]);
 
   return (
+    <RoleGuard allowedRoles={["ADMIN", "MANAGER"]}>
     <div className="flex flex-col h-full min-h-0 min-w-0 text-xs">
       <div className="flex gap-2 items-center mb-4">
         <Layers className="size-8 text-red-900" />
@@ -343,5 +345,5 @@ export default function StockPage() {
         ""
       )}
     </div>
-  );
+  </RoleGuard>);
 }

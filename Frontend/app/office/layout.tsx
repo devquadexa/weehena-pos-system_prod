@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useEffect, useEffectEvent, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
-import AdminGuard from "../components/AdminGuard";
-import { logout } from "../services/userService";
+// import AdminGuard from "../components/AdminGuard";
+import { getUserFromToken, logout } from "../services/userService";
 import {
   Box,
   ClipboardMinus,
@@ -17,6 +17,7 @@ import {
   List,
   BadgeDollarSign,
 } from "lucide-react";
+import RoleGuard from "../components/RoleGuard";
 
 interface Props {
   children: ReactNode;
@@ -78,6 +79,49 @@ export default function OfficeLayout({ children }: Props) {
   const [lastPathname, setLastPathname] = useState(pathname);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  const [role, setRole] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  //hydraion error fix
+  const updateRole = useEffectEvent(() => {
+    setRole(getUserFromToken()?.role ?? null);
+  });
+
+  const updateMounted = useEffectEvent(() => {
+    setMounted(true);
+  });
+
+  useEffect(() => {
+    updateRole();
+    updateMounted();
+  }, []);
+
+  const isCashier = mounted && role === "CASHIER";
+  // const isAdmin = mounted && role === "ADMIN";
+
+  const rolePermissions: Record<string, string[]> = {
+  CASHIER: ["Reports"],
+  ADMIN: ["Products","Stock","Reports"],
+  MANAGER: ["Products","Stock","Reports","Users"],
+};
+
+const allowedTopLevel = mounted ? (rolePermissions[role ?? ""] ?? []) : [];
+  const visibleNavItems = navItems
+    .filter((item) => allowedTopLevel.includes(item.name))
+    .map((item) => {
+      if (item.name === "Reports" && isCashier) {
+        return {
+          ...item,
+          children: item.children?.filter(
+            (child) =>
+              child.path === "/reports/salesReport" ||
+              child.path === "/reports/stockReport",
+          ),
+        };
+      }
+      return item;
+    });
+
   if (pathname !== lastPathname) {
     setLastPathname(pathname);
     setSidebarOpen(false);
@@ -105,7 +149,7 @@ export default function OfficeLayout({ children }: Props) {
   const isReportPage = pathname.startsWith("/office/reports");
 
   return (
-    <AdminGuard>
+    <RoleGuard allowedRoles={["ADMIN", "MANAGER", "CASHIER"]}>
       <div className="h-dvh text-sm flex flex-col lg:flex-row overflow-hidden">
         {/* Mobile header */}
         <header className="lg:hidden fixed top-0 left-0 right-0 z-30 flex items-center gap-3 bg-red-800 text-white px-3 py-2.5 shadow-md">
@@ -194,7 +238,7 @@ export default function OfficeLayout({ children }: Props) {
           </div>
 
           <nav className="flex flex-col gap-0 mt-4 flex-1 overflow-y-auto overscroll-contain px-2">
-            {navItems.map((item) => {
+            {visibleNavItems.map((item) => {
               const isActive =
                 pathname === `/office${item.path}` ||
                 item.children?.some(
@@ -313,6 +357,6 @@ export default function OfficeLayout({ children }: Props) {
           </div>
         </main>
       </div>
-    </AdminGuard>
+    </RoleGuard>
   );
 }

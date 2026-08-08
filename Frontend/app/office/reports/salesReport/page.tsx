@@ -21,6 +21,7 @@ import toast from "react-hot-toast";
 import { BadgeDollarSign } from "lucide-react";
 import html2canvas from "html2canvas-pro";
 import jsPDF from "jspdf";
+import RoleGuard from "@/app/components/RoleGuard";
 
 export default function ReportPage() {
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
@@ -244,6 +245,7 @@ export default function ReportPage() {
   };
 
   return (
+    <RoleGuard allowedRoles={["ADMIN", "MANAGER", "CASHIER"]}>
     <div className="text-black min-w-0 ">
       <div className="flex gap-2 items-center mb-4">
         <BadgeDollarSign className="size-8 text-red-900" />
@@ -494,5 +496,5 @@ export default function ReportPage() {
         )}
       </div>
     </div>
-  );
+  </RoleGuard>);
 }
