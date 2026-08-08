@@ -24,6 +24,7 @@ import toast from "react-hot-toast";
 import { DollarSign, Percent, ShoppingCart, X } from "lucide-react";
 import ProductSearchInput from "@/app/components/ProductSearchInput";
 import { Product } from "@/app/types/Product";
+import RoleGuard from "@/app/components/RoleGuard";
 
 export default function ScanPage() {
   const [barcode, setBarcode] = useState<string>("");
@@ -262,134 +263,136 @@ export default function ScanPage() {
   };
 
   return (
-    <div className="not-print p-6 max-w-4xl mx-auto font-poppins">
-      <BarcodeInput
-        barcode={barcode}
-        setBarcode={setBarcode}
-        handleAdd={handleAdd}
-        inputRef={inputRef}
-      />
-
-      <ProductSearchInput
-        searchTerm={searchTerm}
-        setSearchTerm={handleSearchByName}
-        results={searchResults}
-        loading={searching}
-        onSelect={handleSelectSearchResult}
-      />
-
-      <CartTable cart={cart} onDelete={handleDelete} />
-
-      <TotalDisplay
-        discountAmount={discountAmount}
-        subtotal={subtotal}
-        total={total}
-        discount={discountValue}
-        discountType={discountType}
-      />
-
-      <div className="mt-4 ">
-        {/* Pay Button */}
-        <Button
-          onClick={() => {
-            if (cart.length === 0 || loading) return;
-            setPaymentModalOpen(true);
-          }}
-          className="bg-blue-600 hover:bg-blue-500 text-white mr-3 rounded disabled:bg-gray-400"
-        >
-          <DollarSign className="size-5 mx-auto" />
-          {loading ? "Processing..." : "Pay"}
-        </Button>
-
-        {/* Discount Button */}
-        <Button
-          onClick={() => setDiscountModalOpen(true)}
-          className=" mr-3 mt-4 bg-amber-500 hover:bg-amber-600 rounded text-white"
-        >
-          <Percent className="size-5 mx-auto" />
-          Discount
-        </Button>
-
-        {/* Clear Cart Button */}
-        <Button
-          onClick={() => {
-            setCart([]);
-            setInvoiceNo("");
-            setDiscountValue(0);
-          }}
-          className="bg-red-800 hover:bg-red-700"
-        >
-          <ShoppingCart className="size-5 mx-auto" />
-          Clear Cart
-        </Button>
-      </div>
-      <div className="flex items-center my-10">
-        <QuantityModal
-          isOpen={modalOpen}
-          onClose={() => {
-            setModalOpen(false);
-            setTimeout(() => {
-              inputRef.current?.focus();
-            }, 0);
-          }}
-          onConfirm={handleConfirmQty}
-          initialQty={1}
-          productName={selectedProduct?.name || ""}
-          heading="Enter Quantity"
+    <RoleGuard allowedRoles={["CASHIER", "MANAGER"]}>
+      <div className="not-print p-6 max-w-4xl mx-auto font-poppins">
+        <BarcodeInput
+          barcode={barcode}
+          setBarcode={setBarcode}
+          handleAdd={handleAdd}
+          inputRef={inputRef}
         />
-      </div>
-      <div className="flex items-center my-10">
-        <WeightModal
-          isOpen={weightModalOpen}
-          onClose={() => {
-            setWeightModalOpen(false);
-            setTimeout(() => {
-              inputRef.current?.focus();
-            }, 0);
-          }}
-          onConfirm={handleConfirmWeight}
-          initialWeight={null}
-          productName={selectedProduct?.name || ""}
-          heading="Enter Weight (Kg)"
+
+        <ProductSearchInput
+          searchTerm={searchTerm}
+          setSearchTerm={handleSearchByName}
+          results={searchResults}
+          loading={searching}
+          onSelect={handleSelectSearchResult}
         />
-      </div>
-      <DiscountModal
-        isOpen={discountModalOpen}
-        onClose={() => setDiscountModalOpen(false)}
-        onApply={handleApplyDiscount}
-      />
-      <div
-        id="receipt-print"
-        className="flex flex-col items-start receipt-print"
-      >
-        <PaymentModal
-          isOpen={paymentModalOpen}
-          total={total}
-          loading={loading}
-          onClose={() => setPaymentModalOpen(false)}
-          onConfirm={handlePaymentConfirm}
-        />
-        <Receipt
-          cart={cart}
-          invoiceNo={invoiceNo}
+
+        <CartTable cart={cart} onDelete={handleDelete} />
+
+        <TotalDisplay
+          discountAmount={discountAmount}
           subtotal={subtotal}
+          total={total}
           discount={discountValue}
           discountType={discountType}
-          discountAmount={discountAmount}
-          total={total}
-          cashReceived={cashReceived}
-          balance={balance}
-          outlet={outletId}
-          date={date}
         />
-        <button
-          onClick={handleCancelLastSale}
-          className="flex gap-2 items-center hover:bg-red-700 bg-red-800 text-normal mt-5 text-white px-4 py-2 rounded"
+
+        <div className="mt-4 ">
+          {/* Pay Button */}
+          <Button
+            onClick={() => {
+              if (cart.length === 0 || loading) return;
+              setPaymentModalOpen(true);
+            }}
+            className="bg-blue-600 hover:bg-blue-500 text-white mr-3 rounded disabled:bg-gray-400"
+          >
+            <DollarSign className="size-5 mx-auto" />
+            {loading ? "Processing..." : "Pay"}
+          </Button>
+
+          {/* Discount Button */}
+          <Button
+            onClick={() => setDiscountModalOpen(true)}
+            className=" mr-3 mt-4 bg-amber-500 hover:bg-amber-600 rounded text-white"
+          >
+            <Percent className="size-5 mx-auto" />
+            Discount
+          </Button>
+
+          {/* Clear Cart Button */}
+          <Button
+            onClick={() => {
+              setCart([]);
+              setInvoiceNo("");
+              setDiscountValue(0);
+            }}
+            className="bg-red-800 hover:bg-red-700"
+          >
+            <ShoppingCart className="size-5 mx-auto" />
+            Clear Cart
+          </Button>
+        </div>
+        <div className="flex items-center my-10">
+          <QuantityModal
+            isOpen={modalOpen}
+            onClose={() => {
+              setModalOpen(false);
+              setTimeout(() => {
+                inputRef.current?.focus();
+              }, 0);
+            }}
+            onConfirm={handleConfirmQty}
+            initialQty={1}
+            productName={selectedProduct?.name || ""}
+            heading="Enter Quantity"
+          />
+        </div>
+        <div className="flex items-center my-10">
+          <WeightModal
+            isOpen={weightModalOpen}
+            onClose={() => {
+              setWeightModalOpen(false);
+              setTimeout(() => {
+                inputRef.current?.focus();
+              }, 0);
+            }}
+            onConfirm={handleConfirmWeight}
+            initialWeight={null}
+            productName={selectedProduct?.name || ""}
+            heading="Enter Weight (Kg)"
+          />
+        </div>
+        <DiscountModal
+          isOpen={discountModalOpen}
+          onClose={() => setDiscountModalOpen(false)}
+          onApply={handleApplyDiscount}
+        />
+        <div
+          id="receipt-print"
+          className="flex flex-col items-start receipt-print"
         >
-          <X className="size-5" />
-          Cancel Last Sale
-        </button>
+          <PaymentModal
+            isOpen={paymentModalOpen}
+            total={total}
+            loading={loading}
+            onClose={() => setPaymentModalOpen(false)}
+            onConfirm={handlePaymentConfirm}
+          />
+          <Receipt
+            cart={cart}
+            invoiceNo={invoiceNo}
+            subtotal={subtotal}
+            discount={discountValue}
+            discountType={discountType}
+            discountAmount={discountAmount}
+            total={total}
+            cashReceived={cashReceived}
+            balance={balance}
+            outlet={outletId}
+            date={date}
+          />
+          <button
+            onClick={handleCancelLastSale}
+            className="flex gap-2 items-center hover:bg-red-700 bg-red-800 text-normal mt-5 text-white px-4 py-2 rounded"
+          >
+            <X className="size-5" />
+            Cancel Last Sale
+          </button>
+        </div>
       </div>
-    </div>
+    </RoleGuard>
   );
 }
