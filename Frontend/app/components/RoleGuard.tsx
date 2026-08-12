@@ -23,5 +23,5 @@ export default function RoleGuard({
     }
   }, [router, allowedRoles]);
 
-  return <div>{children}</div>;
+  return <>{children}</>;
 }
