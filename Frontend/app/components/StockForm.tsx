@@ -311,7 +311,7 @@ export default function ProductForm({
                 Select Outlet
               </option>
               <option value="Katunayake">Katunayake</option>
-              {/* <option value="outlet2">Outlet 2</option> */}
+              <option value="TestOutlet">Test Outlet</option>
             </select>
             {errors.outletId && (
               <p className="text-red-500 text-xs">{errors.outletId}</p>
