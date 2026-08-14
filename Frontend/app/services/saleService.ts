@@ -1,4 +1,4 @@
-import { SaleData } from "../types/Sale";
+import { LastSaleSummary, SaleData } from "../types/Sale";
 
 const API_URL = "https://weehenapos360.cloud/api/sales";
 
@@ -37,3 +37,9 @@ export const cancelLastSale = async (outletId: string,) => {
 
   return res.json();
 };
+
+export async function fetchLastSale(outletId: string): Promise<LastSaleSummary> {
+  const res = await fetch(`${API_URL}/last-sale/${outletId}`);
+  if (!res.ok) throw new Error("Failed to fetch last sale");
+  return res.json();
+}
