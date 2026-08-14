@@ -28,3 +28,10 @@ export interface CancelledSaleItem {
   weighted: boolean;
   date: string;
 }
+
+export interface LastSaleSummary {
+  invoiceNo: string;
+  date: string;
+  status: "ACTIVE" | "CANCELLED";
+  total: number;
+}

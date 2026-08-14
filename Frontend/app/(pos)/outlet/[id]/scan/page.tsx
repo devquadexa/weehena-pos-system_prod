@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useContext, useRef, useCallback } from "react";
+import { useState, useContext, useRef, useCallback, useEffect } from "react";
 import { CartContext } from "@/app/context/CartContext";
 import BarcodeInput from "@/app/components/BarcodeInput";
 import CartTable from "@/app/components/CartTable";
@@ -15,7 +15,11 @@ import Receipt from "@/app/components/Receipt";
 import DiscountModal from "@/app/components/DiscountModal";
 import { calculateTotal } from "@/app/utils/calculateTotal";
 import generateInvoiceNumber from "@/app/utils/generateInvoiceNumber";
-import { cancelLastSale, processSale } from "@/app/services/saleService";
+import {
+  cancelLastSale,
+  fetchLastSale,
+  processSale,
+} from "@/app/services/saleService";
 import { useParams } from "next/navigation";
 import WeightModal from "@/app/components/WeightModal";
 import { printReceipt } from "@/app/services/receiptPrinter";
@@ -25,6 +29,8 @@ import { DollarSign, Percent, ShoppingCart, X } from "lucide-react";
 import ProductSearchInput from "@/app/components/ProductSearchInput";
 import { Product } from "@/app/types/Product";
 import RoleGuard from "@/app/components/RoleGuard";
+import { ReceiptData } from "@/app/types/Receipt";
+import { LastSaleSummary } from "@/app/types/Sale";
 
 export default function ScanPage() {
   const [barcode, setBarcode] = useState<string>("");
@@ -48,15 +54,12 @@ export default function ScanPage() {
   );
   const [discountValue, setDiscountValue] = useState(0);
 
-  //PaymentModal
-  const [cashReceived, setCashReceived] = useState(0);
-  const [balance, setBalance] = useState(0);
-
   // Weight Modal State
   const [weightModalOpen, setWeightModalOpen] = useState(false);
 
-  // Invoice State
-  const [invoiceNo, setInvoiceNo] = useState<string>("");
+  // set last sale
+  const [lastSaleSummary, setLastSaleSummary] =
+    useState<LastSaleSummary | null>(null);
 
   // Calculate totals whenever cart or discount changes
   const { subtotal, total, discountAmount } = calculateTotal(
@@ -74,6 +77,8 @@ export default function ScanPage() {
   const [loading, setLoading] = useState(false);
   const params = useParams();
   const outletId = params.id as string;
+
+  const [lastSale, setLastSale] = useState<ReceiptData | null>(null);
 
   const date = new Date().toLocaleString();
 
@@ -203,8 +208,6 @@ export default function ScanPage() {
   };
 
   const handlePaymentConfirm = (cash: number) => {
-    setCashReceived(cash);
-    setBalance(cash - total);
     handlePay(cash, cash - total);
   };
 
@@ -216,12 +219,24 @@ export default function ScanPage() {
       setLoading(true);
       const saleData = buildSaleRequest();
       await processSale(saleData);
+      await loadLastInvoice();
       const newInvoice = saleData.invoiceNo;
-      setInvoiceNo(newInvoice);
+      setLastSale({
+        cart,
+        subtotal,
+        discountAmount,
+        total,
+        invoiceNo: newInvoice,
+        cashReceived,
+        balance,
+        outletId,
+        date,
+      });
       setDiscountValue(0);
       toast.success(`Payment Done\nInvoice: ${newInvoice}`, {
         duration: 4000,
       });
+      setCart([]);
       await printReceipt(
         {
           cart,
@@ -237,6 +252,7 @@ export default function ScanPage() {
         "XP-80C", //shop printer
         // "XP-80C (copy 4)", //test printer
       );
+      console.log(printReceipt);
       setPaymentModalOpen(false);
     } catch (error: unknown) {
       console.error(error);
@@ -247,11 +263,26 @@ export default function ScanPage() {
     }
   };
 
+  //Load Last sale invoice
+  const loadLastInvoice = useCallback(async () => {
+    try {
+      const summary = await fetchLastSale(outletId);
+      setLastSaleSummary(summary);
+    } catch {
+      setLastSaleSummary(null);
+    }
+  }, [outletId]);
+
+  useEffect(() => {
+    loadLastInvoice();
+  }, [loadLastInvoice]);
+
   const handleCancelLastSale = async () => {
     const confirmed = confirm("Are you sure you want to cancel the last sale?");
     if (!confirmed) return;
     try {
       const sale = await cancelLastSale(outletId);
+      await loadLastInvoice();
       toast.success(`Sale ${sale.invoiceNo} cancelled successfully`, {
         duration: 4000,
       });
@@ -299,7 +330,7 @@ export default function ScanPage() {
             }}
             className="bg-blue-600 hover:bg-blue-500 text-white mr-3 rounded disabled:bg-gray-400"
           >
-            <DollarSign className="size-5 mx-auto" />
+            <DollarSign strokeWidth={2} className="size-5 mx-auto" />
             {loading ? "Processing..." : "Pay"}
           </Button>
 
@@ -308,7 +339,7 @@ export default function ScanPage() {
             onClick={() => setDiscountModalOpen(true)}
             className=" mr-3 mt-4 bg-amber-500 hover:bg-amber-600 rounded text-white"
           >
-            <Percent className="size-5 mx-auto" />
+            <Percent strokeWidth={2} className="size-5 mx-auto" />
             Discount
           </Button>
 
@@ -316,16 +347,15 @@ export default function ScanPage() {
           <Button
             onClick={() => {
               setCart([]);
-              setInvoiceNo("");
-              setDiscountValue(0);
+              setLastSale(null);
             }}
             className="bg-red-800 hover:bg-red-700"
           >
-            <ShoppingCart className="size-5 mx-auto" />
+            <ShoppingCart strokeWidth={2} className="size-5 mx-auto" />
             Clear Cart
           </Button>
         </div>
-        <div className="flex items-center my-10">
+        <div className="flex items-center ">
           <QuantityModal
             isOpen={modalOpen}
             onClose={() => {
@@ -340,7 +370,7 @@ export default function ScanPage() {
             heading="Enter Quantity"
           />
         </div>
-        <div className="flex items-center my-10">
+        <div className="flex items-center">
           <WeightModal
             isOpen={weightModalOpen}
             onClose={() => {
@@ -360,37 +390,65 @@ export default function ScanPage() {
           onClose={() => setDiscountModalOpen(false)}
           onApply={handleApplyDiscount}
         />
+
+        {/* Payment Modal */}
+        <PaymentModal
+          isOpen={paymentModalOpen}
+          total={total}
+          loading={loading}
+          onClose={() => setPaymentModalOpen(false)}
+          onConfirm={handlePaymentConfirm}
+        />
+
         <div
           id="receipt-print"
-          className="flex flex-col items-start receipt-print"
+          className="flex flex-col items-start mt-10 receipt-print"
         >
-          <PaymentModal
-            isOpen={paymentModalOpen}
-            total={total}
-            loading={loading}
-            onClose={() => setPaymentModalOpen(false)}
-            onConfirm={handlePaymentConfirm}
-          />
-          <Receipt
-            cart={cart}
-            invoiceNo={invoiceNo}
-            subtotal={subtotal}
-            discount={discountValue}
-            discountType={discountType}
-            discountAmount={discountAmount}
-            total={total}
-            cashReceived={cashReceived}
-            balance={balance}
-            outlet={outletId}
-            date={date}
-          />
-          <button
-            onClick={handleCancelLastSale}
-            className="flex gap-2 items-center hover:bg-red-700 bg-red-800 text-normal mt-5 text-white px-4 py-2 rounded"
-          >
-            <X className="size-5" />
-            Cancel Last Sale
-          </button>
+          {lastSale && (
+            <Receipt
+              cart={lastSale.cart}
+              invoiceNo={lastSale.invoiceNo}
+              subtotal={lastSale.subtotal}
+              discount={discountValue}
+              discountType={discountType}
+              discountAmount={lastSale.discountAmount}
+              total={lastSale.total}
+              cashReceived={lastSale.cashReceived}
+              balance={lastSale.balance}
+              outlet={lastSale.outletId}
+              date={lastSale.date}
+            />
+          )}
+
+          <div className="w-fit mt-2">
+            {lastSaleSummary && (
+              <>
+                <div
+                  className={`grid grid-cols-2 gap-x-2 text-normal text-gray-800 text font-medium mb-4 ${lastSaleSummary.status === "ACTIVE" ? "border-2 border-green-800 bg-green-100" : "border-2 border-red-800 bg-red-100"} px-4 py-2 rounded`}
+                >
+                  <span>Last Invoice No:</span>
+                  <span> {lastSaleSummary.invoiceNo}</span>
+                  <span>Date:</span>
+                  <span> {lastSaleSummary.date}</span>
+                  <span>Status:</span>
+                  <span
+                    className={`${lastSaleSummary.status === "ACTIVE" ? "bg-green-200 w-fit px-2 rounded text-green-700" : "bg-red-200 w-fit px-2 rounded text-red-700"}`}
+                  >
+                    {lastSaleSummary.status}
+                  </span>
+                  <span>Total(Rs.):</span>
+                  <span>{lastSaleSummary.total.toFixed(2)}</span>
+                </div>
+                <button
+                  onClick={handleCancelLastSale}
+                  className="flex gap-2 items-center hover:bg-red-700 bg-red-800 text-normal  text-white px-4 py-2 rounded"
+                >
+                  <X className="size-4" />
+                  Cancel Last Sale
+                </button>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </RoleGuard>

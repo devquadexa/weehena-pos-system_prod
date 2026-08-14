@@ -1,6 +1,7 @@
 package com.pos.pos_system_backend.controller;
 
 
+import com.pos.pos_system_backend.dto.LastSaleSummaryDto;
 import com.pos.pos_system_backend.dto.SaleRequest;
 import com.pos.pos_system_backend.entity.Sale;
 import com.pos.pos_system_backend.service.SaleService;
@@ -31,7 +32,6 @@ public class SaleController {
             @RequestParam LocalDate date,
             @RequestParam String outletId
     ) {
-
         List<Sale> sales = service.getSalesByDateAndOutletId(date, outletId);
 
         return ResponseEntity.ok(sales);
@@ -42,6 +42,12 @@ public class SaleController {
             @RequestParam String outletId
     ) {
         return service.cancelLastSale(outletId);
+    }
+
+
+    @GetMapping("/last-sale/{outletId}")
+    public ResponseEntity<LastSaleSummaryDto> getLastSale(@PathVariable String outletId) {
+        return ResponseEntity.ok(service.getLastSaleSummary(outletId));
     }
 
 

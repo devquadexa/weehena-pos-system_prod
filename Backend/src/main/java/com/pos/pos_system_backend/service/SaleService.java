@@ -1,5 +1,6 @@
 package com.pos.pos_system_backend.service;
 
+import com.pos.pos_system_backend.dto.LastSaleSummaryDto;
 import com.pos.pos_system_backend.entity.*;
 import com.pos.pos_system_backend.dto.SaleRequest;
 import com.pos.pos_system_backend.enums.PriceType;
@@ -19,7 +20,7 @@ import java.util.List;
 @Service
 public class SaleService {
 
-    private final SaleRepository repo;
+    private final SaleRepository saleRepo;
     private final StockService stockService;
     private final StockRepository stockRepo;
     private final ProductRepository productRepo;
@@ -27,8 +28,8 @@ public class SaleService {
     private static final ZoneId APP_TIME_ZONE = ZoneId.of("Asia/Colombo");
     private static final double BULK_THRESHOLD = 10;
 
-    public SaleService(SaleRepository repo, StockService stockService, StockRepository stockRepo, ProductRepository productRepo) {
-        this.repo = repo;
+    public SaleService(SaleRepository saleRepo, StockService stockService, StockRepository stockRepo, ProductRepository productRepo) {
+        this.saleRepo = saleRepo;
         this.stockService = stockService;
         this.stockRepo = stockRepo;
         this.productRepo = productRepo;
@@ -101,7 +102,7 @@ public class SaleService {
         sale.setItems(req.getItems());
 
 
-        repo.save(sale);
+        saleRepo.save(sale);
     }
 
     public List<Sale> getSalesByDateAndOutletId(LocalDate date, String outletId) {
@@ -109,14 +110,14 @@ public class SaleService {
         OffsetDateTime start = date.atStartOfDay(APP_TIME_ZONE).toOffsetDateTime();
         OffsetDateTime end = date.plusDays(1).atStartOfDay(APP_TIME_ZONE).minusNanos(1).toOffsetDateTime();
 
-        return repo.findByDateAndOutletId(start, end, outletId);
+        return saleRepo.findByDateAndOutletId(start, end, outletId);
     }
 
     @Transactional
     public Sale cancelLastSale(String outletId) {
 
         //Find latest sale
-        Sale latestSale = repo.findTopByOutletIdOrderByDateDesc(outletId)
+        Sale latestSale = saleRepo.findTopByOutletIdOrderByDateDesc(outletId)
                 .orElseThrow(() -> new RuntimeException("No sales found"));
 
         // Prevent double cancel
@@ -148,7 +149,19 @@ public class SaleService {
         // Mark cancelled
         latestSale.setStatus(SaleStatus.CANCELLED);
 
-        return repo.save(latestSale);
+        return saleRepo.save(latestSale);
+    }
+
+    public LastSaleSummaryDto getLastSaleSummary(String outletId) {
+        Sale sale = saleRepo.findTopByOutletIdOrderByDateDesc(outletId)
+                .orElseThrow(() -> new RuntimeException("No sales found for outlet: " + outletId));
+
+        return new LastSaleSummaryDto(
+                sale.getInvoiceNo(),
+                sale.getDate(),
+                sale.getStatus(),
+                sale.getTotal()
+        );
     }
 
 }
