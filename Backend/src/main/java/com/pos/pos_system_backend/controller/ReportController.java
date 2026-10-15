@@ -5,6 +5,7 @@ import com.pos.pos_system_backend.service.ReportService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.YearMonth;
 import java.util.List;
 
 @RestController
@@ -67,5 +68,14 @@ public class ReportController {
             @RequestParam String date
     ) {
         return service.getCancelledSaleItems(outletId, date);
+    }
+
+    @GetMapping("/monthly")
+    public MonthlyReportDto getMonthlyReport(
+            @RequestParam String outletId,
+            @RequestParam int year,
+            @RequestParam int month
+    ) {
+        return service.getMonthlyReport(outletId, YearMonth.of(year, month));
     }
 }

@@ -3,6 +3,7 @@ package com.pos.pos_system_backend.service;
 import com.pos.pos_system_backend.dto.*;
 import com.pos.pos_system_backend.entity.Product;
 import com.pos.pos_system_backend.entity.Stock;
+import com.pos.pos_system_backend.enums.PriceType;
 import com.pos.pos_system_backend.repository.ProductRepository;
 import com.pos.pos_system_backend.repository.SaleRepository;
 import com.pos.pos_system_backend.repository.StockRepository;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.time.YearMonth;
 import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -27,10 +29,13 @@ public class ReportService {
         return Math.round(value * 1000.0) / 1000.0;
     }
 
+    private static double round2(double value) {
+        return Math.round(value * 100.0) / 100.0;
+    }
+
     public ReportService(SaleRepository saleRepo, ProductRepository productRepo, StockRepository stockRepo) {
         this.saleRepo = saleRepo;
         this.productRepo = productRepo;
-
         this.stockRepo = stockRepo;
     }
 
@@ -137,6 +142,22 @@ public class ReportService {
 
         OffsetDateTime start = localDate.atStartOfDay(APP_TIME_ZONE).toOffsetDateTime();
         OffsetDateTime end = localDate.plusDays(1).atStartOfDay(APP_TIME_ZONE).toOffsetDateTime();
+
+        return buildStockReport(outletId, start, end);
+    }
+
+    public DayEndStockReportDto getMonthlyStockReport(String outletId, YearMonth month) {
+        OffsetDateTime start = month.atDay(1).atStartOfDay(APP_TIME_ZONE).toOffsetDateTime();
+        OffsetDateTime end = month.plusMonths(1).atDay(1).atStartOfDay(APP_TIME_ZONE).toOffsetDateTime();
+
+        return buildStockReport(outletId, start, end);
+    }
+
+    private DayEndStockReportDto buildStockReport(
+            String outletId,
+            OffsetDateTime start,
+            OffsetDateTime end
+    ) {
         OffsetDateTime now = OffsetDateTime.now(APP_TIME_ZONE);
 
         List<Product> products = productRepo.findAll();
@@ -286,5 +307,63 @@ public class ReportService {
             return dto;
 
         }).toList();
+    }
+
+    // monthly report
+    public MonthlyReportDto getMonthlyReport(String outletId, YearMonth month) {
+
+        OffsetDateTime start = month.atDay(1).atStartOfDay(APP_TIME_ZONE).toOffsetDateTime();
+        OffsetDateTime end = month.plusMonths(1).atDay(1).atStartOfDay(APP_TIME_ZONE).toOffsetDateTime();
+
+        // ---- summary (reuses the daily-report queries) ----
+        double totalSales = saleRepo.getTotalSales(outletId, start, end);
+        double totalDiscount = saleRepo.getTotalDiscount(outletId, start, end);
+        long totalTransactions = saleRepo.getTotalTransactions(outletId, start, end);
+
+        long cancelledCount = saleRepo.getCancelledSaleItems(outletId, start, end).stream()
+                .map(r -> String.valueOf(r[0]))      // invoiceNo
+                .distinct()
+                .count();
+
+        MonthlyReportDto.SalesSummary summary = new MonthlyReportDto.SalesSummary(
+                round2(totalSales),
+                round2(totalDiscount),
+                totalTransactions,
+                cancelledCount,
+                totalTransactions == 0 ? 0 : round2(totalSales / totalTransactions)
+        );
+
+        // ---- day-by-day ----
+        Map<LocalDate, double[]> dailyMap = new TreeMap<>();   // [saleCount, revenue]
+        for (Object[] r : saleRepo.getSaleDateAndTotals(outletId, start, end)) {
+            LocalDate day = ((OffsetDateTime) r[0]).atZoneSameInstant(APP_TIME_ZONE).toLocalDate();
+            double[] acc = dailyMap.computeIfAbsent(day, k -> new double[2]);
+            acc[0] += 1;
+            acc[1] += ((Number) r[1]).doubleValue();
+        }
+
+        List<MonthlyReportDto.DailySales> daily = dailyMap.entrySet().stream()
+                .map(e -> new MonthlyReportDto.DailySales(
+                        e.getKey(), (long) e.getValue()[0], round2(e.getValue()[1])))
+                .toList();
+
+        // ---- sales by product (uses the price actually charged on each sale item) ----
+        List<MonthlyReportDto.ProductSales> products = saleRepo.getMonthlyProductSales(outletId, start, end).stream()
+                .map(r -> new MonthlyReportDto.ProductSales(
+                        String.valueOf(r[0]),                         // barcode
+                        (String) r[1],                                // name
+                        (Boolean) r[2],                               // weighted
+                        (PriceType) r[3],
+//                        Boolean.TRUE.equals(r[2]),                    // weighted
+//                        String.valueOf(r[3]), //RETAIL / BULK
+                        round(((Number) r[4]).doubleValue()),         // quantity
+                        round2(((Number) r[5]).doubleValue())))       // revenue
+                .sorted(Comparator.comparingDouble(MonthlyReportDto.ProductSales::revenue).reversed())
+                .toList();
+
+        // ---- stock (same logic as day-end, month range) ----
+        DayEndStockReportDto stock = getMonthlyStockReport(outletId, month);
+
+        return new MonthlyReportDto(outletId, month.toString(), summary, daily, products, stock);
     }
 }
