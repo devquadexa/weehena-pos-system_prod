@@ -1,5 +1,9 @@
-
-import { DayEndStockReport, reportData, SoldItemsReportResponse} from "../types/Report";
+import {
+  DayEndStockReport,
+  MonthlyReport,
+  reportData,
+  SoldItemsReportResponse,
+} from "../types/Report";
 import { CancelledSaleItem } from "../types/Sale";
 
 const API_URL = "https://weehenapos360.cloud/api/reports";
@@ -85,10 +89,32 @@ export const getCancelledSales = async (
     },
   });
 
-  
   if (!res.ok) {
     const errorText = await res.text();
     throw new Error(errorText || "Failed to fetch cancelled sale items");
+  }
+
+  return res.json();
+};
+
+//Monthly Report
+export const getMonthlyReport = async (
+  year: number,
+  month: number,
+  outletId: string,
+): Promise<MonthlyReport> => {
+  const url = `${API_URL}/monthly?year=${year}&month=${month}&outletId=${outletId}`;
+
+  const token = localStorage.getItem("token");
+  const res = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(errorText || "Failed to fetch monthly report");
   }
 
   return res.json();
