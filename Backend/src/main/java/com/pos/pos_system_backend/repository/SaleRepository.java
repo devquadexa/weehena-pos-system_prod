@@ -176,41 +176,20 @@ public interface SaleRepository extends JpaRepository<Sale, Long> {
 
 
     @Query("""
-        SELECT p.barcode, p.name, p.weighted, si.priceType,
-               SUM(si.value),
-               SUM(si.value * si.unitPrice)
-        FROM SaleItem si
-        JOIN si.sale s
-        JOIN Product p ON p.barcode = si.barcode
-        WHERE s.outletId = :outletId
-          AND s.status = 'ACTIVE'
-          AND s.date >= :start AND s.date < :end
-        GROUP BY p.barcode, p.name, p.weighted, si.priceType
-        """)
+            SELECT p.barcode, p.name, p.weighted, si.priceType,
+                   SUM(si.value),
+                   SUM(si.value * si.unitPrice)
+            FROM SaleItem si
+            JOIN si.sale s
+            JOIN Product p ON p.barcode = si.barcode
+            WHERE s.outletId = :outletId
+              AND s.status = 'ACTIVE'
+              AND s.date >= :start AND s.date < :end
+            GROUP BY p.barcode, p.name, p.weighted, si.priceType
+            """)
     List<Object[]> getMonthlyProductSales(
             @Param("outletId") String outletId,
             @Param("start") OffsetDateTime start,
             @Param("end") OffsetDateTime end
     );
-
-//    @Query("""
-//    select new com.pos.pos_system_backend.dto.ItemTotals(
-//        si.barcode, si.priceType, sum(si.value), sum(si.value * si.unitPrice))
-//    from SaleItem si join si.sale s
-//    where s.outletId = :outletId and s.status = :status
-//      and s.date >= :from and s.date < :to
-//    group by si.barcode, si.priceType
-//    """)
-//    List<ItemTotals> sumItems(String outletId, SaleStatus status, OffsetDateTime from, OffsetDateTime to);
-
-//    @Query("""
-//    select new com.pos.pos_system_backend.dto.SaleRow(s.date, s.total, s.discountAmount)
-//    from Sale s
-//    where s.outletId = :outletId and s.status = :status
-//      and s.date >= :from and s.date < :to
-//    """)
-//    List<SaleRow> findSaleRows(String outletId, SaleStatus status, OffsetDateTime from, OffsetDateTime to);
-//
-//    long countByOutletIdAndStatusAndDateGreaterThanEqualAndDateLessThan(
-//            String outletId, SaleStatus status, OffsetDateTime from, OffsetDateTime to);
 }

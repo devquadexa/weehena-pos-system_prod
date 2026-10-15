@@ -11,5 +11,4 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     List<Product> findByNameContainingIgnoreCase(String name);
 
-//    List<Product> findByBarcodeIn(Collection<String> barcodes);
 }
