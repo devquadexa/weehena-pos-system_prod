@@ -33,6 +33,10 @@ public class ReportService {
         return Math.round(value * 100.0) / 100.0;
     }
 
+    private static double num(Object o) {
+        return o == null ? 0.00 : ((Number) o).doubleValue();
+    }
+
     public ReportService(SaleRepository saleRepo, ProductRepository productRepo, StockRepository stockRepo) {
         this.saleRepo = saleRepo;
         this.productRepo = productRepo;
@@ -352,12 +356,10 @@ public class ReportService {
                 .map(r -> new MonthlyReportDto.ProductSales(
                         String.valueOf(r[0]),                         // barcode
                         (String) r[1],                                // name
-                        (Boolean) r[2],                               // weighted
-                        (PriceType) r[3],
-//                        Boolean.TRUE.equals(r[2]),                    // weighted
-//                        String.valueOf(r[3]), //RETAIL / BULK
-                        round(((Number) r[4]).doubleValue()),         // quantity
-                        round2(((Number) r[5]).doubleValue())))       // revenue
+                        Boolean.TRUE.equals(r[2]),                    // weighted
+                        (PriceType) r[3],                             //RETAIL / BULK
+                        round(num(r[4])),                             // quantity
+                        round2(num(r[5]))))                           // revenue
                 .sorted(Comparator.comparingDouble(MonthlyReportDto.ProductSales::revenue).reversed())
                 .toList();
 
