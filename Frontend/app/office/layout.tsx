@@ -4,7 +4,6 @@ import Link from "next/link";
 import { ReactNode, useEffect, useEffectEvent, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
-// import AdminGuard from "../components/AdminGuard";
 import { getUserFromToken, logout } from "../services/userService";
 import {
   Box,
@@ -356,7 +355,7 @@ export default function OfficeLayout({ children }: Props) {
           }`}
         >
           <div
-            className={`bg-white p-3 sm:p-4 md:p-6 rounded-lg shadow-2xl min-w-0 ${
+            className={`mx-5 mt-5 bg-white p-3 sm:p-4 md:p-6 rounded-lg shadow-2xl min-w-0 ${
               isReportPage ? "" : "flex-1 flex flex-col min-h-0 overflow-hidden"
             }`}
           >
