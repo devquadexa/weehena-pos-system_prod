@@ -285,6 +285,26 @@ export default function ReportPage() {
           >
             Generate Daily Report
           </Button>
+
+          {/* Download */}
+          {reports.length > 0 && salesItems && (
+            <Button
+              onClick={saveReportAsPDF}
+              className=" w-full sm:w-auto print:hidden bg-green-800 hover:bg-green-700 text-white px-4 py-2"
+            >
+              Download Report
+            </Button>
+          )}
+
+          {/* Print */}
+          {reports.length > 0 && salesItems && (
+            <Button
+              onClick={printReport}
+              className="w-full sm:w-auto print:hidden bg-blue-800 hover:bg-blue-700 text-white px-4 py-2"
+            >
+              Print Report
+            </Button>
+          )}
         </div>
 
         {/* Loading */}
@@ -473,28 +493,6 @@ export default function ReportPage() {
         {!loading && (reports.length === 0 || !salesItems) && (
           <p className="mt-4 text-red-700 font-medium">No data available</p>
         )}
-
-        <div className="flex flex-col-2 gap-2 mt-6 lg:w-fit">
-          {/* Print */}
-          {reports.length > 0 && salesItems && (
-            <Button
-              onClick={printReport}
-              className="w-full sm:w-auto print:hidden bg-blue-800 hover:bg-blue-700 text-white px-4 py-2"
-            >
-              Print Report
-            </Button>
-          )}
-
-          {/* Download */}
-          {reports.length > 0 && salesItems && (
-            <Button
-              onClick={saveReportAsPDF}
-              className=" w-full sm:w-auto print:hidden bg-green-800 hover:bg-green-700 text-white px-4 py-2"
-            >
-              Download Report
-            </Button>
-          )}
-        </div>
       </div>
     </RoleGuard>
   );
