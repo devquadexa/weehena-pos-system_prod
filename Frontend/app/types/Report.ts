@@ -49,3 +49,46 @@ export interface SoldItemsReportResponse {
   nonWeighted: NonWeightedReport;
   grandTotal: number;
 }
+
+export type MonthlyStockRow = {
+  barcode: string;
+  productName: string;
+  weighted: boolean;
+  openingStock: number;
+  stockIn: number;
+  stockOut: number;
+  closingStock: number;
+};
+
+export type MonthlyDailySales = {
+  date: string;
+  saleCount: number;
+  revenue: number;
+};
+
+export type MonthlyProductSales = {
+  barcode: string;
+  productName: string;
+  weighted: boolean;
+  priceType: string;
+  quantity: number;
+  revenue: number;
+};
+
+export type MonthlyReport = {
+  outletId: string;
+  month: string;
+  summary: {
+    totalSales: number;
+    totalDiscount: number;
+    totalTransactions: number;
+    cancelledCount: number;
+    averageSale: number;
+  };
+  daily: MonthlyDailySales[];
+  products: MonthlyProductSales[];
+  stock: {
+    weightedItems: MonthlyStockRow[];
+    nonWeightedItems: MonthlyStockRow[];
+  };
+};

@@ -11,15 +11,15 @@ import java.util.List;
 public interface StockHistoryRepository extends JpaRepository<StockHistory, Long> {
 
     @Query("""
-       SELECT sh
-       FROM StockHistory sh
-       WHERE sh.outletId = :outletId
-       AND sh.changedAt BETWEEN :startDate AND :endDate
-       ORDER BY sh.changedAt DESC
-       """)
+            SELECT sh
+            FROM StockHistory sh
+            WHERE sh.outletId = :outletId
+            AND sh.changedAt BETWEEN :startDate AND :endDate
+            ORDER BY sh.changedAt DESC
+            """)
     List<StockHistory> getStockHistoryForPeriod(
             @Param("outletId") String outletId,
-          @Param("startDate") OffsetDateTime startDate,
-          @Param("endDate") OffsetDateTime endDate);
+            @Param("startDate") OffsetDateTime startDate,
+            @Param("endDate") OffsetDateTime endDate);
 }
 

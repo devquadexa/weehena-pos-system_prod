@@ -32,7 +32,7 @@ export default function StockReportPage() {
       const stockReportData = await getDayEndStockReport(date, outlet);
       console.log("Report data:", stockReportData);
       setReports(stockReportData);
-       toast.success("Day-End Stock Report generated successfully!")
+      toast.success("Day-End Stock Report generated successfully!");
     } catch (err) {
       console.error("Failed to load report:", err);
       toast.error("Failed to load report");
@@ -299,142 +299,143 @@ export default function StockReportPage() {
 
   return (
     <RoleGuard allowedRoles={["ADMIN", "MANAGER", "CASHIER"]}>
-    <div className="text-black min-w-0">
-      <div className="flex gap-2 items-center mb-4">
-        <Layers className="size-8 text-red-900" />
-        <h1 className="text-lg sm:text-xl text-red-950 font-bold  shrink-0">
-          Day-End Stock Report
-        </h1>
-      </div>
-      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center mb-6 sm:mb-10">
-        <input
-          id="date"
-          type="date"
-          value={date}
-          onChange={(e) => {
-            setDate(e.target.value);
-            setReports(null);
+      <div className="text-black min-w-0">
+        <div className="flex gap-2 items-center mb-4">
+          <Layers className="size-8 text-red-900" />
+          <h1 className="text-lg sm:text-xl text-red-950 font-bold  shrink-0">
+            Day-End Stock Report
+          </h1>
+        </div>
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center mb-6 sm:mb-10">
+          <input
+            id="date"
+            type="date"
+            value={date}
+            onChange={(e) => {
+              setDate(e.target.value);
+              setReports(null);
+            }}
+            className="w-full sm:w-auto border-2 border-red-900 text-red-900 font-medium rounded p-2"
+          />
+
+          <select
+            id="outletId"
+            value={outlet}
+            onChange={(e) => setOutlet(e.target.value)}
+            className="w-full sm:w-auto border-2 border-red-900 text-red-900 font-medium rounded p-2"
+          >
+            {outlets.map((id) => (
+              <option key={id} value={id} className="bg-red-50 text-gray-800">
+                {id}
+              </option>
+            ))}
+          </select>
+
+          <Button
+            onClick={handleFetchStockReport}
+            className="w-full sm:w-auto bg-red-700 hover:bg-red-600 text-white px-4 py-2"
+          >
+            Generate Day-End Stock Report
+          </Button>
+
+          {/* Download */}
+          {hasData && (
+            <Button
+              onClick={saveReportAsPDF}
+              className="w-full sm:w-auto print:hidden bg-green-800 hover:bg-green-700 text-white px-4 py-2"
+            >
+              Download Report
+            </Button>
+          )}
+
+          {/* Print */}
+          {hasData && (
+            <Button
+              onClick={printReport}
+              className="w-full sm:w-auto print:hidden bg-blue-800 hover:bg-blue-700 text-white px-4 py-2"
+            >
+              Print Report
+            </Button>
+          )}
+        </div>
+
+        {/* Loading */}
+        {loading && <p>Loading...</p>}
+
+        {/* Table */}
+        {!loading && reports && hasData && (
+          <div id="report-print" className="mx-auto rounded min-w-0">
+            <div className="text-gray-800 my-5 font-semibold">
+              <h1 className="text-xl sm:text-2xl wrap-break-word">
+                Day-End Stock Report of {outlet || "All Outlets"}
+              </h1>
+              <h4 className="text-gray-800 text-base sm:text-lg">{date}</h4>
+              <p className="text-sm text-gray-800">
+                Generated at:{" "}
+                {new Date().toLocaleString(undefined, {
+                  dateStyle: "medium",
+                  timeStyle: "short",
+                })}
+              </p>
+            </div>
+
+            <div className="text-gray-800 mt-6  font-semibold">
+              <h1 className="text-base">Stock Items</h1>
+            </div>
+
+            <h1 className="text-sm font-semibold text-gray-800 mt-4">
+              Sausage Stock
+            </h1>
+            <ResponsiveDataView
+              data={reports?.nonWeightedItems ?? []}
+              columns={stockReportColumns.map((col) => ({
+                ...col,
+                headerClassName:
+                  "bg-gray-200 border border-gray-800 text-gray-900",
+                cellClassName: "border border-gray-800",
+              }))}
+              getRowKey={(_, index) => index}
+              tableClassName="w-full text-xs mt-2 border border-gray-300"
+              headerRowClassName="text-xs"
+              striped={false}
+              emptyMessage="No stock report items"
+            />
+
+            <h1 className="text-sm font-semibold text-gray-800 mt-4">
+              Chicken Stock
+            </h1>
+
+            <ResponsiveDataView
+              data={reports?.weightedItems ?? []}
+              columns={stockReportColumns.map((col) => ({
+                ...col,
+                headerClassName:
+                  "bg-gray-200 border border-gray-800 text-gray-900",
+                cellClassName: "border border-gray-800",
+              }))}
+              getRowKey={(_, index) => index}
+              tableClassName="w-full text-xs mt-2 border border-gray-300"
+              headerRowClassName="text-xs"
+              striped={false}
+              emptyMessage="No stock report items"
+            />
+          </div>
+        )}
+
+        {/* Product sale modal */}
+        <ProductSaleModal
+          isOpen={showModal}
+          onClose={() => {
+            setShowModal(false);
           }}
-          className="w-full sm:w-auto border-2 border-red-900 text-red-900 font-medium rounded p-2"
+          sales={sales}
         />
 
-        <select
-          id="outletId"
-          value={outlet}
-          onChange={(e) => setOutlet(e.target.value)}
-          className="w-full sm:w-auto border-2 border-red-900 text-red-900 font-medium rounded p-2"
-        >
-          {outlets.map((id) => (
-            <option key={id} value={id} className="bg-red-50 text-gray-800">
-              {id}
-            </option>
-          ))}
-        </select>
-
-        <Button
-          onClick={handleFetchStockReport}
-          className="w-full sm:w-auto bg-red-700 hover:bg-red-600 text-white px-4 py-2"
-        >
-          Generate Day-End Stock Report
-        </Button>
-      </div>
-      {/* Loading */}
-      {loading && <p>Loading...</p>}
-      {/* Table */}
-      {!loading && reports && hasData && (
-        <div id="report-print" className="mx-auto rounded min-w-0">
-          <div className="text-gray-800 my-5 font-semibold">
-            <h1 className="text-xl sm:text-2xl wrap-break-word">
-              Day-End Stock Report of {outlet || "All Outlets"}
-            </h1>
-            <h4 className="text-gray-800 text-base sm:text-lg">{date}</h4>
-            <p className="text-sm text-gray-800">
-              Generated at:{" "}
-              {new Date().toLocaleString(undefined, {
-                dateStyle: "medium",
-                timeStyle: "short",
-              })}
-            </p>
-          </div>
-
-          <div className="text-gray-800 mt-6  font-semibold">
-            <h1 className="text-base">Stock Items</h1>
-          </div>
-
-          <h1 className="text-sm font-semibold text-gray-800 mt-4">
-            Sausage Stock
-          </h1>
-          <ResponsiveDataView
-            data={reports?.nonWeightedItems ?? []}
-            columns={stockReportColumns.map((col) => ({
-              ...col,
-              headerClassName:
-                "bg-gray-200 border border-gray-800 text-gray-900",
-              cellClassName: "border border-gray-800",
-            }))}
-            getRowKey={(_, index) => index}
-            tableClassName="w-full text-xs mt-2 border border-gray-300"
-            headerRowClassName="text-xs"
-            striped={false}
-            emptyMessage="No stock report items"
-          />
-
-          <h1 className="text-sm font-semibold text-gray-800 mt-4">
-            Chicken Stock
-          </h1>
-
-          <ResponsiveDataView
-            data={reports?.weightedItems ?? []}
-            columns={stockReportColumns.map((col) => ({
-              ...col,
-              headerClassName:
-                "bg-gray-200 border border-gray-800 text-gray-900",
-              cellClassName: "border border-gray-800",
-            }))}
-            getRowKey={(_, index) => index}
-            tableClassName="w-full text-xs mt-2 border border-gray-300"
-            headerRowClassName="text-xs"
-            striped={false}
-            emptyMessage="No stock report items"
-          />
-        </div>
-      )}
-
-      {/* Product sale modal */}
-      <ProductSaleModal
-        isOpen={showModal}
-        onClose={() => {
-          setShowModal(false);
-        }}
-        sales={sales}
-      />
-
-      {/* No Data */}
-      {!loading && !reports && !hasData && (
-        <p className="mt-4 text-red-700 font-medium">No data available</p>
-      )}
-
-      <div className="flex flex-col-2 gap-2 mt-4 lg:w-fit">
-        {/* Print */}
-        {hasData && (
-          <Button
-            onClick={printReport}
-            className="w-full sm:w-auto print:hidden bg-blue-800 hover:bg-blue-700 text-white px-4 py-2"
-          >
-            Print Report
-          </Button>
-        )}
-
-        {/* Download */}
-        {hasData && (
-          <Button
-            onClick={saveReportAsPDF}
-            className="w-full sm:w-auto print:hidden bg-green-800 hover:bg-green-700 text-white px-4 py-2"
-          >
-            Download Report
-          </Button>
+        {/* No Data */}
+        {!loading && !reports && !hasData && (
+          <p className="mt-4 text-red-700 font-medium">No data available</p>
         )}
       </div>
-    </div>
-  </RoleGuard>);
+    </RoleGuard>
+  );
 }

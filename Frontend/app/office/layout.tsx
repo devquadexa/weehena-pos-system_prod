@@ -4,7 +4,6 @@ import Link from "next/link";
 import { ReactNode, useEffect, useEffectEvent, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
-// import AdminGuard from "../components/AdminGuard";
 import { getUserFromToken, logout } from "../services/userService";
 import {
   Box,
@@ -16,6 +15,7 @@ import {
   History,
   List,
   BadgeDollarSign,
+  CalendarDays,
 } from "lucide-react";
 import RoleGuard from "../components/RoleGuard";
 
@@ -57,6 +57,11 @@ const navItems = [
         name: "Day-End Stock Report",
         path: "/reports/stockReport",
       },
+      {
+        icon: <CalendarDays className="size-4" />,
+        name: "Monthly Report",
+        path: "/reports/monthlyReport",
+      },
     ],
   },
   { icon: <UsersRound className="size-5" />, name: "Users", path: "/users" },
@@ -92,6 +97,7 @@ export default function OfficeLayout({ children }: Props) {
   });
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     updateRole();
     updateMounted();
   }, []);
@@ -100,12 +106,12 @@ export default function OfficeLayout({ children }: Props) {
   // const isAdmin = mounted && role === "ADMIN";
 
   const rolePermissions: Record<string, string[]> = {
-  CASHIER: ["Reports"],
-  ADMIN: ["Products","Stock","Reports"],
-  MANAGER: ["Products","Stock","Reports","Users"],
-};
+    CASHIER: ["Reports"],
+    ADMIN: ["Products", "Stock", "Reports"],
+    MANAGER: ["Products", "Stock", "Reports", "Users"],
+  };
 
-const allowedTopLevel = mounted ? (rolePermissions[role ?? ""] ?? []) : [];
+  const allowedTopLevel = mounted ? (rolePermissions[role ?? ""] ?? []) : [];
   const visibleNavItems = navItems
     .filter((item) => allowedTopLevel.includes(item.name))
     .map((item) => {
@@ -349,7 +355,7 @@ const allowedTopLevel = mounted ? (rolePermissions[role ?? ""] ?? []) : [];
           }`}
         >
           <div
-            className={`bg-white p-3 sm:p-4 md:p-6 rounded-lg shadow-2xl min-w-0 ${
+            className={`mx-5 mt-5 bg-white p-3 sm:p-4 md:p-6 rounded-lg shadow-2xl min-w-0 ${
               isReportPage ? "" : "flex-1 flex flex-col min-h-0 overflow-hidden"
             }`}
           >
