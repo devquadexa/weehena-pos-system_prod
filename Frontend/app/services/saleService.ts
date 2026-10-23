@@ -25,7 +25,7 @@ export const processSale = async (saleData: SaleData) => {
   return res.text();
 };
 
-export const cancelLastSale = async (outletId: string,) => {
+export const cancelLastSale = async (outletId: string) => {
   const res = await fetch(`${API_URL}/cancel-last-sale?outletId=${outletId}`, {
     method: "PUT",
   });
@@ -38,7 +38,9 @@ export const cancelLastSale = async (outletId: string,) => {
   return res.json();
 };
 
-export async function fetchLastSale(outletId: string): Promise<LastSaleSummary> {
+export async function fetchLastSale(
+  outletId: string,
+): Promise<LastSaleSummary> {
   const res = await fetch(`${API_URL}/last-sale/${outletId}`);
   if (!res.ok) throw new Error("Failed to fetch last sale");
   return res.json();

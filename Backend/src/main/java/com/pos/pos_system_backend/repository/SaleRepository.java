@@ -10,13 +10,13 @@ import java.util.List;
 import java.util.Optional;
 
 public interface SaleRepository extends JpaRepository<Sale, Long> {
-    @Query("SELECT COALESCE(" + "SUM(s.total),0) " + "FROM Sale s " + "WHERE s.outletId = :outletId AND s.status = 'ACTIVE' AND s.date BETWEEN :start AND :end")
+    @Query("SELECT COALESCE(SUM(s.total),0) FROM Sale s WHERE s.outletId = :outletId AND s.status = 'ACTIVE' AND s.date >= :start AND s.date < :end")
     double getTotalSales(@Param("outletId") String outletId, @Param("start") OffsetDateTime start, @Param("end") OffsetDateTime end);
 
-    @Query("SELECT COALESCE(" + "SUM(s.discountAmount),0) " + "FROM Sale s " + "WHERE s.outletId = :outletId AND s.status = 'ACTIVE' AND s.date BETWEEN :start AND :end")
+    @Query("SELECT COALESCE(SUM(s.discountAmount),0) FROM Sale s WHERE s.outletId = :outletId AND s.status = 'ACTIVE' AND s.date >= :start AND s.date < :end")
     double getTotalDiscount(@Param("outletId") String outletId, @Param("start") OffsetDateTime start, @Param("end") OffsetDateTime end);
 
-    @Query("SELECT COUNT(s) FROM Sale s WHERE s.outletId = :outletId AND s.status = 'ACTIVE' AND s.date BETWEEN :start AND :end")
+    @Query("SELECT COUNT(s) FROM Sale s WHERE s.outletId = :outletId AND s.status = 'ACTIVE' AND s.date >= :start AND s.date < :end")
     long getTotalTransactions(@Param("outletId") String outletId, @Param("start") OffsetDateTime start, @Param("end") OffsetDateTime end);
 
     @Query("""
@@ -163,5 +163,33 @@ public interface SaleRepository extends JpaRepository<Sale, Long> {
             OffsetDateTime end
     );
 
+    @Query("""
+            select s.date, s.total
+            from Sale s
+            where s.outletId = :outletId
+              and s.status = com.pos.pos_system_backend.enums.SaleStatus.ACTIVE
+              and s.date >= :start and s.date < :end
+            """)
+    List<Object[]> getSaleDateAndTotals(@Param("outletId") String outletId,
+                                        @Param("start") OffsetDateTime start,
+                                        @Param("end") OffsetDateTime end);
 
+
+    @Query("""
+            SELECT p.barcode, p.name, p.weighted, si.priceType,
+                   SUM(si.value),
+                   SUM(si.value * si.unitPrice)
+            FROM SaleItem si
+            JOIN si.sale s
+            JOIN Product p ON p.barcode = si.barcode
+            WHERE s.outletId = :outletId
+              AND s.status = 'ACTIVE'
+              AND s.date >= :start AND s.date < :end
+            GROUP BY p.barcode, p.name, p.weighted, si.priceType
+            """)
+    List<Object[]> getMonthlyProductSales(
+            @Param("outletId") String outletId,
+            @Param("start") OffsetDateTime start,
+            @Param("end") OffsetDateTime end
+    );
 }

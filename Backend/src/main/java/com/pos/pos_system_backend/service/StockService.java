@@ -23,14 +23,14 @@ public class StockService {
 
     private static final ZoneId APP_TIME_ZONE = ZoneId.of("Asia/Colombo");
 
-    private final StockRepository repo;
+    private final StockRepository stockRepo;
     private final ProductRepository productRepo;
 
     @Autowired
     private StockHistoryRepository stockHistoryRepository;
 
-    public StockService(StockRepository repo, ProductRepository productRepo) {
-        this.repo = repo;
+    public StockService(StockRepository stockRepo, ProductRepository productRepo) {
+        this.stockRepo = stockRepo;
         this.productRepo = productRepo;
     }
 
@@ -44,7 +44,7 @@ public class StockService {
         Product product = productRepo.findByBarcode(req.getBarcode())
                 .orElseThrow(() -> new RuntimeException("Product not found with barcode: " + req.getBarcode()));
 
-        Optional<Stock> existingStockOpt = repo.findByBarcodeAndOutletId(req.getBarcode(), req.getOutletId());
+        Optional<Stock> existingStockOpt = stockRepo.findByBarcodeAndOutletId(req.getBarcode(), req.getOutletId());
 
 
         if (existingStockOpt.isPresent()) {
@@ -86,13 +86,13 @@ public class StockService {
         stockHistoryRepository.save(history);
 
 
-        return repo.save(stock);
+        return stockRepo.save(stock);
     }
 
 
     public void reduceStock(String barcode, String outletId, double value) {
 
-        Stock stock = repo
+        Stock stock = stockRepo
                 .findByBarcodeAndOutletId(barcode, outletId)
                 .orElseThrow(() -> new RuntimeException(
                         "Stock not found for product " + barcode + " in outlet " + outletId
@@ -111,7 +111,7 @@ public class StockService {
                 );
             }
 
-            stock.setWeight(stock.getWeight() - value);
+            stock.setWeight(round(stock.getWeight() - value));
 
         } else {
             //QUANTITY LOGIC
@@ -126,21 +126,21 @@ public class StockService {
             stock.setQuantity(stock.getQuantity() - qty);
         }
 
-        repo.save(stock);
+        stockRepo.save(stock);
     }
 
 
     public List<Stock> getAllStock() {
-        return repo.findAll();
+        return stockRepo.findAll();
     }
 
     public List<Stock> getStockByOutlet(String outletId) {
-        return repo.findByOutletId(outletId);
+        return stockRepo.findByOutletId(outletId);
     }
 
     //Stock Update int qty, double weight
     public Stock updateStock(Long id, double value, String username) {
-        Optional<Stock> stockOpt = repo.findById(id);
+        Optional<Stock> stockOpt = stockRepo.findById(id);
         if (stockOpt.isEmpty()) {
             throw new RuntimeException("Stock not found with id " + id);
         }
@@ -167,9 +167,9 @@ public class StockService {
             stock.setWeight(newWeight);
 
             //update stock history
-            history.setOldStock(oldWeight);
+            history.setOldStock(round(oldWeight));
             history.setUpdatedStock(round(value));
-            history.setNewStock(newWeight);
+            history.setNewStock(round(newWeight));
 
         } else {
             //update stock Qty
@@ -182,7 +182,7 @@ public class StockService {
             history.setUpdatedStock((int) value);
             history.setNewStock(newQty);
         }
-        Stock updatedStock = repo.save(stock);
+        Stock updatedStock = stockRepo.save(stock);
         stockHistoryRepository.save(history);
 
 
@@ -190,10 +190,10 @@ public class StockService {
     }
 
     public void deleteStock(Long id) {
-        if (!repo.existsById(id)) {
+        if (!stockRepo.existsById(id)) {
             throw new RuntimeException("Stock not found with id " + id);
         }
-        repo.deleteById(id);
+        stockRepo.deleteById(id);
     }
 
 

@@ -246,255 +246,254 @@ export default function ReportPage() {
 
   return (
     <RoleGuard allowedRoles={["ADMIN", "MANAGER", "CASHIER"]}>
-    <div className="text-black min-w-0 ">
-      <div className="flex gap-2 items-center mb-4">
-        <BadgeDollarSign className="size-8 text-red-900" />
-        <h1 className="text-lg sm:text-xl text-red-950 font-bold  shrink-0">
-          Daily Sales Reports
-        </h1>
-      </div>
-
-      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center mb-6 sm:mb-10">
-        <input
-          id="date"
-          type="date"
-          value={date}
-          onChange={(e) => {
-            setDate(e.target.value);
-            setReports([]);
-          }}
-          className="w-full sm:w-auto border-2 border-red-900 text-red-900 font-medium rounded p-2"
-        />
-
-        <select
-          id="outletId"
-          value={outlet}
-          onChange={(e) => setOutlet(e.target.value)}
-          className="w-full sm:w-auto border-2 border-red-900 text-red-900 font-medium rounded p-2"
-        >
-          {outlets.map((id) => (
-            <option key={id} value={id} className="bg-red-50 text-gray-800">
-              {id}
-            </option>
-          ))}
-        </select>
-
-        <Button
-          onClick={handleFetchDailyReport}
-          className="w-full sm:w-auto bg-red-700 hover:bg-red-600 text-white px-4 py-2"
-        >
-          Generate Daily Report
-        </Button>
-      </div>
-
-      {/* Loading */}
-      {loading && <p>Loading...</p>}
-
-      {/* Table */}
-      {!loading && reports.length > 0 && salesItems && (
-        <div id="report-print" className="mx-auto rounded min-w-0">
-          <div className="text-gray-800 my-5 font-semibold">
-            <h1 className="text-xl sm:text-2xl wrap-break-word">
-              Sales Report of {outlet || "All Outlets"}
-            </h1>
-            <h4 className="text-gray-800 text-base sm:text-lg">{date}</h4>
-            <p className="text-sm text-gray-800">
-              Generated at:{" "}
-              {new Date().toLocaleString(undefined, {
-                dateStyle: "medium",
-                timeStyle: "short",
-              })}
-            </p>
-          </div>
-
-          {salesItems?.weighted?.items?.length > 0 && (
-            <div className="relative">
-              <h1 className="text-lg font-semibold text-gray-800 mt-6">
-                Sales Items
-              </h1>
-              <h1 className="text-sm font-semibold text-gray-800 mt-4">
-                Chicken Products
-              </h1>
-              <ResponsiveDataView
-                data={salesItems.weighted.items}
-                columns={salesColumns.map((col) => ({
-                  ...col,
-                  headerClassName:
-                    "bg-gray-200 border border-gray-800 text-gray-950",
-                  cellClassName: "border border-gray-800",
-                }))}
-                getRowKey={(_, index) => index}
-                tableClassName="w-full border border-gray-300 text-xs mt-2"
-                headerRowClassName="text-xs"
-                striped={false}
-                emptyMessage="No sales items"
-              />
-              <div className="absolute right-0 font-semibold text-gray-800 mt-2">
-                <p>
-                  Total Sales (Rs.) ={" "}
-                  {salesItems.weighted.totalValue.toFixed(2)}{" "}
-                </p>
-              </div>
-            </div>
-          )}
-
-          {salesItems?.nonWeighted?.retail?.items?.length > 0 && (
-            <div className="relative">
-              <h1 className="text-sm font-semibold text-gray-800 mt-4">
-                Sausage Products
-              </h1>
-              <ResponsiveDataView
-                data={salesItems.nonWeighted.retail.items}
-                columns={salesColumns.map((col) => ({
-                  ...col,
-                  headerClassName:
-                    "bg-gray-200 border border-gray-800 text-gray-950",
-                  cellClassName: "border border-gray-800",
-                }))}
-                getRowKey={(_, index) => index}
-                tableClassName="w-full border border-gray-300 text-xs mt-2"
-                headerRowClassName="text-xs"
-                striped={false}
-                emptyMessage="No sales items"
-              />
-              <div className="absolute right-0 font-semibold text-gray-800 mt-2">
-                <p>
-                  Total Sales (Rs.) ={" "}
-                  {salesItems.nonWeighted.retail.totalValue.toFixed(2)}
-                </p>
-              </div>
-            </div>
-          )}
-
-          {salesItems?.nonWeighted?.bulk?.items?.length > 0 && (
-            <div className="relative">
-              <h1 className="text-sm font-semibold text-gray-800 mt-4">
-                Sausage products (Bulk)
-              </h1>
-              <ResponsiveDataView
-                data={salesItems.nonWeighted.bulk.items}
-                columns={salesColumns.map((col) => ({
-                  ...col,
-                  headerClassName:
-                    "bg-gray-200 border border-gray-800 text-gray-950",
-                  cellClassName: "border border-gray-800",
-                }))}
-                getRowKey={(_, index) => index}
-                tableClassName="w-full border border-gray-300 text-xs mt-2"
-                headerRowClassName="text-xs"
-                striped={false}
-                emptyMessage="No sales items"
-              />
-              <div className="absolute right-0 font-semibold text-gray-800 mt-2">
-                <p>
-                  Total Sales (Rs.) ={" "}
-                  {salesItems.nonWeighted.bulk.totalValue.toFixed(2)}
-                </p>
-              </div>
-            </div>
-          )}
-
-          {cancelledSales.length > 0 && (
-            <>
-              <div className="text-gray-800 mt-6  font-semibold">
-                <h1 className="text-base">Cancelled Sales</h1>
-              </div>
-              <ResponsiveDataView
-                data={cancelledSales}
-                columns={cancelledSalesColumns.map((col) => ({
-                  ...col,
-                  headerClassName:
-                    "bg-gray-200 border border-gray-800 text-gray-950",
-                  cellClassName: "border border-gray-800",
-                }))}
-                getRowKey={(_, index) => index}
-                tableClassName="w-full border border-gray-300 text-xs mt-2"
-                headerRowClassName="text-xs"
-                striped={false}
-                emptyMessage="No cancelled sales"
-              />
-            </>
-          )}
-
-          <div className="text-gray-800 mt-6  font-semibold">
-            <h1 className="text-base">Sales Summary</h1>
-          </div>
-
-          {reports.map((r, i) => (
-            <div
-              key={i}
-              className="w-full max-w-md px-4 rounded text-gray-900 font-medium mt-2"
-            >
-              <div className="grid grid-cols-2 gap-y-2 gap-x-6 text-xs">
-                <span className="text-gray-700 font-semibold">Date :</span>
-                <span className="text-gray-900 font-medium text-right">
-                  {r.date}
-                </span>
-
-                <span className="text-gray-700 font-semibold">Outlet :</span>
-                <span className="text-gray-900 font-medium text-right">
-                  {r.outletId}
-                </span>
-
-                <span className="text-gray-700 font-semibold">
-                  Transactions :
-                </span>
-                <span className="text-gray-900 font-medium text-right">
-                  {r.totalTransactions}
-                </span>
-
-                <span className="text-gray-700 font-semibold">
-                  Total Sale Value (LKR) :
-                </span>
-                <span className="text-gray-900 font-medium text-right">
-                  {salesItems.grandTotal?.toFixed(2)}
-                </span>
-
-                <span className="text-gray-700 font-semibold">
-                  Discount (LKR) :
-                </span>
-                <span className="text-gray-900 font-medium text-right">
-                  {r.discountAmount.toFixed(2)}
-                </span>
-
-                <span className="text-gray-700 font-semibold">
-                  Net Sales (LKR) :
-                </span>
-                <span className="text-gray-900 font-medium text-right">
-                  {r.totalSales.toFixed(2)}
-                </span>
-              </div>
-            </div>
-          ))}
+      <div className="text-black min-w-0 ">
+        <div className="flex gap-2 items-center mb-4">
+          <BadgeDollarSign className="size-8 text-red-900" />
+          <h1 className="text-lg sm:text-xl text-red-950 font-bold  shrink-0">
+            Daily Sales Reports
+          </h1>
         </div>
-      )}
 
-      {/* No Data */}
-      {!loading && (reports.length === 0 || !salesItems) && (
-        <p className="mt-4 text-red-700 font-medium">No data available</p>
-      )}
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center mb-6 sm:mb-10">
+          <input
+            id="date"
+            type="date"
+            value={date}
+            onChange={(e) => {
+              setDate(e.target.value);
+              setReports([]);
+            }}
+            className="w-full sm:w-auto border-2 border-red-900 text-red-900 font-medium rounded p-2"
+          />
 
-      <div className="flex flex-col-2 gap-2 mt-6 lg:w-fit">
-        {/* Print */}
-        {reports.length > 0 && salesItems && (
-          <Button
-            onClick={printReport}
-            className="w-full sm:w-auto print:hidden bg-blue-800 hover:bg-blue-700 text-white px-4 py-2"
+          <select
+            id="outletId"
+            value={outlet}
+            onChange={(e) => setOutlet(e.target.value)}
+            className="w-full sm:w-auto border-2 border-red-900 text-red-900 font-medium rounded p-2"
           >
-            Print Report
+            {outlets.map((id) => (
+              <option key={id} value={id} className="bg-red-50 text-gray-800">
+                {id}
+              </option>
+            ))}
+          </select>
+
+          <Button
+            onClick={handleFetchDailyReport}
+            className="w-full sm:w-auto bg-red-700 hover:bg-red-600 text-white px-4 py-2"
+          >
+            Generate Daily Report
           </Button>
+
+          {/* Download */}
+          {reports.length > 0 && salesItems && (
+            <Button
+              onClick={saveReportAsPDF}
+              className=" w-full sm:w-auto print:hidden bg-green-800 hover:bg-green-700 text-white px-4 py-2"
+            >
+              Download Report
+            </Button>
+          )}
+
+          {/* Print */}
+          {reports.length > 0 && salesItems && (
+            <Button
+              onClick={printReport}
+              className="w-full sm:w-auto print:hidden bg-blue-800 hover:bg-blue-700 text-white px-4 py-2"
+            >
+              Print Report
+            </Button>
+          )}
+        </div>
+
+        {/* Loading */}
+        {loading && <p>Loading...</p>}
+
+        {/* Table */}
+        {!loading && reports.length > 0 && salesItems && (
+          <div id="report-print" className="mx-auto rounded min-w-0">
+            <div className="text-gray-800 my-5 font-semibold">
+              <h1 className="text-xl sm:text-2xl wrap-break-word">
+                Sales Report of {outlet || "All Outlets"}
+              </h1>
+              <h4 className="text-gray-800 text-base sm:text-lg">{date}</h4>
+              <p className="text-sm text-gray-800">
+                Generated at:{" "}
+                {new Date().toLocaleString(undefined, {
+                  dateStyle: "medium",
+                  timeStyle: "short",
+                })}
+              </p>
+            </div>
+
+            {salesItems?.weighted?.items?.length > 0 && (
+              <div className="relative">
+                <h1 className="text-lg font-semibold text-gray-800 mt-6">
+                  Sales Items
+                </h1>
+                <h1 className="text-sm font-semibold text-gray-800 mt-4">
+                  Chicken Products
+                </h1>
+                <ResponsiveDataView
+                  data={salesItems.weighted.items}
+                  columns={salesColumns.map((col) => ({
+                    ...col,
+                    headerClassName:
+                      "bg-gray-200 border border-gray-800 text-gray-950",
+                    cellClassName: "border border-gray-800",
+                  }))}
+                  getRowKey={(_, index) => index}
+                  tableClassName="w-full border border-gray-300 text-xs mt-2"
+                  headerRowClassName="text-xs"
+                  striped={false}
+                  emptyMessage="No sales items"
+                />
+                <div className="absolute right-0 font-semibold text-gray-800 mt-2">
+                  <p>
+                    Total Sales (Rs.) ={" "}
+                    {salesItems.weighted.totalValue.toFixed(2)}{" "}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {salesItems?.nonWeighted?.retail?.items?.length > 0 && (
+              <div className="relative">
+                <h1 className="text-sm font-semibold text-gray-800 mt-4">
+                  Sausage Products
+                </h1>
+                <ResponsiveDataView
+                  data={salesItems.nonWeighted.retail.items}
+                  columns={salesColumns.map((col) => ({
+                    ...col,
+                    headerClassName:
+                      "bg-gray-200 border border-gray-800 text-gray-950",
+                    cellClassName: "border border-gray-800",
+                  }))}
+                  getRowKey={(_, index) => index}
+                  tableClassName="w-full border border-gray-300 text-xs mt-2"
+                  headerRowClassName="text-xs"
+                  striped={false}
+                  emptyMessage="No sales items"
+                />
+                <div className="absolute right-0 font-semibold text-gray-800 mt-2">
+                  <p>
+                    Total Sales (Rs.) ={" "}
+                    {salesItems.nonWeighted.retail.totalValue.toFixed(2)}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {salesItems?.nonWeighted?.bulk?.items?.length > 0 && (
+              <div className="relative">
+                <h1 className="text-sm font-semibold text-gray-800 mt-4">
+                  Sausage products (Bulk)
+                </h1>
+                <ResponsiveDataView
+                  data={salesItems.nonWeighted.bulk.items}
+                  columns={salesColumns.map((col) => ({
+                    ...col,
+                    headerClassName:
+                      "bg-gray-200 border border-gray-800 text-gray-950",
+                    cellClassName: "border border-gray-800",
+                  }))}
+                  getRowKey={(_, index) => index}
+                  tableClassName="w-full border border-gray-300 text-xs mt-2"
+                  headerRowClassName="text-xs"
+                  striped={false}
+                  emptyMessage="No sales items"
+                />
+                <div className="absolute right-0 font-semibold text-gray-800 mt-2">
+                  <p>
+                    Total Sales (Rs.) ={" "}
+                    {salesItems.nonWeighted.bulk.totalValue.toFixed(2)}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {cancelledSales.length > 0 && (
+              <>
+                <div className="text-gray-800 mt-6  font-semibold">
+                  <h1 className="text-base">Cancelled Sales</h1>
+                </div>
+                <ResponsiveDataView
+                  data={cancelledSales}
+                  columns={cancelledSalesColumns.map((col) => ({
+                    ...col,
+                    headerClassName:
+                      "bg-gray-200 border border-gray-800 text-gray-950",
+                    cellClassName: "border border-gray-800",
+                  }))}
+                  getRowKey={(_, index) => index}
+                  tableClassName="w-full border border-gray-300 text-xs mt-2"
+                  headerRowClassName="text-xs"
+                  striped={false}
+                  emptyMessage="No cancelled sales"
+                />
+              </>
+            )}
+
+            <div className="text-gray-800 mt-6  font-semibold">
+              <h1 className="text-base">Sales Summary</h1>
+            </div>
+
+            {reports.map((r, i) => (
+              <div
+                key={i}
+                className="w-full max-w-md px-4 rounded text-gray-900 font-medium mt-2"
+              >
+                <div className="grid grid-cols-2 gap-y-2 gap-x-6 text-xs">
+                  <span className="text-gray-700 font-semibold">Date :</span>
+                  <span className="text-gray-900 font-medium text-right">
+                    {r.date}
+                  </span>
+
+                  <span className="text-gray-700 font-semibold">Outlet :</span>
+                  <span className="text-gray-900 font-medium text-right">
+                    {r.outletId}
+                  </span>
+
+                  <span className="text-gray-700 font-semibold">
+                    Transactions :
+                  </span>
+                  <span className="text-gray-900 font-medium text-right">
+                    {r.totalTransactions}
+                  </span>
+
+                  <span className="text-gray-700 font-semibold">
+                    Total Sale Value (LKR) :
+                  </span>
+                  <span className="text-gray-900 font-medium text-right">
+                    {salesItems.grandTotal?.toFixed(2)}
+                  </span>
+
+                  <span className="text-gray-700 font-semibold">
+                    Discount (LKR) :
+                  </span>
+                  <span className="text-gray-900 font-medium text-right">
+                    {r.discountAmount.toFixed(2)}
+                  </span>
+
+                  <span className="text-gray-700 font-semibold">
+                    Net Sales (LKR) :
+                  </span>
+                  <span className="text-gray-900 font-medium text-right">
+                    {r.totalSales.toFixed(2)}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
         )}
 
-        {/* Download */}
-        {reports.length > 0 && salesItems && (
-          <Button
-            onClick={saveReportAsPDF}
-            className=" w-full sm:w-auto print:hidden bg-green-800 hover:bg-green-700 text-white px-4 py-2"
-          >
-            Download Report
-          </Button>
+        {/* No Data */}
+        {!loading && (reports.length === 0 || !salesItems) && (
+          <p className="mt-4 text-red-700 font-medium">No data available</p>
         )}
       </div>
-    </div>
-  </RoleGuard>);
+    </RoleGuard>
+  );
 }
